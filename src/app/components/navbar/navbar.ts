@@ -1,11 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
-  templateUrl: './navbar.html',
-  styleUrl: './navbar.css',
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterLinkActive],
+  templateUrl: './navbar.html'
 })
 export class NavbarComponent {
+  isMenuOpen = signal(false);
 
+  toggleMenu() {
+    this.isMenuOpen.update(v => !v);
+  }
 }
