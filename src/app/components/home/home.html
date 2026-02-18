@@ -1,0 +1,29 @@
+<!-- debug tailwind -->
+<!-- <div class="bg-red-500 text-white p-10 text-2xl font-bold">IF RED => Tailwind Works, go champ</div> -->
+<!-- debug tailwind end -->
+
+<div class="bg-gray-900 shadow-xl rounded-2xl p-8 max-w-2xl mx-auto mt-10 border border-white-100">
+  <h1 class="text-4xl font-black text-purple-600 mb-2">
+    {{ nextEvent().title }}
+  </h1>
+
+  <p class="text-sm font-bold text-white uppercase tracking-widest mb-4">
+    {{ nextEvent().date }} • {{ nextEvent().location }}
+  </p>
+
+  <p class="text-white leading-relaxed mb-6">
+    {{ nextEvent().description }}
+  </p>
+
+  <div class="flex items-center justify-between">
+    <button
+      class="bg-purple-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-purple-700 transition-all"
+    >
+      Prenota Posto
+    </button>
+
+    <span class="text-sm text-white font-medium">
+      Prezzo: {{ nextEvent().price === 0 ? 'Gratis' : nextEvent().price + '€' }}
+    </span>
+  </div>
+</div>
