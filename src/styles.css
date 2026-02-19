@@ -8,5 +8,14 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  /* background-color: #000; Fondo nero di sicurezza */
+  /* bg black come easy solution ai white flash */
+  background-color: black;
+}
+
+/* gestione dei componenti per il main come blocchi */
+app-navbar,
+app-footer,
+main {
+  display: block;
+  width: 100%;
 }
