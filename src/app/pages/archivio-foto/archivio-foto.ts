@@ -22,7 +22,7 @@ export class ArchivioFotoComponent {
     { id: 3, url: '/emp_3.webp', title: 'Punk Vibes', tag: 'Stage' },
     { id: 4, url: '/emp_1.webp', title: 'Nightline', tag: 'Backstage' },
     { id: 5, url: '/emp_2.webp', title: 'Raw Emotions', tag: 'Concert' },
-    { id: 6, url: '/emp_3.webp', title: 'Nightline', tag: 'Backstage' },
+    { id: 6, url: '/emp_3.webp', title: 'Elders', tag: 'Elder Crew' },
   ]);
 
   /* REMINDER: La griglia è adattabile. Basta aggiungere oggetti all'array qui sopra.
