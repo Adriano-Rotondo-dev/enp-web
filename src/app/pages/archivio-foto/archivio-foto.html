@@ -1,20 +1,52 @@
-<div class="min-h-screen bg-black pt-32 px-8">
-  <h1 class="text-4xl font-black text-purple-500 mb-8 uppercase">Welcome to the Black Parade</h1>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div
-      class="aspect-square bg-gray-900 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 italic"
-    >
-      Foto Placeholder 1
-    </div>
-    <div
-      class="aspect-square bg-gray-900 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 italic"
-    >
-      Foto Placeholder 2
-    </div>
-    <div
-      class="aspect-square bg-gray-900 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 italic"
-    >
-      Foto Placeholder 3
-    </div>
+<div class="min-h-screen bg-black pt-32 pb-20 px-6">
+  <div class="max-w-7xl mx-auto mb-16">
+    <h1 class="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">
+      Flash<span class="text-purple-600">Backs</span>
+    </h1>
+    <div class="h-1 w-24 bg-purple-600 mt-4"></div>
+    <p class="text-gray-500 mt-6 uppercase font-bold tracking-[0.3em] text-xs">
+      Memorie digitali di una generazione che non dorme
+    </p>
+  </div>
+
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    @for (photo of photos(); track photo.id) {
+      <div
+        class="group relative overflow-hidden rounded-lg bg-gray-900 border border-white/10 aspect-4/5 cursor-crosshair"
+      >
+        <img
+          [src]="photo.url"
+          [alt]="photo.title"
+          class="w-full h-full object-cover transition-all duration-700 grayscale group-hover:grayscale-0 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+          loading="lazy"
+        />
+
+        <div
+          class="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-6"
+        >
+          <span class="text-purple-500 font-black text-xs uppercase tracking-widest mb-1">
+            // {{ photo.tag }}
+          </span>
+          <h3
+            class="text-white font-black text-3xl uppercase tracking-tighter transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
+          >
+            {{ photo.title }}
+          </h3>
+
+          <div
+            class="w-0 group-hover:w-full h-0.5 bg-purple-600 transition-all duration-700 mt-2"
+          ></div>
+        </div>
+        <!-- * Visualizzazione dell'id della foto?  -->
+        <!-- ! Cazzata da rimuovere prima della release -->
+        <!-- <div
+          class="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-3 py-1 border border-white/20"
+        >
+          <span class="text-[10px] text-white font-bold uppercase tracking-tighter"
+            >ENP_IMG_{{ photo.id }}</span
+          >
+        </div> -->
+      </div>
+    }
   </div>
 </div>

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ArchivioEventi } from './archivio-eventi';
+import { ArchivioEventiComponent } from './archivio-eventi';
 
-describe('ArchivioEventi', () => {
-  let component: ArchivioEventi;
-  let fixture: ComponentFixture<ArchivioEventi>;
+describe('ArchivioEventiComponent', () => {
+  let component: ArchivioEventiComponent;
+  let fixture: ComponentFixture<ArchivioEventiComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ArchivioEventi]
+      imports: [ArchivioEventiComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ArchivioEventi);
+    fixture = TestBed.createComponent(ArchivioEventiComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

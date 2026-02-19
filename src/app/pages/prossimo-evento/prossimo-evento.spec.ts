@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProssimoEvento } from './prossimo-evento';
+import { ProssimoEventoComponent } from './prossimo-evento';
 
 describe('ProssimoEvento', () => {
-  let component: ProssimoEvento;
-  let fixture: ComponentFixture<ProssimoEvento>;
+  let component: ProssimoEventoComponent;
+  let fixture: ComponentFixture<ProssimoEventoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProssimoEvento]
+      imports: [ProssimoEventoComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ProssimoEvento);
+    fixture = TestBed.createComponent(ProssimoEventoComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
