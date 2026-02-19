@@ -1,0 +1,81 @@
+<!-- <div class="relative h-screen w-full overflow-hidden bg-black">
+  <div class="absolute inset-0 z-0">
+    <div
+      *ngFor="let img of images; let i = index"
+      class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+      [style.opacity]="i === currentIndex() ? '1' : '0'"
+    >
+      <img [src]="img" class="object-cover w-full h-full" alt="Background" />
+
+      <div class="absolute inset-0 bg-linear-to-br from-purple-900/40 via-black/80 to-black"></div>
+    </div>
+  </div>
+
+  <div class="relative z-10 flex flex-col items-center justify-center h-full w-full px-4">
+    <div
+      class="bg-gray-900/80 backdrop-blur-md shadow-2xl rounded-2xl p-8 max-w-2xl w-full border border-white/10"
+    >
+      <h1
+        class="text-4xl md:text-5xl font-black text-purple-500 mb-2 drop-shadow-sm tracking-tight"
+      >
+        {{ nextEvent().title }}
+      </h1>
+
+      <p class="text-sm font-bold text-white uppercase tracking-widest mb-6 opacity-90">
+        {{ nextEvent().date }} • {{ nextEvent().location }}
+      </p>
+
+      <div class="flex gap-4 mb-8 text-center">
+        <div class="flex flex-col bg-white/5 p-3 rounded-lg min-w-17.5 border border-white/10">
+          <span class="text-2xl font-black text-white">{{ countdown().days }}</span>
+          <span class="text-[10px] uppercase text-purple-400 font-bold">Giorni</span>
+        </div>
+        <div class="flex flex-col bg-white/5 p-3 rounded-lg min-w-17.5 border border-white/10">
+          <span class="text-2xl font-black text-white">{{ countdown().hours }}</span>
+          <span class="text-[10px] uppercase text-purple-400 font-bold">Ore</span>
+        </div>
+        <div class="flex flex-col bg-white/5 p-3 rounded-lg min-w-17.5 border border-white/10">
+          <span class="text-2xl font-black text-white">{{ countdown().minutes }}</span>
+          <span class="text-[10px] uppercase text-purple-400 font-bold">Min</span>
+        </div>
+        <div class="flex flex-col bg-white/5 p-3 rounded-lg min-w-17.5 border border-white/10">
+          <span class="text-2xl font-black text-purple-500 animate-pulse">{{
+            countdown().seconds
+          }}</span>
+          <span class="text-[10px] uppercase text-purple-400 font-bold">Sec</span>
+        </div>
+      </div>
+
+      <p class="text-gray-200 leading-relaxed mb-8 text-lg">
+        {{ nextEvent().description }}
+      </p>
+
+      <div class="flex items-center justify-between gap-6">
+        <button
+          class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 hover:scale-105 transition-all shadow-lg shadow-purple-500/40"
+        >
+          Prenota Posto
+        </button>
+
+        <div class="flex flex-col items-end">
+          <span class="text-xs text-gray-400 uppercase font-bold tracking-tighter text-right"
+            >Ticket Intero</span
+          >
+          <span class="text-xl text-white font-black italic">
+            {{ nextEvent().price === 0 ? 'Gratis' : nextEvent().price + '€' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute bottom-10 flex gap-2">
+      <div
+        *ngFor="let img of images; let i = index"
+        [class]="
+          'h-1 w-6 rounded-full transition-all ' +
+          (i === currentIndex() ? 'bg-purple-500 w-10' : 'bg-white/20')
+        "
+      ></div>
+    </div>
+  </div>
+</div> -->

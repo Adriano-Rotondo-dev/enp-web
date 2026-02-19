@@ -12,6 +12,6 @@ export class NavbarComponent {
   isMenuOpen = signal(false);
 
   toggleMenu() {
-    this.isMenuOpen.update(v => !v);
+    this.isMenuOpen.update(val => !val);
   }
 }
