@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+
+/* Animazione per i blocchi */
+.grid > div {
+  animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.grid > div:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,46 +1,64 @@
-<div class="min-h-screen bg-black pt-32 px-8 flex flex-col items-center">
+<div class="min-h-screen bg-black pt-32 pb-20 px-6 flex flex-col items-center">
   <div class="max-w-4xl w-full">
-    <h1 class="text-5xl font-black text-white mb-2 uppercase tracking-tighter">
-      The Next <span class="text-purple-500">Chapter</span>
-    </h1>
-    <p class="text-gray-400 mb-12">Tutti i dettagli sulla prossima notte Emo a Palermo.</p>
+    <div class="border-l-8 border-white pl-6 mb-16">
+      <h1
+        class="text-6xl md:text-8xl font-black text-white mb-2 uppercase tracking-tighter italic leading-none"
+      >
+        The Next <span class="text-purple-600 italic">Chapter.</span>
+      </h1>
+      <p class="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs">
+        {{ eventData().description }}
+      </p>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-      <div class="bg-gray-900/50 p-6 rounded-2xl border border-white/10">
-        <h3 class="text-purple-400 font-bold uppercase mb-4 tracking-widest">Lineup / DJ Set</h3>
-        <ul class="text-white space-y-3">
-          <li class="flex justify-between border-b border-white/5 pb-2">
-            <span>21:30</span>
-            <span class="font-bold text-purple-200">Opening & Pop-Punk warmup</span>
-          </li>
-          <li class="flex justify-between border-b border-white/5 pb-2">
-            <span>23:00</span> <span class="font-bold text-purple-200">Emo Core Main Set</span>
-          </li>
-          <li class="flex justify-between">
-            <span>01:00</span>
-            <span class="font-bold text-purple-200">Screamo & Nostalgic Closing</span>
-          </li>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+      <div class="bg-white p-8 shadow-[12px_12px_0px_0px_#9333ea] border-2 border-white">
+        <h3
+          class="text-black font-black uppercase text-2xl mb-8 italic border-b-4 border-purple-600 inline-block"
+        >
+          Lineup // DJ Set
+        </h3>
+        <ul class="space-y-6">
+          @for (item of eventData().lineup; track item.time) {
+            <li class="flex flex-col border-b border-black/10 pb-2">
+              <span class="text-purple-600 font-black text-xs tracking-widest">{{
+                item.time
+              }}</span>
+              <span class="text-black font-black uppercase text-lg leading-tight">{{
+                item.act
+              }}</span>
+            </li>
+          }
         </ul>
       </div>
 
-      <div
-        class="bg-gray-900/50 p-8 rounded-2xl border border-white/10 flex flex-col justify-center items-center text-center transition-all hover:border-purple-500/50 group"
-      >
+      <div class="flex flex-col gap-6">
         <div
-          class="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(147,51,234,0.5)] group-hover:scale-110 transition-transform duration-300"
+          class="bg-purple-600 p-10 flex flex-col items-center text-center shadow-[12px_12px_0px_0px_rgba(255,255,255,0.1)]"
         >
-          <span class="text-2xl">📍</span>
+          <div class="text-5xl mb-6 animate-pulse">📍</div>
+          <h3
+            class="text-white font-black text-4xl tracking-tighter uppercase italic leading-none mb-2"
+          >
+            {{ eventData().location }}
+          </h3>
+          <p class="text-purple-200 font-bold text-sm mb-8 uppercase tracking-tight">
+            {{ eventData().address }}
+          </p>
+
+          <button
+            (click)="openMaps()"
+            class="w-full bg-white text-black font-black py-4 uppercase tracking-tighter text-xl hover:bg-black hover:text-white transition-all transform hover:-translate-y-1 active:translate-y-0"
+          >
+            Apri in Maps
+          </button>
         </div>
 
-        <h3 class="text-white font-black text-2xl tracking-tighter uppercase">MindHouse</h3>
-        <p class="text-gray-400 text-sm mb-6">Via San Lorenzo, 273/A, Palermo</p>
-
-        <button
-          (click)="openMaps()"
-          class="relative inline-flex items-center justify-center px-6 py-2.5 overflow-hidden font-bold text-purple-400 transition-all duration-300 bg-transparent border-2 border-purple-500 rounded-full cursor-pointer group/btn hover:text-white hover:bg-purple-600 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)] active:scale-95"
-        >
-          <span class="relative uppercase text-[10px] tracking-[0.2em]"> Apri in Maps </span>
-        </button>
+        <div class="border-2 border-dashed border-white/20 p-6 flex items-center justify-center">
+          <span class="text-gray-600 font-black uppercase text-[10px] tracking-[0.4em]">
+            More info coming soon
+          </span>
+        </div>
       </div>
     </div>
   </div>
