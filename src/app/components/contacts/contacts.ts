@@ -30,11 +30,18 @@ export class ContactsComponent {
   sendRequest() {
     //* Check di sicurezza extra
     if (this.songForm.invalid || this.isSending) return;
-
     this.isSending = true;
-    
+ 
+    const requestData = {
+    ...this.songForm.getRawValue(),
+    eventDate: '2026-02-21', // TODO: Recuperare data del prossimo evento dal DB
+    timestamp: new Date().toISOString()
+  };
+
     //* Logica di invio 
     //todo:creazione di mail per la gestione delle request ->EMAILJS 
+
+    
     //!rischiamo spam a mai finire? ->integrazione di un rate limiting/captcha
     //niente server
     // questo console.log sarà con la funzione di EMAILJS
