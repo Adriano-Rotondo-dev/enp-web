@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms'; // Aggiungi FormGroup se serve tipizzare
+import { FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms'; 
 
 @Component({
   selector: 'app-contacts',
@@ -18,7 +18,7 @@ export class ContactsComponent {
     { name: 'Whatsapp', link: '#', handle: 'Emo Night Palermo' }
   ];
 
-  // Fix 1: Usa nonNullable per evitare errori di tipo nel template
+  //* fix type safety-> nonNullable
   songForm = this.fb.nonNullable.group({
     userEmail: ['', [Validators.required, Validators.email]],
     songRequest: ['', [Validators.required, Validators.minLength(3)]]
@@ -28,16 +28,16 @@ export class ContactsComponent {
   sentStatus: 'idle' | 'success' | 'error' = 'idle';
 
   sendRequest() {
-    // Check di sicurezza extra
+    //* Check di sicurezza extra
     if (this.songForm.invalid || this.isSending) return;
 
     this.isSending = true;
     
-    // Logica di invio 
+    //* Logica di invio 
     //todo:creazione di mail per la gestione delle request ->EMAILJS 
-    //!rischiamo spam a mai finire?
-    //* niente server, npm i della libreria di riferimento
-    //* questo console.log va sostituito con la funzione di EMAILJS
+    //!rischiamo spam a mai finire? ->integrazione di un rate limiting/captcha
+    //niente server
+    // questo console.log sarà con la funzione di EMAILJS
     console.log('Invio richiesta a: music-requests@emonightpalermo.it', this.songForm.getRawValue());
 
     setTimeout(() => {
