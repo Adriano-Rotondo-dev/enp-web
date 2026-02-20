@@ -23,7 +23,7 @@ export class DashboardComponent {
   activeTab = signal<'evento' | 'archivio' | 'richieste'>('evento');
 
   // State per il form del nuovo evento in archivio
-  // Valori placeholder 
+  //* Valori placeholder!!
   newArchiveEvent = signal<EnpEvent>({
     id: 9, // Esempio: il prossimo dopo l'8
     vol: 'VOL. 8',
@@ -89,7 +89,7 @@ onFileSelected(event: any) {
     // Per la preview nella Dashboard:
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      // Aggiorniamo il segnale con il Base64 per la preview immediata
+      //aggiornamento del segnale con Base64 per la preview
       this.newArchiveEvent.update(ev => ({
         ...ev,
         posterUrl: e.target.result
