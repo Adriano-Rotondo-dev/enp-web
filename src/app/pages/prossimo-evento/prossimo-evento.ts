@@ -3,17 +3,20 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-prossimo-evento',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './prossimo-evento.html',
   styleUrl: './prossimo-evento.css',
 })
 export class ProssimoEventoComponent {
-  // TODO: release futura - caricamento dei dati tramite database
+  //TODO: release futura - caricamenti dati tramite database/cambiamento dati tramite dashboard->database->front
   eventData = signal({
     title: 'The Next Chapter',
+    date: '2026-02-21',
+    time: '21:30',      
     location: 'MindHouse',
     address: 'Via San Lorenzo, 273/A, Palermo',
-    mapsUrl: 'https://www.google.com/maps/search/MindHouse+Palermo',
+    mapsUrl: 'https://maps.app.goo.gl/3fX8N7z9z9z9z9z9z',
     description: 'Tutti i dettagli sulla prossima Emo Night Palermo.',
     lineup: [
       { time: '21:30', act: 'Opening & warmup' },

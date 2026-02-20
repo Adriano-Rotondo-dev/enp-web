@@ -1,0 +1,284 @@
+<div class="min-h-screen bg-black text-white flex font-mono">
+  <aside class="w-72 border-r border-white/10 flex flex-col p-8 bg-[#050505]">
+    <div class="mb-12">
+      <h2 class="text-purple-600 font-black text-2xl tracking-tighter italic leading-none">
+        ENP_ADMIN
+      </h2>
+      <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-2 italic">
+        Backstage_Access
+      </p>
+    </div>
+
+    <nav class="flex flex-col gap-6">
+      <button
+        (click)="activeTab.set('evento')"
+        [class.text-purple-500]="activeTab() === 'evento'"
+        class="text-left uppercase font-black text-sm text-gray-500 hover:text-white transition-all tracking-tighter"
+      >
+        [ 01 ] Prossimo Evento
+      </button>
+      <button
+        (click)="activeTab.set('archivio')"
+        [class.text-purple-500]="activeTab() === 'archivio'"
+        class="text-left uppercase font-black text-sm text-gray-500 hover:text-white transition-all tracking-tighter"
+      >
+        [ 02 ] Gestione Archivio
+      </button>
+      <button
+        (click)="activeTab.set('richieste')"
+        [class.text-purple-500]="activeTab() === 'richieste'"
+        class="text-left uppercase font-black text-sm text-gray-500 hover:text-white transition-all tracking-tighter"
+      >
+        [ 03 ] Song Requests
+      </button>
+    </nav>
+  </aside>
+
+  <main class="flex-1 p-12 overflow-y-auto">
+    @if (activeTab() === 'evento') {
+      <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <header class="mb-12 border-b-4 border-white pb-4 pt-6">
+          <h1 class="text-5xl font-black uppercase italic tracking-tighter leading-none">
+            Edit_Event
+          </h1>
+          <p class="text-gray-500 text-xs mt-4 uppercase font-bold tracking-widest">
+            // Pannello di controllo stage
+          </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div class="space-y-6">
+            <h3
+              class="text-purple-500 font-bold uppercase text-[10px] tracking-[0.4em] mb-4 italic"
+            >
+              Main_Info
+            </h3>
+
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Titolo Evento</label
+              >
+              <input
+                [(ngModel)]="eventData().title"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-2">
+                <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                  >Data</label
+                >
+                <input
+                  type="date"
+                  [(ngModel)]="eventData().date"
+                  class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600 invert brightness-200"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                  >Orario Inizio</label
+                >
+                <input
+                  type="time"
+                  [(ngModel)]="eventData().time"
+                  class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600 invert brightness-200"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Location Name</label
+              >
+              <input
+                [(ngModel)]="eventData().location"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              />
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Indirizzo</label
+              >
+              <input
+                [(ngModel)]="eventData().address"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <h3
+              class="text-purple-500 font-bold uppercase text-[10px] tracking-[0.4em] mb-4 italic"
+            >
+              Live_Lineup
+            </h3>
+
+            <div class="bg-white/5 border border-white/10 p-6 space-y-4">
+              @for (item of eventData().lineup; track $index) {
+                <div class="flex gap-2 items-center">
+                  <input
+                    [(ngModel)]="item.time"
+                    class="w-20 text-center font-bold text-purple-500 bg-transparent border-b border-white/20 py-1 outline-none"
+                  />
+                  <input
+                    [(ngModel)]="item.act"
+                    class="flex-1 bg-transparent border-b border-white/20 py-1 outline-none text-xs uppercase"
+                  />
+                </div>
+              }
+            </div>
+
+            <div class="flex flex-col gap-2 pt-4">
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Descrizione_Evento</label
+              >
+              <textarea
+                [(ngModel)]="eventData().description"
+                rows="3"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              ></textarea>
+            </div>
+
+            <button
+              (click)="saveCurrentEvent()"
+              class="w-full bg-purple-600 text-white font-black py-4 uppercase tracking-[0.2em] shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)] hover:bg-white hover:text-black transition-all"
+            >
+              UPDATE_STAGE_INFO
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'archivio') {
+      <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <header class="mb-12 border-b-4 border-white pb-4 pt-6">
+          <h1 class="text-5xl font-black uppercase italic tracking-tighter leading-none">
+            Archive_Manager
+          </h1>
+          <p class="text-gray-500 text-xs mt-4 uppercase font-bold tracking-widest">
+            // Aggiungi una Night passata al database
+          </p>
+        </header>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-10 bg-white/5 p-8 border border-white/10 shadow-[10px_10px_0px_0px_rgba(147,51,234,0.1)]"
+        >
+          <div class="space-y-6">
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
+                >Volume Serata</label
+              >
+              <input
+                [(ngModel)]="newArchiveEvent().vol"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              />
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
+                >Nome Evento</label
+              >
+              <input
+                [(ngModel)]="newArchiveEvent().name"
+                placeholder="Esempio: Night of Rebellion"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              />
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
+                >Data (es. 15 GEN)</label
+              >
+              <input
+                [(ngModel)]="newArchiveEvent().date"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600 uppercase"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
+                >Descrizione (Short)</label
+              >
+              <textarea
+                [(ngModel)]="newArchiveEvent().description"
+                rows="4"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              ></textarea>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest">
+                Carica Poster_ (WebP/JPG)
+              </label>
+
+              <!-- Caricamento Poster Img locale -->
+
+              <div class="relative group">
+                <input
+                  type="file"
+                  #fileInput
+                  (change)="onFileSelected($event)"
+                  accept="image/*"
+                  class="hidden"
+                />
+
+                <button
+                  (click)="fileInput.click()"
+                  class="w-full bg-black border border-dashed border-white/30 p-4 text-[10px] text-gray-500 hover:border-purple-600 hover:text-white transition-all flex flex-col items-center gap-2"
+                >
+                  <span class="text-xl">📁</span>
+                  {{
+                    newArchiveEvent().posterUrl.startsWith('data:')
+                      ? 'FILE_CARICATO.webp'
+                      : 'SELECT_IMAGE_FILE'
+                  }}
+                </button>
+              </div>
+            </div>
+
+            <button
+              (click)="saveToArchive()"
+              class="w-full bg-white text-black font-black py-4 uppercase tracking-[0.2em] hover:bg-purple-600 hover:text-white transition-all transform active:scale-95"
+            >
+              PUSH_TO_HISTORY
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-16">
+          <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-6 italic">
+            // Live_Preview_Card
+          </h4>
+          <div
+            class="border-2 border-white/20 p-6 inline-block min-w-300px relative overflow-hidden"
+          >
+            <span class="bg-purple-600 text-white px-3 py-1 text-sm font-black uppercase">{{
+              newArchiveEvent().vol
+            }}</span>
+            <h3 class="text-2xl font-black mt-4 uppercase">
+              {{ newArchiveEvent().name || 'Nome_Evento' }}
+            </h3>
+            <p class="text-purple-500 font-bold text-xs mt-1">
+              {{ newArchiveEvent().date || 'Data_?' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'richieste') {
+      <div
+        class="animate-in fade-in duration-500 text-center py-20 border-2 border-dashed border-white/10"
+      >
+        <p class="text-gray-500 font-black uppercase tracking-widest">
+          In attesa di richieste dal moshpit...
+        </p>
+      </div>
+    }
+  </main>
+</div>

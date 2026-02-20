@@ -6,9 +6,31 @@
       >
         The Next <span class="text-purple-600 italic">Chapter.</span>
       </h1>
-      <p class="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs">
+      <p class="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs mb-8">
         {{ eventData().description }}
       </p>
+
+      <div class="flex flex-wrap gap-4 mt-6">
+        <div
+          class="bg-white text-black px-6 py-3 shadow-[6px_6px_0px_0px_#9333ea] border-2 border-white transform -rotate-1"
+        >
+          <span class="text-[10px] font-black uppercase block leading-none opacity-50">Data_</span>
+          <span class="text-2xl font-black uppercase tracking-tighter">{{
+            eventData().date | date: 'dd.MM.yy'
+          }}</span>
+        </div>
+
+        <div
+          class="border-2 border-purple-600 bg-black text-white px-6 py-3 shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] transform rotate-1"
+        >
+          <span class="text-[10px] font-black text-purple-600 uppercase block leading-none"
+            >Doors_</span
+          >
+          <span class="text-2xl font-black uppercase tracking-tighter italic">{{
+            eventData().time
+          }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
