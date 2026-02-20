@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+//TODO: aggiungere computed signals 
+
 interface EnpEvent {
   id: number;
   vol: string;
@@ -17,6 +19,9 @@ interface EnpEvent {
   templateUrl: './archivio-eventi.html'
 })
 export class ArchivioEventiComponent {
+  // todo: trasformare l'array in un computed 
+  //* assicurarsi che l'ordine venga mantenuto anche con inserimenti disordinati dal back
+  //? ordinamento per data invece che per id -> string date -> object Date -> confronto 
   events = signal<EnpEvent[]>([  
       {
       id: 8,
@@ -83,4 +88,7 @@ export class ArchivioEventiComponent {
       posterUrl: '/poster_placeholder.webp'
     }
   ]);
+
+  //todo: ordinamento inverso da inserire col Computed Signal
+  //* sort((a, b) => b.id - a.id)
 }

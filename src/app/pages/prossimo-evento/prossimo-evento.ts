@@ -18,7 +18,8 @@ export class ProssimoEventoComponent {
     lineup: [
       { time: '21:30', act: 'Opening & warmup' },
       { time: '22:30', act: ' Main Set con CyberBoy' },
-      { time: '01:00', act: 'Dj Set & Closing Act' }
+      { time: '00:00', act: 'Dj Set'},
+      { time: '01:30', act: 'Closing Act'}
     ]
   });
 
