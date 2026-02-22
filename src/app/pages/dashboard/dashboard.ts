@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 interface EnpEvent {
@@ -18,7 +18,14 @@ interface EnpEvent {
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
-export class DashboardComponent {
+
+export class DashboardComponent implements OnInit{
+
+//logica di sicurezza ed SSR
+  isClient = false;
+  isAuthorized = false;
+  private platformId = inject(PLATFORM_ID);
+ 
   // Stato della navigazione interna alla dashboard
   activeTab = signal<'evento' | 'archivio' | 'richieste'>('evento');
 
@@ -54,6 +61,16 @@ export class DashboardComponent {
     ]
   });
 
+ngOnInit() {
+    // Verifica se siamo nel browser ->evita il "flash" della dashboard in SSR
+    if (isPlatformBrowser(this.platformId)) {
+      this.isClient = true;
+      this.isAuthorized = sessionStorage.getItem('enp_access_granted') === 'true';
+    }
+  }
+
+
+  // metodi Action
   saveToArchive(){
     const data = this.newArchiveEvent();
 

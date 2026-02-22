@@ -6,7 +6,7 @@ export const authGuard = () => {
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID)
 
-// Se siamo sul server, blocchiamo il rendering della Dashboard
+// Se siamo sul server, blocca il rendering della Dashboard
   if (!isPlatformBrowser(platformId)) {
     return false; 
   }

@@ -11,7 +11,7 @@
       Enter Access <span class="text-purple-600">Key_</span>
     </h2>
 
-    <form (ngSubmit)="handleLogin()" class="space-y-6">
+    <form (ngSubmit)="login()" class="space-y-6">
       <div class="relative">
         <input
           type="password"
@@ -22,26 +22,34 @@
           [disabled]="isLoading()"
         />
 
-        <p *ngIf="errorMessage()" class="text-red-500 text-[10px] mt-2 font-bold animate-pulse">
-          {{ errorMessage() }}
-        </p>
+        @if (errorMessage()) {
+          <p
+            class="text-red-500 text-[10px] mt-2 font-bold animate-pulse uppercase tracking-widest"
+          >
+            {{ errorMessage() }}
+          </p>
+        }
       </div>
 
       <button
         type="submit"
         [disabled]="isLoading() || !password()"
+        (click)="login()"
         class="w-full py-4 bg-white text-black font-extrabold uppercase text-xs tracking-widest hover:bg-purple-600 hover:text-white transition-all disabled:opacity-20"
       >
-        <span *ngIf="!isLoading()">Initialize Session</span>
-        <span *ngIf="isLoading()" class="animate-ping">. . .</span>
+        @if (!isLoading()) {
+          <span>Initialize Session</span>
+        } @else {
+          <span class="animate-ping">. . .</span>
+        }
       </button>
     </form>
   </div>
 
   <a
     routerLink="/"
-    class="mt-12 text-gray-700 hover:text-white text-[10px] uppercase tracking-widest transition-colors"
+    class="mt-12 text-gray-700 hover:text-white text-[10px] uppercase tracking-widest transition-colors cursor-pointer"
   >
-    ← Abort Session
+    ← Return Home
   </a>
 </div>

@@ -12,21 +12,22 @@ import { authGuard } from './auth-guard';
 //! CHECK NAMES  
 
 export const routes: Routes = [
-  
-{ path: '', component: HomeComponent },
-
+  { path: '', component: HomeComponent },
   { path: 'prossimo-evento', component: ProssimoEventoComponent },
   { path: 'archivio-foto', component: ArchivioFotoComponent },
   { path: 'archivio-eventi', component: ArchivioEventiComponent },
   { path: 'chi-siamo', component: ChiSiamoComponent },
   { path: 'contact-us', component: ContactsComponent},
   {path: 'backstage', component: BackstageComponent},
+
+  //protected routes
   { path: 'backstage/dashboard',
     component: DashboardComponent,
     canActivate: [authGuard]
    },
+
 //ERROR HANDLING AND REDIRECT 
+  {path: 'dashboard', redirectTo: 'backstage', pathMatch:'full'},
   { path: '404', component: NotFoundComponent },
-  { path: '**', redirectTo: '404' },
-  {path: 'dashboard', redirectTo: 'backstage', pathMatch:'full'}
+  { path: '**', redirectTo: '404' }
 ]

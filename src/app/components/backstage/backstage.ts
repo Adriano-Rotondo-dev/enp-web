@@ -2,12 +2,12 @@ import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-backstage',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './backstage.html',
   styleUrls: ['./backstage.css']
 })
@@ -18,14 +18,15 @@ export class BackstageComponent {
 
   private platformId = inject(PLATFORM_ID);
 
+  
   constructor(private router: Router) {}
 
-  handleLogin() {
+  login() {
     this.isLoading.set(true);
     this.errorMessage.set('') //reset errore
 //controllo credenziali
     setTimeout(() => {
-      if (this.password() === 'emo-night-2026') { // Password dummy
+      if (this.password() === 'emo') { // Password dummy
         // Controllo di sicurezza per SSR
       if (isPlatformBrowser(this.platformId)) {
         //token di accesso

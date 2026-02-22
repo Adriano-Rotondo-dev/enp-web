@@ -13,3 +13,14 @@
     color: #9333ea;
   }
 }
+
+button {
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Extra - light shadow on text while hovering on btn */
+button:hover {
+  text-shadow: 2px 2px #000;
+}

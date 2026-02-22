@@ -1,6 +1,7 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
+import { Component, signal, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common'; 
 import { EnpEvent } from '../../models/event.model'; 
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -10,33 +11,39 @@ import { EnpEvent } from '../../models/event.model';
   styleUrl: './home.css'      
 })
 export class HomeComponent implements OnInit, OnDestroy {
+
+  constructor(private router: Router) {} //inietta il router
+  goToNextEventPage(){
+    this.router.navigate(['/prossimo-evento'])
+  }
+
+  private platformId = inject(PLATFORM_ID);
+
   images = ['/emp_1.webp', '/emp_2.webp', '/emp_3.webp'];
   currentIndex = signal(0);
-  
-  // Data target definita una sola volta per performance 
-  private readonly targetDate = new Date('2026-02-21T21:30:00').getTime();
   
   private carouselTimer: any;
   private countdownTimer: any;
 
   countdown = signal({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
+  //data in formato ISO
   nextEvent = signal<EnpEvent>({
     id: "1",
     title: 'Emo Night Palermo',
-    date: '21 Febbraio 2026',
+    date: '2026-05-09T21:30:00', //ISO: YYYY-MM-DDTHH:mm:ss
     location: 'MindHouse, Palermo',
-    description: 'Emo Anime Night',
+    description: 'Emo Night',
     price: 7
   });
 
   ngOnInit() {
-    // Timer Carosello (5 secondi)
-    this.carouselTimer = setInterval(() => this.nextImage(), 5000);
-
-    // Timer Countdown 
-    this.updateCountdown(); 
-    this.countdownTimer = setInterval(() => this.updateCountdown(), 1000);
+if (isPlatformBrowser(this.platformId)) {
+      this.carouselTimer = setInterval(() => this.nextImage(), 5000);
+      
+      this.updateCountdown(); 
+      this.countdownTimer = setInterval(() => this.updateCountdown(), 1000);
+    }
   }
 
   ngOnDestroy() {
@@ -49,14 +56,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentIndex.update(index => (index + 1) % this.images.length);
   }
 
+  
   updateCountdown() {
-    const now = new Date().getTime();
-    const diff = this.targetDate - now;
+   const target = new Date(this.nextEvent().date).getTime();
+   const now = new Date().getTime();
+   const diff = target - now;
 
-    if (diff <= 0) {
-      // evento iniziato -> ferma il countdown -> ricomincia
+    // Se la data è invalida o passata
+    if (isNaN(target) || diff <= 0) {
       this.countdown.set({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      if (this.countdownTimer) clearInterval(this.countdownTimer);
       return;
     }
 
