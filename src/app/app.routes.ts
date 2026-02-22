@@ -8,6 +8,7 @@ import { ContactsComponent } from './components/contacts/contacts';
 import { BackstageComponent } from './components/backstage/backstage';
 import { NotFoundComponent } from './components/not-found/not-found';
 import { DashboardComponent } from './pages/dashboard/dashboard';
+import { authGuard } from './auth-guard';
 //! CHECK NAMES  
 
 export const routes: Routes = [
@@ -20,9 +21,12 @@ export const routes: Routes = [
   { path: 'chi-siamo', component: ChiSiamoComponent },
   { path: 'contact-us', component: ContactsComponent},
   {path: 'backstage', component: BackstageComponent},
-  { path: 'backstage/dashboard', component: DashboardComponent },
-//ERROR HANDLING URL
+  { path: 'backstage/dashboard',
+    component: DashboardComponent,
+    canActivate: [authGuard]
+   },
+//ERROR HANDLING AND REDIRECT 
   { path: '404', component: NotFoundComponent },
-  { path: '**', redirectTo: '404' }
- 
+  { path: '**', redirectTo: '404' },
+  {path: 'dashboard', redirectTo: 'backstage', pathMatch:'full'}
 ]

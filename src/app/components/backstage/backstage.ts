@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,17 +16,25 @@ export class BackstageComponent {
   errorMessage = signal('');
   isLoading = signal(false);
 
+  private platformId = inject(PLATFORM_ID);
+
   constructor(private router: Router) {}
 
   handleLogin() {
     this.isLoading.set(true);
-    
-    // Simulazione controllo credenziali
+    this.errorMessage.set('') //reset errore
+//controllo credenziali
     setTimeout(() => {
       if (this.password() === 'emo-night-2026') { // Password dummy
+        // Controllo di sicurezza per SSR
+      if (isPlatformBrowser(this.platformId)) {
+        //token di accesso
+        sessionStorage.setItem('enp_access_granted', 'true')
+      }
         console.log('Accesso autorizzato');
-        //TODO: token di sessione - prossimo lavoro
         this.isLoading.set(false);
+        //rendirizzamento alla route
+        this.router.navigate(['/backstage/dashboard'])
       } else {
         this.errorMessage.set('ACCESS DENIED. WRONG KEY.');
         this.isLoading.set(false);

@@ -22,6 +22,9 @@ export class DashboardComponent {
   // Stato della navigazione interna alla dashboard
   activeTab = signal<'evento' | 'archivio' | 'richieste'>('evento');
 
+  // Memorizzazione del file fisico
+  selectedFile: File | null = null;
+
   // State per il form del nuovo evento in archivio
   //* Valori placeholder!!
   newArchiveEvent = signal<EnpEvent>({
@@ -59,9 +62,11 @@ export class DashboardComponent {
       alert('ERRORE: Nome, Volume e Data sono obbligatori per l\'archivio');
       return;
     }
-    console.log('Pushing to DB...', data)
+    //* data.posterUrl contiene il base64 per la preview
+    //* selectedFile contiene il file da mandare al PHP
+    console.log('Pushing to DB...', { ...data, rawFile: this.selectedFile });
 
-    //TODO: richiamare il service php per l'insert nel DB
+    //? richiamare il service php per l'insert nel DB
     alert(`Volume ${data.vol} aggiunto con successo al DB di ENP.`)
 
 //form reset
@@ -72,7 +77,9 @@ this.newArchiveEvent.set({
   date: '',
   description: '',
   posterUrl: '/poster_placeholder.webp'
- })
+})
+// Reset del file
+this.selectedFile = null; 
 }
 
 onFileSelected(event: any) {
@@ -86,13 +93,17 @@ onFileSelected(event: any) {
       return;
     }
 
+    // salvataggio del file
+    this.selectedFile = file 
+
     // Per la preview nella Dashboard:
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      //aggiornamento del segnale con Base64 per la preview
+      // aggiornamento del segnale con Base64 per la preview, work in progress 
+      // l'img non carica correttamente al momento, revisione necessaria con il backend funzionante
       this.newArchiveEvent.update(ev => ({
         ...ev,
-        posterUrl: e.target.result
+        posterUrl: e.target.result as string //esplicito, debugging 
       }));
     };
     reader.readAsDataURL(file);
