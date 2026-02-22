@@ -35,7 +35,7 @@ export class BackstageComponent {
         console.log('Accesso autorizzato');
         this.isLoading.set(false);
         //rendirizzamento alla route
-        this.router.navigate(['/backstage/dashboard'])
+        this.router.navigate(['/backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_'])
       } else {
         this.errorMessage.set('ACCESS DENIED. WRONG KEY.');
         this.isLoading.set(false);
