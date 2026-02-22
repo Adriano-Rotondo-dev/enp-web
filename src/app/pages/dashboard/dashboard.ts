@@ -1,6 +1,7 @@
 import { Component, signal, inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from  '@angular/router';
 
 interface EnpEvent {
   id: number;
@@ -20,6 +21,15 @@ interface EnpEvent {
 })
 
 export class DashboardComponent implements OnInit{
+
+constructor(private router: Router){} 
+
+logout(){
+  if (isPlatformBrowser(this.platformId)) {
+    sessionStorage.removeItem('enp_access_granted');
+    this.router.navigate(['/backstage'])
+  }
+}
 
 //logica di sicurezza ed SSR
   isClient = false;

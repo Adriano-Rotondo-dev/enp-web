@@ -27,7 +27,7 @@ export const routes: Routes = [
    },
 
 //ERROR HANDLING AND REDIRECT 
-  {path: 'dashboard', redirectTo: 'backstage', pathMatch:'full'},
+  {path: 'dashboard', redirectTo: '/backstage', pathMatch:'full'},
   { path: '404', component: NotFoundComponent },
   { path: '**', redirectTo: '404' }
 ]
