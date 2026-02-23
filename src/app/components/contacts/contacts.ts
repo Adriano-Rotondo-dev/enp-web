@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms'; 
-
+import { EventService } from '../../services/event.service';
 @Component({
   selector: 'app-contacts',
   standalone: true,
@@ -10,6 +10,10 @@ import { FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 })
 export class ContactsComponent {
   private fb = inject(FormBuilder);
+  private eventService = inject(EventService);
+  private lastSentAt: number = 0;
+  private COOLDOWN_MS = 30000 // 30 secs cd
+
 
   socials = [
     { name: 'Instagram', link: 'https://instagram.com/emonightpalermo', handle: '@emonightpalermo' },
@@ -27,22 +31,19 @@ export class ContactsComponent {
   isSending = false;
   sentStatus: 'idle' | 'success' | 'error' = 'idle';
 
-  sendRequest() {
-    //* Check di sicurezza extra
-    if (this.songForm.invalid || this.isSending) return;
-    this.isSending = true;
- 
-    const requestData = {
-    ...this.songForm.getRawValue(),
-    eventDate: '2026-02-21', // TODO: Recuperare data del prossimo evento dal DB
-    timestamp: new Date().toISOString()
-  };
+   sendRequest() {
+  if (this.songForm.invalid || this.isSending) return;
 
+  const now = Date.now();
+  if (now - this.lastSentAt < this.COOLDOWN_MS) {
+    alert('Aspetta qualche secondo prima di inviare un\'altra richiesta.');
+    return;
+  }
+  this.isSending = true;
+  this.lastSentAt = now;
     //* Logica di invio 
-    //todo:creazione di mail per la gestione delle request ->EMAILJS 
-
-    
-    //!rischiamo spam a mai finire? ->integrazione di un rate limiting/captcha
+    //todo:creazione di mail per la gestione delle request ->EMAILJS    
+    //!rischiamo spam a mai finire? ->integrazione di un rate limiting/captcha nel back end
     //niente server
     // questo console.log sarà con la funzione di EMAILJS
     console.log('Invio richiesta a: music-requests@emonightpalermo.it', this.songForm.getRawValue());
@@ -56,13 +57,15 @@ export class ContactsComponent {
     }, 1500);
   }
 
-  copyEmail() {
-  //TODO: gestione della mail, al momento è una mail proxy
-    navigator.clipboard.writeText('info@emonightpalermo.it').then(() => {
-       console.log('Email copiata');
-       
-    });
-  }
+  // in contacts.ts
+emailCopied = false;
+
+copyEmail() {
+  navigator.clipboard.writeText('info@emonightpalermo.it').then(() => {
+    this.emailCopied = true;
+    setTimeout(() => this.emailCopied = false, 2000);
+  });
+}
   isEasterEgg(): boolean {
   const value = this.songForm.get('songRequest')?.value?.toLowerCase() || '';
   const cults = [

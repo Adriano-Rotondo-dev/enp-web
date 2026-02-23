@@ -1,23 +1,15 @@
-import { inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router, CanActivateFn } from '@angular/router';
+import { AuthService } from './services/auth.service';
 
-export const authGuard = () => {
+export const authGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
   const router = inject(Router);
-  const platformId = inject(PLATFORM_ID)
 
-// Se siamo sul server, blocca il rendering della Dashboard
-  if (!isPlatformBrowser(platformId)) {
-    return false; 
-  }
-
-  // se realmente nel browser
-  const isAuthenticated = sessionStorage.getItem('enp_access_granted') === 'true';
-
-  if (isAuthenticated) {
+  if (auth.isAuthenticated()) {
     return true;
-  } else {
-    router.navigate(['/backstage']); // Se non sei autorizzato, torni al form
-    return false;
   }
+
+  router.navigate(['/backstage']);
+  return false;
 };

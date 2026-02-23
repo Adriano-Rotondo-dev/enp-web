@@ -7,7 +7,6 @@ import{ ProssimoEventoComponent } from './pages/prossimo-evento/prossimo-evento'
 import { ContactsComponent } from './components/contacts/contacts';
 import { BackstageComponent } from './components/backstage/backstage';
 import { NotFoundComponent } from './components/not-found/not-found';
-import { DashboardComponent } from './pages/dashboard/dashboard';
 import { authGuard } from './auth-guard';
 //! CHECK NAMES  
 
@@ -22,7 +21,7 @@ export const routes: Routes = [
 
   //protected routes
   { path: 'backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_',
-    loadComponent: () => import ('./pages/dashboard/dashboard').then(m => DashboardComponent),
+    loadComponent: () => import ('./pages/dashboard/dashboard').then(m => m.DashboardComponent),
     canActivate: [authGuard]
    },
 

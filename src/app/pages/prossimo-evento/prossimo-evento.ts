@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { EventService } from '../../services/event.service';
 
 @Component({
   selector: 'app-prossimo-evento',
@@ -8,29 +9,21 @@ import { CommonModule } from '@angular/common';
   templateUrl: './prossimo-evento.html',
   styleUrl: './prossimo-evento.css',
 })
-export class ProssimoEventoComponent {
-  //TODO: release futura - caricamenti dati tramite database/cambiamento dati tramite dashboard->database->front
-  eventData = signal({
-    title: 'The Next Chapter',
-    date: '2026-05-9',
-    time: '21:30',      
-    location: 'MindHouse',
-    address: 'Via San Lorenzo, 273/A, Palermo',
-    mapsUrl: 'https://maps.app.goo.gl/3fX8N7z9z9z9z9z9z',
-    description: 'Tutti i dettagli sulla prossima Emo Night Palermo.',
-    lineup: [
-      { time: '21:30', act: 'Opening & warmup' },
-      { time: '22:30', act: ' Main Set' },
-      { time: '00:00', act: 'Dj Set'},
-      { time: '01:30', act: 'Closing Act'}
-    ]
-  });
+export class ProssimoEventoComponent implements OnInit {
+  private eventService = inject(EventService);
+
+  // Legge direttamente il segnale del service — reattivo automaticamente
+  eventData = this.eventService.nextEvent;
+
+  ngOnInit() {
+    // Carica i dati (mock o backend, trasparente)
+    this.eventService.loadNextEvent().subscribe();
+  }
 
   openMaps() {
     window.open(this.eventData().mapsUrl, '_blank');
   }
 }
-
 
 
 //TODO: future release

@@ -1,12 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface EnpPhoto {
-  id: number;
-  url: string;
-  title: string;
-  tag: string;
-}
+import { EventService } from '../../services/event.service';
 
 @Component({
   selector: 'app-archivio-foto',
@@ -15,17 +9,14 @@ interface EnpPhoto {
   templateUrl: './archivio-foto.html'
 })
 export class ArchivioFotoComponent {
-  // Signal che contiene i placeholder. 
-  photos = signal<EnpPhoto[]>([
-    { id: 1, url: '/emp_1.webp', title: 'Moshpit Vol. 1', tag: 'MindHouse' },
-    { id: 2, url: '/emp_2.webp', title: 'Sad Souls', tag: 'Crowd' },
-    { id: 3, url: '/emp_3.webp', title: 'Punk Vibes', tag: 'Stage' },
-    { id: 4, url: '/emp_1.webp', title: 'Nightline', tag: 'Backstage' },
-    { id: 5, url: '/emp_2.webp', title: 'Raw Emotions', tag: 'Concert' },
-    { id: 6, url: '/emp_3.webp', title: 'Elders', tag: 'Elder Crew' },
-  ]);
+    // Segnale "sorgente" privato
+  private eventService = inject(EventService);
 
-  /* REMINDER: La griglia è adattabile. Basta aggiungere oggetti all'array qui sopra.
-     TODO: Collegamento al backend/DB per il caricamento dinamico delle foto.
-  */
+  photos = this.eventService.photos;
+
+  ngOnInit() {
+    this.eventService.loadPhotos().subscribe();
+  }
+
+  
 }
