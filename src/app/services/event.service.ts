@@ -12,7 +12,7 @@ export class EventService {
   private apiUrl = 'https://backend/api';
   private http = inject(HttpClient);
 
-  // ─── DATI MOCK ─────────────────────────────────────────────────
+  // ─── DATI MOCK ───
 
   private mockNextEvent: NextEvent = {
     id: '1',
@@ -21,7 +21,7 @@ export class EventService {
     time: '21:30',
     location: 'MindHouse',
     address: 'Via San Lorenzo, 273/A, Palermo',
-    mapsUrl: 'https://maps.app.goo.gl/3fX8N7z9z9z9z9z9z',
+    mapsUrl: 'https://maps.google.com/?cid=14345277083304058247&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
     description: 'Tutti i dettagli sulla prossima Emo Night Palermo.',
     price: 7,
     lineup: [
@@ -33,6 +33,7 @@ export class EventService {
   };
 
   private mockArchiveEvents: ArchiveEvent[] = [
+    { id: 9, vol: 'VOL. 8', name:'NIGHT OF ANIME', date: '21 FEB', description: 'Anime Night with Cyber, CosplayNight and more.', posterUrl: '/poster_placeholder.webp' },
     { id: 8, vol: 'VOL. 7', name: 'NIGHT OF XMAS', date: '19 DIC', description: 'Cold weather for REFRAINED.', posterUrl: '/poster_placeholder.webp' },
     { id: 7, vol: 'VOL. 6', name: 'NIGHT OF HALLOWEEN 2.0', date: '25 OTT', description: 'This is Halloween, everybody make a SCREAM with Nihil', posterUrl: '/poster_placeholder.webp' },
     { id: 6, vol: 'VOL. 5', name: 'NIGHT OF COMICON', date: '14 SET', description: 'Expanding our influence. Yuriko Tiger Dj', posterUrl: '/poster_placeholder.webp' },
@@ -52,13 +53,13 @@ export class EventService {
     { id: 6, url: '/emp_3.webp', title: 'Elders', tag: 'Elder Crew', eventDate:'x', author:'x' }
   ];
 
-  // ─── SEGNALI CENTRALI ──────────────────────────────────────────
+  // ─── SEGNALI CENTRALI ───
 
   nextEvent = signal<NextEvent>(this.mockNextEvent);
   archiveEvents = signal<ArchiveEvent[]>(this.mockArchiveEvents);
   photos = signal<EnpPhoto[]>(this.mockPhotos);
 
-  // ─── NEXT EVENT ────────────────────────────────────────────────
+  // ─── NEXT EVENT ───
 
   loadNextEvent(): Observable<NextEvent> {
     if (this.USE_BACKEND) {
@@ -85,7 +86,7 @@ export class EventService {
     return of({ success: true });
   }
 
-  // ─── ARCHIVE EVENTS ────────────────────────────────────────────
+  // ─── ARCHIVE EVENTS ───
 
   loadArchiveEvents(): Observable<ArchiveEvent[]> {
     if (this.USE_BACKEND) {
@@ -148,7 +149,7 @@ deleteArchiveEvent(id: number): Observable<any> {
   return of({ success: true });
 }
 
-  // ─── PHOTOS ────────────────────────────────────────────────────
+  // ─── PHOTOS ───
 
   loadPhotos(): Observable<EnpPhoto[]> {
     if (this.USE_BACKEND) {
