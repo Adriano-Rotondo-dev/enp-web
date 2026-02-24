@@ -25,15 +25,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   private carouselTimer: any;
   private countdownTimer: any;
 
-  ngOnInit() {
-    this.eventService.loadNextEvent().subscribe(); // carica dati
-
-    if (isPlatformBrowser(this.platformId)) {
-      this.carouselTimer = setInterval(() => this.nextImage(), 5000);
-      this.updateCountdown();
-      this.countdownTimer = setInterval(() => this.updateCountdown(), 1000);
-    }
+ngOnInit() {
+  if (isPlatformBrowser(this.platformId)) {
+    this.eventService.loadNextEvent().subscribe();
+    this.carouselTimer = setInterval(() => this.nextImage(), 5000);
+    this.updateCountdown();
+    this.countdownTimer = setInterval(() => this.updateCountdown(), 1000);
   }
+}
 
   ngOnDestroy() {
     if (this.carouselTimer) clearInterval(this.carouselTimer);

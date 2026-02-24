@@ -42,6 +42,7 @@ editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ url: '',
   // ─── STATO UI ─────────────────────────────────────────────────
   isSaving = signal(false);
   saveError = signal('');
+  isConfirmingLogout = signal(false);
 
   // ─── FORM ARCHIVIO EVENTI ─────────────────────────────────────
   selectedFile: File | null = null;
@@ -79,9 +80,24 @@ editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ url: '',
 }
   // ─── LOGOUT ───────────────────────────────────────────────────
 
-  logout() {
+logout() {
+  if (!this.isConfirmingLogout()) {
+    // Click once -> confirm logout?
+    this.isConfirmingLogout.set(true);
+    this.playSystemSound(440, 'square');
+    
+    // Reset automatico dopo 5 secondi se non riceve un altro click
+    setTimeout(() => {
+    if (this.isConfirmingLogout()) {
+        this.isConfirmingLogout.set(false);
+      }
+    }, 5000);
+  } else {
+    // Click twice -> confirm logout
+    this.playSystemSound(220, 'sawtooth');
     this.auth.logout();
   }
+}
 
   // ─── EVENTO PRINCIPALE ────────────────────────────────────────
 
@@ -266,4 +282,23 @@ private resetPhotoForm() {
   this.photoPreviewUrl.set('');
   this.selectedPhotoFile = null;
   }
+
+  // ─── SYSTEM SOUND ──────────────────────────────────────────────────
+  private playSystemSound(frequency: number, type: OscillatorType = 'square') {
+  const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+  
+  gain.gain.setValueAtTime(0.1, context.currentTime); // Volume basso
+  gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
+
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.1);
+}
 }

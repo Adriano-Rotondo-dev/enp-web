@@ -12,16 +12,28 @@
     </h2>
 
     <form (ngSubmit)="login()" class="space-y-6">
+      <!-- hidden username _keeps browsers happy -->
+      <input
+        type="text"
+        name="username"
+        value="admin"
+        autocomplete="username"
+        class="hidden"
+        style="display: none"
+      />
+      <!-- password -->
       <div class="relative">
         <input
           type="password"
-          [(ngModel)]="password"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
           name="password"
+          autocomplete="current-password"
           placeholder="••••••••"
           class="w-full bg-black/40 border-b-2 border-white/20 p-4 text-white placeholder:text-white/10 focus:outline-none focus:border-purple-600 transition-all tracking-[0.5em]"
           [disabled]="isLoading()"
         />
-
+        <!-- error message  -->
         @if (errorMessage()) {
           <p
             class="text-red-500 text-[10px] mt-2 font-bold animate-pulse uppercase tracking-widest"
@@ -30,11 +42,10 @@
           </p>
         }
       </div>
-
+      <!-- submit to send password via form -->
       <button
         type="submit"
         [disabled]="isLoading() || !password()"
-        (click)="login()"
         class="w-full py-4 bg-white text-black font-extrabold uppercase text-xs tracking-widest hover:bg-purple-600 hover:text-white transition-all disabled:opacity-20"
       >
         @if (!isLoading()) {

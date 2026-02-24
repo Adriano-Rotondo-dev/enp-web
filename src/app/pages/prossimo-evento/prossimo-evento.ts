@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { EventService } from '../../services/event.service';
 
 @Component({
@@ -11,13 +11,16 @@ import { EventService } from '../../services/event.service';
 })
 export class ProssimoEventoComponent implements OnInit {
   private eventService = inject(EventService);
+  private platformId = inject(PLATFORM_ID);
 
   // Legge direttamente il segnale del service — reattivo automaticamente
   eventData = this.eventService.nextEvent;
 
   ngOnInit() {
     // Carica i dati (mock o backend, trasparente)
+     if (isPlatformBrowser(this.platformId)) {
     this.eventService.loadNextEvent().subscribe();
+    }
   }
 
   openMaps() {

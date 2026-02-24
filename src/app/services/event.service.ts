@@ -8,8 +8,8 @@ import { NextEvent, ArchiveEvent, EnpPhoto } from '../models/event.model';
 export class EventService {
 
   //! Unica riga da cambiare quando il backend è pronto
-  private USE_BACKEND = false;
-  private apiUrl = 'https://backend/api';
+  private USE_BACKEND = true;
+  private apiUrl = 'http://localhost/enp-backend/public';
   private http = inject(HttpClient);
 
   // ─── DATI MOCK ───
