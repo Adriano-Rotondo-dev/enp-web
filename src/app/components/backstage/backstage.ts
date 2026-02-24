@@ -1,13 +1,13 @@
-import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-backstage',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './backstage.html',
   styleUrls: ['./backstage.css']
 })
@@ -16,31 +16,25 @@ export class BackstageComponent {
   errorMessage = signal('');
   isLoading = signal(false);
 
-  private platformId = inject(PLATFORM_ID);
-
-  
-  constructor(private router: Router) {}
+  private auth = inject(AuthService);
+  private router = inject(Router);
 
   login() {
+    if (!this.password()) return;
+
     this.isLoading.set(true);
-    this.errorMessage.set('') //reset errore
-//controllo credenziali
-    setTimeout(() => {
-      if (this.password() === 'emo') { // Password dummy
-        // Controllo di sicurezza per SSR
-      if (isPlatformBrowser(this.platformId)) {
-        //token di accesso
-        sessionStorage.setItem('enp_access_granted', 'true')
-      }
-        console.log('Accesso autorizzato');
+    this.errorMessage.set('');
+
+    this.auth.login(this.password()).subscribe({
+      next: () => {
         this.isLoading.set(false);
-        //rendirizzamento alla route
-        this.router.navigate(['/backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_'])
-      } else {
+        this.router.navigate(['/backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_']);
+      },
+      error: () => {
         this.errorMessage.set('ACCESS DENIED. WRONG KEY.');
         this.isLoading.set(false);
         this.password.set('');
       }
-    }, 1000);
+    });
   }
 }

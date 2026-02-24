@@ -9,8 +9,8 @@ import { tap, catchError } from 'rxjs/operators';
 export class AuthService {
 
   // ← Unica riga da cambiare quando il backend è pronto
-  private USE_BACKEND = false;
-  private apiUrl = 'https://tuo-dominio.it/api';
+  private USE_BACKEND = true;
+  private apiUrl = 'http://localhost/enp-backend/public';
 
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
