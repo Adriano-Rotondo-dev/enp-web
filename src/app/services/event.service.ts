@@ -195,19 +195,20 @@ deleteArchiveEvent(id: number): Observable<any> {
 
    // ─── SONG REQUEST ───
 
-   submitSongRequest(userEmail: string, songRequest: string, eventId: string): Observable<any> {
+ submitSongRequest(userEmail: string, songRequest: string, eventId: string): Observable<any> {
   if (this.USE_BACKEND) {
-    return this.http.post(`${this.apiUrl}/submit-song-request.php`, {
-      userEmail,
-      songRequest,
-      eventId
+    const body = new URLSearchParams();
+    body.set('userEmail', userEmail);
+    body.set('songRequest', songRequest);
+    body.set('eventId', eventId);
+
+    return this.http.post(`${this.apiUrl}/submit-song-request.php`, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
   }
-  // Mock
   console.log('Mock song request:', { userEmail, songRequest, eventId });
   return of({ success: true });
 }
-
 loadSongRequests(): Observable<SongRequest[]> {
   if (this.USE_BACKEND) {
     return this.http.get<SongRequest[]>(`${this.apiUrl}/get-song-requests.php`).pipe(
