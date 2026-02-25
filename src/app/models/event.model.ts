@@ -33,3 +33,13 @@ export interface EnpPhoto {
   eventDate?: string;
   author?: string;
 }
+
+export interface SongRequest {
+  id: number;
+  event_id: number | null;
+  user_email: string;
+  song_request: string;
+  requested_at: string;
+  status: 'pending' | 'played' | 'rejected';
+  event_title?: string;
+}

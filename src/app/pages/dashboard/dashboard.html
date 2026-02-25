@@ -39,6 +39,14 @@
         [ 03 ] Archivio Foto
       </button>
 
+      <button
+        (click)="activeTab.set('richieste')"
+        [class.text-purple-500]="activeTab() === 'richieste'"
+        class="text-left uppercase font-black text-sm text-gray-500 hover:text-white transition-all tracking-tighter"
+      >
+        [ 04 ] Song Requests
+      </button>
+
       <!-- TERMINATE SESSION  -->
       <button
         (click)="logout()"
@@ -551,6 +559,60 @@
             <p class="text-gray-600 text-[10px] uppercase tracking-widest italic">
               // Nessuna foto in archivio.
             </p>
+          }
+        </div>
+      </div>
+    }
+    @if (activeTab() === 'richieste') {
+      <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <header class="mb-12 border-b-4 border-white pb-4 pt-6">
+          <h1 class="text-5xl font-black uppercase italic tracking-tighter leading-none">
+            Song_Requests
+          </h1>
+          <p class="text-gray-500 text-xs mt-4 uppercase font-bold tracking-widest">
+            // Richieste musicali dal pubblico
+          </p>
+        </header>
+
+        @if (songRequests().length === 0) {
+          <p class="text-gray-600 text-[10px] uppercase tracking-widest italic">
+            // Nessuna richiesta ricevuta.
+          </p>
+        }
+
+        <div class="space-y-3">
+          @for (req of songRequests(); track req.id) {
+            <div
+              class="flex items-center justify-between border p-4 transition-all"
+              [class.border-white/10]="req.status === 'pending'"
+              [class.border-purple-600/30]="req.status === 'played'"
+              [class.border-red-900/30]="req.status === 'rejected'"
+              [class.opacity-50]="req.status !== 'pending'"
+            >
+              <div>
+                <p class="text-white font-black uppercase text-sm">{{ req.song_request }}</p>
+                <p class="text-gray-500 text-[10px] uppercase tracking-widest mt-1">
+                  {{ req.user_email }} — {{ req.requested_at | date: 'dd/MM HH:mm' }}
+                </p>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  (click)="updateRequestStatus(req.id, 'played')"
+                  [disabled]="req.status === 'played'"
+                  class="text-[10px] font-black uppercase tracking-widest text-purple-500 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  [ PLAYED ]
+                </button>
+                <button
+                  (click)="updateRequestStatus(req.id, 'rejected')"
+                  [disabled]="req.status === 'rejected'"
+                  class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  [ SKIP ]
+                </button>
+              </div>
+            </div>
           }
         </div>
       </div>

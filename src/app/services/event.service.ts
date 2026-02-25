@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { NextEvent, ArchiveEvent, EnpPhoto } from '../models/event.model';
+import { NextEvent, ArchiveEvent, EnpPhoto, SongRequest } from '../models/event.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
@@ -58,6 +58,7 @@ export class EventService {
   nextEvent = signal<NextEvent>(this.mockNextEvent);
   archiveEvents = signal<ArchiveEvent[]>(this.mockArchiveEvents);
   photos = signal<EnpPhoto[]>(this.mockPhotos);
+  songRequests = signal<SongRequest[]>([])
 
   // ─── NEXT EVENT ───
 
@@ -191,4 +192,47 @@ deleteArchiveEvent(id: number): Observable<any> {
     this.photos.update(photos => photos.filter(p => p.id !== id));
     return of({ success: true });
   }
+
+   // ─── SONG REQUEST ───
+
+   submitSongRequest(userEmail: string, songRequest: string, eventId: string): Observable<any> {
+  if (this.USE_BACKEND) {
+    return this.http.post(`${this.apiUrl}/submit-song-request.php`, {
+      userEmail,
+      songRequest,
+      eventId
+    });
+  }
+  // Mock
+  console.log('Mock song request:', { userEmail, songRequest, eventId });
+  return of({ success: true });
+}
+
+loadSongRequests(): Observable<SongRequest[]> {
+  if (this.USE_BACKEND) {
+    return this.http.get<SongRequest[]>(`${this.apiUrl}/get-song-requests.php`).pipe(
+      tap(requests => this.songRequests.set(requests)),
+      catchError(() => of([]))
+    );
+  }
+  return of([]);
+}
+
+updateSongRequestStatus(id: number, status: 'pending' | 'played' | 'rejected'): Observable<any> {
+  if (this.USE_BACKEND) {
+    return this.http.post(`${this.apiUrl}/update-song-request.php`, { id, status }).pipe(
+      tap(() => {
+        this.songRequests.update(requests =>
+          requests.map(r => r.id === id ? { ...r, status } : r)
+        );
+      }),
+      catchError(err => { throw err; })
+    );
+  }
+  this.songRequests.update(requests =>
+    requests.map(r => r.id === id ? { ...r, status } : r)
+  );
+  return of({ success: true });
+}
+
 }

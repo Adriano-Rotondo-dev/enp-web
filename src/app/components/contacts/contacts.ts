@@ -40,21 +40,28 @@ export class ContactsComponent {
   }
   this.isSending = true;
   this.lastSentAt = now;
-    //* Logica di invio 
-    //todo:creazione di mail per la gestione delle request ->EMAILJS    
-    //!rischiamo spam a mai finire? ->integrazione di un rate limiting/captcha nel back end
-    //niente server
-    // questo console.log sarà con la funzione di EMAILJS
-    console.log('Invio richiesta a: music-requests@emonightpalermo.it', this.songForm.getRawValue());
+  
+  const { userEmail, songRequest } = this.songForm.getRawValue();
+  const eventId = this.eventService.nextEvent().id;
 
-    setTimeout(() => {
+  this.eventService.submitSongRequest(userEmail, songRequest, eventId).subscribe({
+    next: () => {
       this.isSending = false;
       this.sentStatus = 'success';
       this.songForm.reset();
-      
       setTimeout(() => this.sentStatus = 'idle', 3000);
-    }, 1500);
-  }
+    },
+    error: (err) => {
+      this.isSending = false;
+      if (err.status === 429) {
+        alert('Hai già inviato troppe richieste per questo evento.');
+      } else {
+        this.sentStatus = 'error';
+        setTimeout(() => this.sentStatus = 'idle', 3000);
+      }
+    }
+  });
+}
 
   // in contacts.ts
 emailCopied = false;

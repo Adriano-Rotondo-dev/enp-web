@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { EventService } from '../../services/event.service';
-import { ArchiveEvent, EnpPhoto, NextEvent } from '../../models/event.model';
+import { ArchiveEvent, EnpPhoto, NextEvent, SongRequest } from '../../models/event.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +27,7 @@ export class DashboardComponent implements OnInit {
   // ─── SEGNALI DAL SERVICE ───────────────────────────────────────
   eventData = this.eventService.nextEvent;
   photos = this.eventService.photos;
+  songRequests = this.eventService.songRequests; 
 
 // Copia locale editabile per il form — evita il problema del ngModel sui segnali
 editableEvent = signal<NextEvent>({ ...this.eventService.nextEvent() });
@@ -37,7 +38,7 @@ editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ url: '',
   author:'' });
 
   // ─── NAVIGAZIONE INTERNA ───────────────────────────────────────
-  activeTab = signal<'evento' | 'archivio' | 'foto'>('evento');
+ activeTab = signal<'evento' | 'archivio' | 'foto' | 'richieste'>('evento');
 
   // ─── STATO UI ─────────────────────────────────────────────────
   isSaving = signal(false);
@@ -66,7 +67,7 @@ editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ url: '',
     tag: ''
   });
 
-  // ──────────────────────────────────────────────────────────────
+  // ─── ngOnInit ───
 
   ngOnInit() {
     if (!this.auth.isAuthenticated()) {
@@ -77,8 +78,9 @@ editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ url: '',
   });
 
   this.eventService.loadPhotos().subscribe();
+  this.eventService.loadSongRequests().subscribe();
 }
-  // ─── LOGOUT ───────────────────────────────────────────────────
+  // ─── LOGOUT ───
 
 logout() {
   if (!this.isConfirmingLogout()) {
@@ -116,6 +118,14 @@ logout() {
     }
   });
 }
+
+// ─── SONG REQUEST ──
+
+  updateRequestStatus(id: number, status: 'pending' | 'played' | 'rejected') {
+    this.eventService.updateSongRequestStatus(id, status).subscribe({
+      error: () => this.saveError.set('Errore aggiornamento status.')
+    });
+  }
 
   // ─── ARCHIVIO EVENTI ──────────────────────────────────────────
 
