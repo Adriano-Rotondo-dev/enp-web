@@ -533,6 +533,7 @@
                   <img
                     [src]="photo.url"
                     [alt]="photo.title"
+                    [loading]="$first ? 'eager' : 'lazy'"
                     class="w-full h-32 object-cover opacity-50"
                   />
 

@@ -1,18 +1,19 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms'; 
 import { EventService } from '../../services/event.service';
+import { ToastService } from '../../services/toast.service';
 @Component({
   selector: 'app-contacts',
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './contacts.html'
 })
-export class ContactsComponent {
+export class ContactsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
   private lastSentAt: number = 0;
   private COOLDOWN_MS = 30000 // 30 secs cd
-
+  private toast = inject(ToastService)
 
   socials = [
     { name: 'Instagram', link: 'https://instagram.com/emonightpalermo', handle: '@emonightpalermo' },
@@ -20,6 +21,10 @@ export class ContactsComponent {
     { name: 'Telegram', link: '#', handle: 'Emo Night Palermo' },
     { name: 'Whatsapp', link: '#', handle: 'Emo Night Palermo' }
   ];
+
+ ngOnInit() {
+    this.eventService.loadNextEvent().subscribe();
+  }
 
   //* fix type safety-> nonNullable
   songForm = this.fb.nonNullable.group({
@@ -35,7 +40,7 @@ export class ContactsComponent {
 
   const now = Date.now();
   if (now - this.lastSentAt < this.COOLDOWN_MS) {
-    alert('Aspetta qualche secondo prima di inviare un\'altra richiesta.');
+    this.toast.info('Aspetta qualche secondo prima di inviare un\'altra richiesta.');
     return;
   }
   this.isSending = true;
@@ -54,7 +59,7 @@ export class ContactsComponent {
     error: (err) => {
       this.isSending = false;
       if (err.status === 429) {
-        alert('Hai già inviato troppe richieste per questo evento.');
+        this.toast.error('Hai già inviato troppe richieste per questo evento.');
       } else {
         this.sentStatus = 'error';
         setTimeout(() => this.sentStatus = 'idle', 3000);

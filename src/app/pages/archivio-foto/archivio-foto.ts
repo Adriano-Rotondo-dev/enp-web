@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventService } from '../../services/event.service';
 
@@ -8,7 +8,7 @@ import { EventService } from '../../services/event.service';
   imports: [CommonModule],
   templateUrl: './archivio-foto.html'
 })
-export class ArchivioFotoComponent {
+export class ArchivioFotoComponent implements OnInit {
     // Segnale "sorgente" privato
   private eventService = inject(EventService);
 

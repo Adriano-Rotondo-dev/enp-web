@@ -17,6 +17,7 @@
         <img
           [src]="photo.url"
           [alt]="photo.title"
+          [loading]="$first ? 'eager' : 'lazy'"
           class="w-full h-full object-cover transition-all duration-700 grayscale group-hover:grayscale-0 group-hover:scale-105 opacity-80 group-hover:opacity-100"
           loading="lazy"
         />
