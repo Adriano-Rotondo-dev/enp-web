@@ -202,7 +202,7 @@ deleteArchiveEvent(id: number): Observable<any> {
     body.set('songRequest', songRequest);
     body.set('eventId', eventId);
 
-    return this.http.post(`${this.apiUrl}/submit-song-request.php`, body.toString(), {
+    return this.http.post(`${this.apiUrl}/song-requests/submit-song-request.php`, body.toString(), {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
   }
@@ -211,7 +211,7 @@ deleteArchiveEvent(id: number): Observable<any> {
 }
 loadSongRequests(): Observable<SongRequest[]> {
   if (this.USE_BACKEND) {
-    return this.http.get<SongRequest[]>(`${this.apiUrl}/get-song-requests.php`).pipe(
+    return this.http.get<SongRequest[]>(`${this.apiUrl}/song-requests/get-song-requests.php`).pipe(
       tap(requests => this.songRequests.set(requests)),
       catchError(() => of([]))
     );
@@ -221,7 +221,7 @@ loadSongRequests(): Observable<SongRequest[]> {
 
 updateSongRequestStatus(id: number, status: 'pending' | 'played' | 'rejected'): Observable<any> {
   if (this.USE_BACKEND) {
-    return this.http.post(`${this.apiUrl}/update-song-request.php`, { id, status }).pipe(
+    return this.http.post(`${this.apiUrl}/song-requests/update-song-request.php`, { id, status }).pipe(
       tap(() => {
         this.songRequests.update(requests =>
           requests.map(r => r.id === id ? { ...r, status } : r)
@@ -233,6 +233,17 @@ updateSongRequestStatus(id: number, status: 'pending' | 'played' | 'rejected'): 
   this.songRequests.update(requests =>
     requests.map(r => r.id === id ? { ...r, status } : r)
   );
+  return of({ success: true });
+}
+
+deleteSongRequest(id: number): Observable<any> {
+  if (this.USE_BACKEND) {
+    return this.http.delete(`${this.apiUrl}/song-requests/delete-song-request.php?id=${id}`).pipe(
+      tap(() => this.songRequests.update(requests => requests.filter(r => r.id !== id))),
+      catchError(err => { throw err; })
+    );
+  }
+  this.songRequests.update(requests => requests.filter(r => r.id !== id));
   return of({ success: true });
 }
 

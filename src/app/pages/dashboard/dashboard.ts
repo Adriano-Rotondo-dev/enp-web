@@ -127,6 +127,13 @@ logout() {
     });
   }
 
+  deleteSongRequest(id: number) {
+  if (!confirm('Eliminare questa richiesta?')) return;
+  this.eventService.deleteSongRequest(id).subscribe({
+    error: () => this.saveError.set("Errore durante l'eliminazione.")
+  });
+}
+
   // ─── ARCHIVIO EVENTI ──────────────────────────────────────────
 
   saveToArchive() {
