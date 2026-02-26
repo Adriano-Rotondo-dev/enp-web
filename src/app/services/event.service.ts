@@ -2,6 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { NextEvent, ArchiveEvent, EnpPhoto, SongRequest } from '../models/event.model';
 
 @Injectable({ providedIn: 'root' })
@@ -9,7 +10,8 @@ export class EventService {
 
   //! Unica riga da cambiare quando il backend è pronto
   private USE_BACKEND = true;
-  private apiUrl = 'http://localhost/enp-backend/public';
+  // cambiando environment.prod.ts in produzione Angular userà automaticamente quello corretto
+  private apiUrl = environment.apiUrl
   private http = inject(HttpClient);
 
   // ─── DATI MOCK ───
@@ -91,7 +93,7 @@ export class EventService {
 
   loadArchiveEvents(): Observable<ArchiveEvent[]> {
     if (this.USE_BACKEND) {
-      return this.http.get<ArchiveEvent[]>(`${this.apiUrl}/get-archive.php`).pipe(
+      return this.http.get<ArchiveEvent[]>(`${this.apiUrl}/archive-events/get.php`).pipe(
         tap(events => this.archiveEvents.set(events)),
         catchError(() => of(this.mockArchiveEvents))
       );
@@ -105,7 +107,7 @@ export class EventService {
       const formData = new FormData();
       formData.append('event', JSON.stringify(event));
       if (file) formData.append('poster', file);
-      return this.http.post(`${this.apiUrl}/add-archive-event.php`, formData).pipe(
+      return this.http.post(`${this.apiUrl}/archive-events/add.php`, formData).pipe(
         tap(() => {
           this.archiveEvents.update(events =>
             [...events, event].sort((a, b) => b.id - a.id)
@@ -122,7 +124,7 @@ export class EventService {
 
   updateArchiveEvent(event: ArchiveEvent): Observable<any> {
   if (this.USE_BACKEND) {
-    return this.http.put(`${this.apiUrl}/update-archive-event.php`, event).pipe(
+    return this.http.put(`${this.apiUrl}/archive-events/update.php`, event).pipe(
       tap(() => {
         this.archiveEvents.update(events =>
           events.map(e => e.id === event.id ? event : e)
@@ -139,7 +141,7 @@ export class EventService {
 
 deleteArchiveEvent(id: number): Observable<any> {
   if (this.USE_BACKEND) {
-    return this.http.delete(`${this.apiUrl}/delete-archive-event.php?id=${id}`).pipe(
+    return this.http.delete(`${this.apiUrl}/archive-events/delete.php?id=${id}`).pipe(
       tap(() => {
         this.archiveEvents.update(events => events.filter(e => e.id !== id));
       }),
@@ -154,7 +156,7 @@ deleteArchiveEvent(id: number): Observable<any> {
 
   loadPhotos(): Observable<EnpPhoto[]> {
     if (this.USE_BACKEND) {
-      return this.http.get<EnpPhoto[]>(`${this.apiUrl}/get-photos.php`).pipe(
+      return this.http.get<EnpPhoto[]>(`${this.apiUrl}/photos/get.php`).pipe(
         tap(photos => this.photos.set(photos)),
         catchError(() => of(this.mockPhotos))
       );
@@ -168,7 +170,7 @@ deleteArchiveEvent(id: number): Observable<any> {
       const formData = new FormData();
       formData.append('photo', JSON.stringify(photo));
       formData.append('file', file);
-      return this.http.post<EnpPhoto>(`${this.apiUrl}/upload-photo.php`, formData).pipe(
+      return this.http.post<EnpPhoto>(`${this.apiUrl}/photos/upload.php`, formData).pipe(
         tap(saved => this.photos.update(photos => [...photos, saved])),
         catchError(err => { throw err; })
       );
@@ -184,7 +186,7 @@ deleteArchiveEvent(id: number): Observable<any> {
 
   deletePhoto(id: number): Observable<any> {
     if (this.USE_BACKEND) {
-      return this.http.delete(`${this.apiUrl}/delete-photo.php?id=${id}`).pipe(
+      return this.http.delete(`${this.apiUrl}/photos/delete.php?id=${id}`).pipe(
         tap(() => this.photos.update(photos => photos.filter(p => p.id !== id))),
         catchError(err => { throw err; })
       );
@@ -192,6 +194,32 @@ deleteArchiveEvent(id: number): Observable<any> {
     this.photos.update(photos => photos.filter(p => p.id !== id));
     return of({ success: true });
   }
+
+updatePhoto(photo: EnpPhoto): Observable<any> {
+  if (this.USE_BACKEND) {
+    const body = new URLSearchParams();
+    body.set('id', String(photo.id));
+    body.set('title', photo.title);
+    body.set('tag', photo.tag);
+    body.set('eventDate', photo.eventDate ?? '');
+    body.set('author', photo.author ?? '');
+
+    return this.http.post(`${this.apiUrl}/photos/update.php`, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).pipe(
+      tap(() => {
+        this.photos.update(photos =>
+          photos.map(p => p.id === photo.id ? photo : p)
+        );
+      }),
+      catchError(err => { throw err; })
+    );
+  }
+  this.photos.update(photos =>
+    photos.map(p => p.id === photo.id ? photo : p)
+  );
+  return of({ success: true });
+}
 
    // ─── SONG REQUEST ───
 
@@ -202,7 +230,7 @@ deleteArchiveEvent(id: number): Observable<any> {
     body.set('songRequest', songRequest);
     body.set('eventId', eventId);
 
-    return this.http.post(`${this.apiUrl}/song-requests/submit-song-request.php`, body.toString(), {
+    return this.http.post(`${this.apiUrl}/song-requests/submit.php`, body.toString(), {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
   }
@@ -211,7 +239,7 @@ deleteArchiveEvent(id: number): Observable<any> {
 }
 loadSongRequests(): Observable<SongRequest[]> {
   if (this.USE_BACKEND) {
-    return this.http.get<SongRequest[]>(`${this.apiUrl}/song-requests/get-song-requests.php`).pipe(
+    return this.http.get<SongRequest[]>(`${this.apiUrl}/song-requests/get.php`).pipe(
       tap(requests => this.songRequests.set(requests)),
       catchError(() => of([]))
     );
@@ -221,7 +249,7 @@ loadSongRequests(): Observable<SongRequest[]> {
 
 updateSongRequestStatus(id: number, status: 'pending' | 'played' | 'rejected'): Observable<any> {
   if (this.USE_BACKEND) {
-    return this.http.post(`${this.apiUrl}/song-requests/update-song-request.php`, { id, status }).pipe(
+    return this.http.post(`${this.apiUrl}/song-requests/update-status.php`, { id, status }).pipe(
       tap(() => {
         this.songRequests.update(requests =>
           requests.map(r => r.id === id ? { ...r, status } : r)
@@ -238,7 +266,7 @@ updateSongRequestStatus(id: number, status: 'pending' | 'played' | 'rejected'): 
 
 deleteSongRequest(id: number): Observable<any> {
   if (this.USE_BACKEND) {
-    return this.http.delete(`${this.apiUrl}/song-requests/delete-song-request.php?id=${id}`).pipe(
+    return this.http.delete(`${this.apiUrl}/song-requests/delete.php?id=${id}`).pipe(
       tap(() => this.songRequests.update(requests => requests.filter(r => r.id !== id))),
       catchError(err => { throw err; })
     );

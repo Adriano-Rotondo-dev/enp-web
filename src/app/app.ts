@@ -1,14 +1,14 @@
 import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
-import {filter} from 'rxjs/operators' //filtro per eventi router
+import { filter } from 'rxjs/operators' //filtro per eventi router
 import { NavbarComponent } from './components/navbar/navbar'; // Assicurati che il file sia navbar.ts
 import { FooterComponent } from './components/footer/footer'; // Assicurati che il file sia footer.ts
-
+import { ToastComponent } from './components/toast/toast';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, ToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

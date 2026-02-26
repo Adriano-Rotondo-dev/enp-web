@@ -13,9 +13,9 @@ export class ArchivioEventiComponent implements OnInit {
  private eventService = inject(EventService);
 
  // Computed -> ordinamento decrescente 
-  events = computed(() =>
-    [...this.eventService.archiveEvents()].sort((a, b) => b.id - a.id)
-  );
+events = computed(() =>
+  [...this.eventService.archiveEvents()].sort((a, b) => Number(b.id) - Number(a.id))
+);
 
    ngOnInit() {
     this.eventService.loadArchiveEvents().subscribe();
