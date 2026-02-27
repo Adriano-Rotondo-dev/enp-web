@@ -11,7 +11,12 @@ import { ToastService } from '../../services/toast.service';
 export class ContactsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
-  private lastSentAt: number = 0;
+  private get lastSentAt(): number {
+    return Number(sessionStorage.getItem('song_last_sent') ?? 0);
+}
+  private set lastSentAt(value: number) {
+    sessionStorage.setItem('song_last_sent', String(value));
+}
   private COOLDOWN_MS = 30000 // 30 secs cd
   private toast = inject(ToastService)
 

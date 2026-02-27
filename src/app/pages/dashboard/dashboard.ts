@@ -34,7 +34,14 @@ export class DashboardComponent implements OnInit {
 
   // Copia locale editabile per il form — evita il problema del ngModel sui segnali
   editableEvent = signal<NextEvent>({ ...this.eventService.nextEvent() });
-  editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ url: '', title: '', tag: '', eventDate: '', author: '' });
+  editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ 
+  url: '',
+  title: '',
+  tag: '',
+  eventDate: '',
+  author: '',
+  archiveEventId: null
+});
 
   // ─── NAVIGAZIONE INTERNA ───────────────────────────────────────
   activeTab = signal<'evento' | 'archivio' | 'foto' | 'richieste'>('evento');
@@ -53,7 +60,9 @@ export class DashboardComponent implements OnInit {
     name: '',
     date: '',
     description: '',
-    posterUrl: '/poster_placeholder.webp'
+    posterUrl: '/poster_placeholder.webp',
+    spotifyUrl: '',
+    liveMusicUrl: ''
   });
 
   // ─── FORM ARCHIVIO FOTO ───────────────────────────────────────
@@ -320,16 +329,18 @@ export class DashboardComponent implements OnInit {
       name: '',
       date: '',
       description: '',
-      posterUrl: '/poster_placeholder.webp'
+      posterUrl: '/poster_placeholder.webp',
+      spotifyUrl: '',
+      liveMusicUrl: ''
     });
     this.selectedFile = null;
   }
 
   private resetPhotoForm() {
-    this.editablePhoto.set({ url: '', title: '', tag: '' });
-    this.photoPreviewUrl.set('');
-    this.selectedPhotoFile = null;
-  }
+  this.editablePhoto.set({ url: '', title: '', tag: '', eventDate: '', author: '', archiveEventId: null });
+  this.photoPreviewUrl.set('');
+  this.selectedPhotoFile = null;
+}
 
   // ─── SYSTEM SOUND ──────────────────────────────────────────────────
   private playSystemSound(frequency: number, type: OscillatorType = 'square') {

@@ -30,7 +30,6 @@
       >
         [ 02 ] Gestione Archivio
       </button>
-
       <button
         (click)="activeTab.set('foto')"
         [class.text-purple-500]="activeTab() === 'foto'"
@@ -38,7 +37,6 @@
       >
         [ 03 ] Archivio Foto
       </button>
-
       <button
         (click)="activeTab.set('richieste')"
         [class.text-purple-500]="activeTab() === 'richieste'"
@@ -47,7 +45,6 @@
         [ 04 ] Song Requests
       </button>
 
-      <!-- TERMINATE SESSION  -->
       <button
         (click)="logout()"
         class="text-[10px] font-black uppercase tracking-[0.2em] transition-all bg-transparent border-none cursor-pointer py-2 px-4 border"
@@ -64,6 +61,7 @@
   </aside>
 
   <main class="flex-1 p-12 overflow-y-auto">
+    <!-- ─── TAB 01: PROSSIMO EVENTO ─── -->
     @if (activeTab() === 'evento') {
       <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
         <header class="mb-12 border-b-4 border-white pb-4 pt-6">
@@ -181,6 +179,7 @@
       </div>
     }
 
+    <!-- ─── TAB 02: GESTIONE ARCHIVIO ─── -->
     @if (activeTab() === 'archivio') {
       <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
         <header class="mb-12 border-b-4 border-white pb-4 pt-6">
@@ -205,7 +204,6 @@
                 class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
               />
             </div>
-
             <div class="flex flex-col gap-2">
               <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
                 >Nome Evento</label
@@ -216,7 +214,6 @@
                 class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
               />
             </div>
-
             <div class="flex flex-col gap-2">
               <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
                 >Data (es. 15 GEN)</label
@@ -241,12 +238,31 @@
             </div>
 
             <div class="flex flex-col gap-2">
-              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest">
-                Carica Poster_ (WebP/JPG)
-              </label>
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
+                >Spotify URL</label
+              >
+              <input
+                [(ngModel)]="newArchiveEvent().spotifyUrl"
+                placeholder="https://open.spotify.com/playlist/..."
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              />
+            </div>
 
-              <!-- Caricamento Poster Img locale -->
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
+                >Live Music IG URL</label
+              >
+              <input
+                [(ngModel)]="newArchiveEvent().liveMusicUrl"
+                placeholder="https://instagram.com/..."
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
+              />
+            </div>
 
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
+                >Carica Poster_ (WebP/JPG)</label
+              >
               <div class="relative group">
                 <input
                   type="file"
@@ -255,7 +271,6 @@
                   accept="image/*"
                   class="hidden"
                 />
-
                 <button
                   (click)="fileInput.click()"
                   class="w-full bg-black border border-dashed border-white/30 p-4 text-[10px] text-gray-500 hover:border-purple-600 hover:text-white transition-all flex flex-col items-center gap-2"
@@ -307,80 +322,103 @@
 
         <div class="space-y-3">
           @for (event of archiveEvents(); track event.id) {
-            @if (editingArchiveEvent()?.id === event.id) {
-              <!-- MODALITÀ EDIT -->
-              <div class="border border-purple-600 p-6 space-y-4 bg-white/5">
-                <div class="grid grid-cols-2 gap-4">
+            @if (editingArchiveEvent(); as editing) {
+              @if (editing.id === event.id) {
+                <div class="border border-purple-600 p-6 space-y-4 bg-white/5">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                        >Volume</label
+                      >
+                      <input
+                        [(ngModel)]="editing.vol"
+                        class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
+                      />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                        >Data</label
+                      >
+                      <input
+                        [(ngModel)]="editing.date"
+                        class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
+                      />
+                    </div>
+                  </div>
+
                   <div class="flex flex-col gap-1">
                     <label class="text-[10px] uppercase text-gray-500 tracking-widest"
-                      >Volume</label
+                      >Nome Evento</label
                     >
                     <input
-                      [(ngModel)]="editingArchiveEvent()!.vol"
+                      [(ngModel)]="editing.name"
                       class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
                     />
                   </div>
+
                   <div class="flex flex-col gap-1">
-                    <label class="text-[10px] uppercase text-gray-500 tracking-widest">Data</label>
+                    <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                      >Descrizione</label
+                    >
+                    <textarea
+                      [(ngModel)]="editing.description"
+                      rows="2"
+                      class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
+                    ></textarea>
+                  </div>
+
+                  <div class="flex flex-col gap-1">
+                    <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                      >Spotify URL</label
+                    >
                     <input
-                      [(ngModel)]="editingArchiveEvent()!.date"
+                      [(ngModel)]="editing.spotifyUrl"
+                      placeholder="https://open.spotify.com/playlist/..."
                       class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
                     />
                   </div>
-                </div>
 
-                <div class="flex flex-col gap-1">
-                  <label class="text-[10px] uppercase text-gray-500 tracking-widest"
-                    >Nome Evento</label
-                  >
-                  <input
-                    [(ngModel)]="editingArchiveEvent()!.name"
-                    class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
-                  />
-                </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                      >Live Music IG URL</label
+                    >
+                    <input
+                      [(ngModel)]="editing.liveMusicUrl"
+                      placeholder="https://instagram.com/..."
+                      class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
+                    />
+                  </div>
 
-                <div class="flex flex-col gap-1">
-                  <label class="text-[10px] uppercase text-gray-500 tracking-widest"
-                    >Descrizione</label
-                  >
-                  <textarea
-                    [(ngModel)]="editingArchiveEvent()!.description"
-                    rows="2"
-                    class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-sm"
-                  ></textarea>
+                  <div class="flex gap-3">
+                    <button
+                      (click)="saveArchiveEventEdit()"
+                      [disabled]="isSaving()"
+                      class="bg-purple-600 text-white font-black py-2 px-6 uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50"
+                    >
+                      {{ isSaving() ? 'SAVING...' : 'SAVE_CHANGES' }}
+                    </button>
+                    <button
+                      (click)="cancelEditArchiveEvent()"
+                      class="border border-white/20 text-gray-500 font-black py-2 px-6 uppercase text-[10px] tracking-widest hover:border-white hover:text-white transition-all"
+                    >
+                      CANCEL
+                    </button>
+                  </div>
                 </div>
-
-                <div class="flex gap-3">
-                  <button
-                    (click)="saveArchiveEventEdit()"
-                    [disabled]="isSaving()"
-                    class="bg-purple-600 text-white font-black py-2 px-6 uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50"
-                  >
-                    {{ isSaving() ? 'SAVING...' : 'SAVE_CHANGES' }}
-                  </button>
-                  <button
-                    (click)="cancelEditArchiveEvent()"
-                    class="border border-white/20 text-gray-500 font-black py-2 px-6 uppercase text-[10px] tracking-widest hover:border-white hover:text-white transition-all"
-                  >
-                    CANCEL
-                  </button>
-                </div>
-              </div>
+              }
             } @else {
-              <!-- MODALITÀ VIEW -->
               <div
                 class="flex items-center justify-between border border-white/10 p-4 hover:border-white/30 transition-all group"
               >
                 <div>
-                  <span class="text-purple-500 font-black text-[10px] uppercase tracking-widest">
-                    {{ event.vol }}
-                  </span>
+                  <span class="text-purple-500 font-black text-[10px] uppercase tracking-widest">{{
+                    event.vol
+                  }}</span>
                   <p class="text-white font-black uppercase text-sm mt-1">{{ event.name }}</p>
                   <p class="text-gray-600 text-[10px] uppercase tracking-widest">
                     {{ event.date }}
                   </p>
                 </div>
-
                 <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-all">
                   <button
                     (click)="startEditArchiveEvent(event)"
@@ -402,6 +440,7 @@
       </div>
     }
 
+    <!-- ─── TAB 03: ARCHIVIO FOTO ─── -->
     @if (activeTab() === 'foto') {
       <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
         <header class="mb-12 border-b-4 border-white pb-4 pt-6">
@@ -417,13 +456,12 @@
         <div
           class="grid grid-cols-1 md:grid-cols-2 gap-10 bg-white/5 p-8 border border-white/10 shadow-[10px_10px_0px_0px_rgba(147,51,234,0.1)] mb-16"
         >
-          <!-- Colonna sinistra: file + preview -->
+          <!-- Colonna sinistra -->
           <div class="space-y-6">
             <h3 class="text-purple-500 font-bold uppercase text-[10px] tracking-[0.4em] italic">
               Upload_File
             </h3>
 
-            <!-- Drop area -->
             <div class="relative">
               <input
                 type="file"
@@ -437,17 +475,17 @@
                 class="w-full bg-black border border-dashed border-white/30 p-6 text-[10px] text-gray-500 hover:border-purple-600 hover:text-white transition-all flex flex-col items-center gap-3"
               >
                 <span class="text-3xl">📷</span>
-                <span class="uppercase tracking-widest">
-                  {{ selectedPhotoFile ? selectedPhotoFile.name : 'SELECT_IMAGE_FILE' }}
-                </span>
+                <span class="uppercase tracking-widest">{{
+                  selectedPhotoFile ? selectedPhotoFile.name : 'SELECT_IMAGE_FILE'
+                }}</span>
                 <span class="text-gray-600">WebP / JPG / PNG</span>
               </button>
             </div>
 
             <div class="flex flex-col gap-2">
-              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest">
-                Data Evento
-              </label>
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Data Evento</label
+              >
               <input
                 [(ngModel)]="editablePhoto().eventDate"
                 placeholder="es. 19 DIC"
@@ -456,9 +494,9 @@
             </div>
 
             <div class="flex flex-col gap-2">
-              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest">
-                Fotografo
-              </label>
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Fotografo</label
+              >
               <input
                 [(ngModel)]="editablePhoto().author"
                 placeholder="es. Mario Rossi"
@@ -466,7 +504,23 @@
               />
             </div>
 
-            <!-- Preview -->
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Collega a Evento</label
+              >
+              <select
+                [(ngModel)]="editablePhoto().archiveEventId"
+                class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600 text-white"
+              >
+                <option [ngValue]="null" class="bg-black">— Nessun evento —</option>
+                @for (event of archiveEvents(); track event.id) {
+                  <option [ngValue]="event.id" class="bg-black">
+                    {{ event.vol }} — {{ event.name }}
+                  </option>
+                }
+              </select>
+            </div>
+
             @if (photoPreviewUrl()) {
               <div class="border border-white/10">
                 <p class="text-[10px] uppercase text-gray-500 tracking-widest px-3 pt-3">
@@ -484,9 +538,9 @@
             </h3>
 
             <div class="flex flex-col gap-2">
-              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest">
-                Titolo Foto
-              </label>
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Titolo Foto</label
+              >
               <input
                 [(ngModel)]="editablePhoto().title"
                 placeholder="es. Moshpit Vol. 8"
@@ -495,9 +549,9 @@
             </div>
 
             <div class="flex flex-col gap-2">
-              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest">
-                Tag
-              </label>
+              <label class="text-[10px] uppercase font-black text-gray-500 tracking-widest"
+                >Tag</label
+              >
               <input
                 [(ngModel)]="editablePhoto().tag"
                 placeholder="es. Crowd / Stage / Backstage"
@@ -527,76 +581,96 @@
 
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
             @for (photo of photos(); track photo.id) {
-              @if (editingPhoto()?.id === photo.id) {
-                <!-- MODALITÀ EDIT -->
-                <div class="border border-purple-600 p-4 space-y-3 bg-white/5 col-span-1">
-                  <img
-                    [src]="photo.url"
-                    [alt]="photo.title"
-                    [loading]="$first ? 'eager' : 'lazy'"
-                    class="w-full h-32 object-cover opacity-50"
-                  />
-
-                  <div class="flex flex-col gap-1">
-                    <label class="text-[10px] uppercase text-gray-500 tracking-widest"
-                      >Titolo</label
-                    >
-                    <input
-                      [(ngModel)]="editingPhoto()!.title"
-                      class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
+              @if (editingPhoto(); as editingP) {
+                @if (editingP.id === photo.id) {
+                  <!-- MODALITÀ EDIT -->
+                  <div class="border border-purple-600 p-4 space-y-3 bg-white/5 col-span-1">
+                    <img
+                      [src]="photo.url"
+                      [alt]="photo.title"
+                      [loading]="$first ? 'eager' : 'lazy'"
+                      class="w-full h-32 object-cover opacity-50"
                     />
-                  </div>
 
-                  <div class="flex flex-col gap-1">
-                    <label class="text-[10px] uppercase text-gray-500 tracking-widest">Tag</label>
-                    <input
-                      [(ngModel)]="editingPhoto()!.tag"
-                      class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
-                    />
-                  </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                        >Titolo</label
+                      >
+                      <input
+                        [(ngModel)]="editingP.title"
+                        class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
+                      />
+                    </div>
 
-                  <div class="flex flex-col gap-1">
-                    <label class="text-[10px] uppercase text-gray-500 tracking-widest"
-                      >Data Evento</label
-                    >
-                    <input
-                      [(ngModel)]="editingPhoto()!.eventDate"
-                      class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
-                    />
-                  </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-[10px] uppercase text-gray-500 tracking-widest">Tag</label>
+                      <input
+                        [(ngModel)]="editingP.tag"
+                        class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
+                      />
+                    </div>
 
-                  <div class="flex flex-col gap-1">
-                    <label class="text-[10px] uppercase text-gray-500 tracking-widest"
-                      >Fotografo</label
-                    >
-                    <input
-                      [(ngModel)]="editingPhoto()!.author"
-                      class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
-                    />
-                  </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                        >Data Evento</label
+                      >
+                      <input
+                        [(ngModel)]="editingP.eventDate"
+                        class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
+                      />
+                    </div>
 
-                  <div class="flex gap-2">
-                    <button
-                      (click)="savePhotoEdit()"
-                      [disabled]="isSaving()"
-                      class="flex-1 bg-purple-600 text-white font-black py-2 uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50"
-                    >
-                      {{ isSaving() ? 'SAVING...' : 'SAVE' }}
-                    </button>
-                    <button
-                      (click)="cancelEditPhoto()"
-                      class="flex-1 border border-white/20 text-gray-500 font-black py-2 uppercase text-[10px] tracking-widest hover:border-white hover:text-white transition-all"
-                    >
-                      CANCEL
-                    </button>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                        >Fotografo</label
+                      >
+                      <input
+                        [(ngModel)]="editingP.author"
+                        class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs"
+                      />
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                      <label class="text-[10px] uppercase text-gray-500 tracking-widest"
+                        >Collega a Evento</label
+                      >
+                      <select
+                        [(ngModel)]="editingP.archiveEventId"
+                        class="bg-black border border-white/20 p-2 outline-none focus:border-purple-600 text-xs text-white"
+                      >
+                        <option [ngValue]="null" class="bg-black">— Nessun evento —</option>
+                        @for (event of archiveEvents(); track event.id) {
+                          <option [ngValue]="event.id" class="bg-black">
+                            {{ event.vol }} — {{ event.name }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+
+                    <div class="flex gap-2">
+                      <button
+                        (click)="savePhotoEdit()"
+                        [disabled]="isSaving()"
+                        class="flex-1 bg-purple-600 text-white font-black py-2 uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50"
+                      >
+                        {{ isSaving() ? 'SAVING...' : 'SAVE' }}
+                      </button>
+                      <button
+                        (click)="cancelEditPhoto()"
+                        class="flex-1 border border-white/20 text-gray-500 font-black py-2 uppercase text-[10px] tracking-widest hover:border-white hover:text-white transition-all"
+                      >
+                        CANCEL
+                      </button>
+                    </div>
                   </div>
-                </div>
+                }
               } @else {
                 <!-- MODALITÀ VIEW -->
                 <div class="relative group border border-white/10 overflow-hidden">
                   <img
                     [src]="photo.url"
                     [alt]="photo.title"
+                    [loading]="$first ? 'eager' : 'lazy'"
                     class="w-full h-40 object-cover transition-all group-hover:brightness-50"
                   />
                   <div
@@ -608,6 +682,11 @@
                     <p class="text-purple-400 text-[10px] uppercase tracking-widest">
                       {{ photo.tag }}
                     </p>
+                    @if (photo.eventVol) {
+                      <p class="text-gray-500 text-[10px] uppercase tracking-widest">
+                        {{ photo.eventVol }}
+                      </p>
+                    }
                     <div class="flex gap-3 mt-2">
                       <button
                         (click)="startEditPhoto(photo)"
@@ -636,6 +715,8 @@
         </div>
       </div>
     }
+
+    <!-- ─── TAB 04: SONG REQUESTS ─── -->
     @if (activeTab() === 'richieste') {
       <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
         <header class="mb-12 border-b-4 border-white pb-4 pt-6">
@@ -668,7 +749,6 @@
                   {{ req.user_email }} — {{ req.requested_at | date: 'dd/MM HH:mm' }}
                 </p>
               </div>
-
               <div class="flex gap-2">
                 <button
                   (click)="updateRequestStatus(req.id, 'played')"

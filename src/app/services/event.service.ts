@@ -122,9 +122,20 @@ export class EventService {
     return of({ success: true });
   }
 
-  updateArchiveEvent(event: ArchiveEvent): Observable<any> {
+ updateArchiveEvent(event: ArchiveEvent): Observable<any> {
   if (this.USE_BACKEND) {
-    return this.http.put(`${this.apiUrl}/archive-events/update.php`, event).pipe(
+    const body = new URLSearchParams();
+    body.set('id', String(event.id));
+    body.set('vol', event.vol);
+    body.set('name', event.name);
+    body.set('date', event.date);
+    body.set('description', event.description);
+    body.set('spotifyUrl', event.spotifyUrl ?? '');
+    body.set('liveMusicUrl', event.liveMusicUrl ?? '');
+
+    return this.http.post(`${this.apiUrl}/archive-events/update.php`, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).pipe(
       tap(() => {
         this.archiveEvents.update(events =>
           events.map(e => e.id === event.id ? event : e)
@@ -165,24 +176,30 @@ deleteArchiveEvent(id: number): Observable<any> {
     return of(this.mockPhotos);
   }
 
-  uploadPhoto(photo: Omit<EnpPhoto, 'id'>, file: File): Observable<any> {
-    if (this.USE_BACKEND) {
-      const formData = new FormData();
-      formData.append('photo', JSON.stringify(photo));
-      formData.append('file', file);
-      return this.http.post<EnpPhoto>(`${this.apiUrl}/photos/upload.php`, formData).pipe(
-        tap(saved => this.photos.update(photos => [...photos, saved])),
-        catchError(err => { throw err; })
-      );
-    }
-    const mockPhoto: EnpPhoto = {
-      ...photo,
-      id: this.photos().length + 1,
-      url: URL.createObjectURL(file)
-    };
-    this.photos.update(photos => [...photos, mockPhoto]);
-    return of({ success: true });
+uploadPhoto(photo: Omit<EnpPhoto, 'id'>, file: File): Observable<any> {
+  if (this.USE_BACKEND) {
+    const formData = new FormData();
+    formData.append('photo', JSON.stringify({
+      title: photo.title,
+      tag: photo.tag,
+      eventDate: photo.eventDate ?? '',
+      author: photo.author ?? '',
+      archiveEventId: photo.archiveEventId ?? null
+    }));
+    formData.append('file', file);
+    return this.http.post<EnpPhoto>(`${this.apiUrl}/photos/upload.php`, formData).pipe(
+      tap(saved => this.photos.update(photos => [saved, ...photos])),
+      catchError(err => { throw err; })
+    );
   }
+  const mockPhoto: EnpPhoto = {
+    ...photo,
+    id: this.photos().length + 1,
+    url: URL.createObjectURL(file)
+  };
+  this.photos.update(photos => [mockPhoto, ...photos]);
+  return of({ success: true });
+}
 
   deletePhoto(id: number): Observable<any> {
     if (this.USE_BACKEND) {
@@ -203,6 +220,7 @@ updatePhoto(photo: EnpPhoto): Observable<any> {
     body.set('tag', photo.tag);
     body.set('eventDate', photo.eventDate ?? '');
     body.set('author', photo.author ?? '');
+    body.set('archiveEventId', photo.archiveEventId != null ? String(photo.archiveEventId) : '');
 
     return this.http.post(`${this.apiUrl}/photos/update.php`, body.toString(), {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
