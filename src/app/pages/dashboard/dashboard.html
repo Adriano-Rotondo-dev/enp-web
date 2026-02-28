@@ -719,13 +719,37 @@
     <!-- ─── TAB 04: SONG REQUESTS ─── -->
     @if (activeTab() === 'richieste') {
       <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <header class="mb-12 border-b-4 border-white pb-4 pt-6">
-          <h1 class="text-5xl font-black uppercase italic tracking-tighter leading-none">
-            Song_Requests
-          </h1>
-          <p class="text-gray-500 text-xs mt-4 uppercase font-bold tracking-widest">
-            // Richieste musicali dal pubblico
-          </p>
+        <header class="mb-12 border-b-4 border-white pb-4 pt-6 flex items-end justify-between">
+          <div>
+            <h1 class="text-5xl font-black uppercase italic tracking-tighter leading-none">
+              Song_Requests
+            </h1>
+            <p class="text-gray-500 text-xs mt-4 uppercase font-bold tracking-widest">
+              // Richieste musicali dal pubblico
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-2 items-end">
+            <button
+              (click)="purgeOldRequests()"
+              class="text-[10px] font-black uppercase tracking-widest text-red-500 border border-red-500/30 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all px-4 py-2"
+            >
+              [ PURGE &gt;30 DAYS ]
+            </button>
+
+            <button
+              (click)="purgeAllRequests()"
+              class="text-[10px] font-black uppercase tracking-widest border transition-all px-4 py-2"
+              [class.text-red-500]="!isConfirmingPurgeAll()"
+              [class.border-red-500/30]="!isConfirmingPurgeAll()"
+              [class.text-white]="isConfirmingPurgeAll()"
+              [class.bg-red-600]="isConfirmingPurgeAll()"
+              [class.border-red-600]="isConfirmingPurgeAll()"
+              [class.animate-pulse]="isConfirmingPurgeAll()"
+            >
+              {{ isConfirmingPurgeAll() ? '[ CLICK AGAIN TO PURGE ALL ]' : '[ PURGE ALL ]' }}
+            </button>
+          </div>
         </header>
 
         @if (songRequests().length === 0) {

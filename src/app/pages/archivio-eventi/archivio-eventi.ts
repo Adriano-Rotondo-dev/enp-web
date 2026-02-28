@@ -1,11 +1,12 @@
 import { Component, computed, inject, OnInit } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
-import {EventService} from '../../services/event.service'
+import { RouterLink } from '@angular/router';
+import { EventService } from '../../services/event.service'
 
 @Component({
   selector: 'app-archivio-eventi',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './archivio-eventi.html'
 })
 export class ArchivioEventiComponent implements OnInit {

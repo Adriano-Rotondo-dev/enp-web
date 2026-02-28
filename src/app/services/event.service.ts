@@ -293,4 +293,24 @@ deleteSongRequest(id: number): Observable<any> {
   return of({ success: true });
 }
 
+purgeOldRequests(): Observable<any> {
+  return this.http.post(`${this.apiUrl}/song-requests/purge.php`, {}).pipe(
+    tap(() => {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      this.songRequests.update(requests =>
+        requests.filter(r => new Date(r.requested_at) >= thirtyDaysAgo)
+      );
+    }),
+    catchError(err => { throw err; })
+  );
+}
+
+purgeAllRequests(): Observable<any> {
+  return this.http.post(`${this.apiUrl}/song-requests/purge-all.php`, {}).pipe(
+    tap(() => this.songRequests.set([])),
+    catchError(err => { throw err; })
+  );
+}
+
 }

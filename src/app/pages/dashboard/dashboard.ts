@@ -142,6 +142,40 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+purgeOldRequests() {
+  this.eventService.purgeOldRequests().subscribe({
+    next: (res: any) => this.toast.success(`PURGE — ${res.deleted} richieste eliminate`),
+    error: () => this.toast.error('Errore durante il purge')
+  });
+}
+
+// ─── STATO PURGE ALL ──────────────────────────────────────────
+isConfirmingPurgeAll = signal(false);
+
+purgeAllRequests() {
+  if (!this.isConfirmingPurgeAll()) {
+    this.isConfirmingPurgeAll.set(true);
+    this.playSystemSound(440, 'square');
+    setTimeout(() => {
+      if (this.isConfirmingPurgeAll()) {
+        this.isConfirmingPurgeAll.set(false);
+      }
+    }, 5000);
+  } else {
+    this.playSystemSound(220, 'sawtooth');
+    this.eventService.purgeAllRequests().subscribe({
+      next: (res: any) => {
+        this.isConfirmingPurgeAll.set(false);
+        this.toast.success(`PURGE — ${res.deleted} richieste eliminate`);
+      },
+      error: () => {
+        this.isConfirmingPurgeAll.set(false);
+        this.toast.error('Errore durante il purge');
+      }
+    });
+  }
+}
+
   // ─── ARCHIVIO EVENTI ──────────────────────────────────────────
 
   saveToArchive() {
