@@ -2,7 +2,11 @@
 module.exports = {
   content: ['./src/**/*.{html,ts,css,scss}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'danger-slanted': ['AnotherDangerSlanted', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

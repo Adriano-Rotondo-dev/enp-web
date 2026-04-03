@@ -31,47 +31,48 @@ export class ContactsComponent implements OnInit {
     this.eventService.loadNextEvent().subscribe();
   }
 
+  // SONG BOX - to be removed 
   //* fix type safety-> nonNullable
-  songForm = this.fb.nonNullable.group({
-    userEmail: ['', [Validators.required, Validators.email]],
-    songRequest: ['', [Validators.required, Validators.minLength(3)]]
-  });
+//   songForm = this.fb.nonNullable.group({
+//     userEmail: ['', [Validators.required, Validators.email]],
+//     songRequest: ['', [Validators.required, Validators.minLength(3)]]
+//   });
 
-  isSending = false;
-  sentStatus: 'idle' | 'success' | 'error' = 'idle';
+//   isSending = false;
+//   sentStatus: 'idle' | 'success' | 'error' = 'idle';
 
-   sendRequest() {
-  if (this.songForm.invalid || this.isSending) return;
+//    sendRequest() {
+//   if (this.songForm.invalid || this.isSending) return;
 
-  const now = Date.now();
-  if (now - this.lastSentAt < this.COOLDOWN_MS) {
-    this.toast.info('Aspetta qualche secondo prima di inviare un\'altra richiesta.');
-    return;
-  }
-  this.isSending = true;
-  this.lastSentAt = now;
+//   const now = Date.now();
+//   if (now - this.lastSentAt < this.COOLDOWN_MS) {
+//     this.toast.info('Aspetta qualche secondo prima di inviare un\'altra richiesta.');
+//     return;
+//   }
+//   this.isSending = true;
+//   this.lastSentAt = now;
   
-  const { userEmail, songRequest } = this.songForm.getRawValue();
-  const eventId = this.eventService.nextEvent().id;
+//   const { userEmail, songRequest } = this.songForm.getRawValue();
+//   const eventId = this.eventService.nextEvent().id;
 
-  this.eventService.submitSongRequest(userEmail, songRequest, eventId).subscribe({
-    next: () => {
-      this.isSending = false;
-      this.sentStatus = 'success';
-      this.songForm.reset();
-      setTimeout(() => this.sentStatus = 'idle', 3000);
-    },
-    error: (err) => {
-      this.isSending = false;
-      if (err.status === 429) {
-        this.toast.error('Hai già inviato troppe richieste per questo evento.');
-      } else {
-        this.sentStatus = 'error';
-        setTimeout(() => this.sentStatus = 'idle', 3000);
-      }
-    }
-  });
-}
+//   this.eventService.submitSongRequest(userEmail, songRequest, eventId).subscribe({
+//     next: () => {
+//       this.isSending = false;
+//       this.sentStatus = 'success';
+//       this.songForm.reset();
+//       setTimeout(() => this.sentStatus = 'idle', 3000);
+//     },
+//     error: (err) => {
+//       this.isSending = false;
+//       if (err.status === 429) {
+//         this.toast.error('Hai già inviato troppe richieste per questo evento.');
+//       } else {
+//         this.sentStatus = 'error';
+//         setTimeout(() => this.sentStatus = 'idle', 3000);
+//       }
+//     }
+//   });
+// }
 
   // in contacts.ts
 emailCopied = false;
@@ -82,18 +83,20 @@ copyEmail() {
     setTimeout(() => this.emailCopied = false, 2000);
   });
 }
-  isEasterEgg(): boolean {
-  const value = this.songForm.get('songRequest')?.value?.toLowerCase() || '';
-  const cults = [
-    'chelsea smile', 
-    'bring me the horizon', 
-    'if it means a lot to you', 
-    'a day to remember',
-    'in the end',
-    'linkin park',
-    'all i wanted',
-    'paramore',
-  ];
-  return cults.some(cult => value.includes(cult));
-}
+
+// EasterEgg Songbox - to be removed 
+//   isEasterEgg(): boolean {
+//   const value = this.songForm.get('songRequest')?.value?.toLowerCase() || '';
+//   const cults = [
+//     'chelsea smile', 
+//     'bring me the horizon', 
+//     'if it means a lot to you', 
+//     'a day to remember',
+//     'in the end',
+//     'linkin park',
+//     'all i wanted',
+//     'paramore',
+//   ];
+//   return cults.some(cult => value.includes(cult));
+// }
 }

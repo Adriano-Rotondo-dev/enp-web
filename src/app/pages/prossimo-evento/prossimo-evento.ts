@@ -20,72 +20,75 @@ export class ProssimoEventoComponent implements OnInit {
   eventData = this.eventService.nextEvent;
 
   // ─── SONG BOX ───
-  private COOLDOWN_MS = 30000;
 
-  private get lastSentAt(): number {
-    return Number(sessionStorage.getItem('song_last_sent') ?? 0);
-  }
-  private set lastSentAt(value: number) {
-    sessionStorage.setItem('song_last_sent', String(value));
-  }
+// going to be removed/remade
 
-  songForm = this.fb.nonNullable.group({
-    userEmail: ['', [Validators.required, Validators.email]],
-    songRequest: ['', [Validators.required, Validators.minLength(3)]]
-  });
+  // private COOLDOWN_MS = 30000;
 
-  isSending = false;
-  sentStatus: 'idle' | 'success' | 'error' = 'idle';
+  // private get lastSentAt(): number {
+  //   return Number(sessionStorage.getItem('song_last_sent') ?? 0);
+  // }
+  // private set lastSentAt(value: number) {
+  //   sessionStorage.setItem('song_last_sent', String(value));
+  // }
 
-  isEasterEgg(): boolean {
-    const value = this.songForm.get('songRequest')?.value?.toLowerCase() || '';
-    const cults = [
-      'chelsea smile',
-      'bring me the horizon',
-      'if it means a lot to you',
-      'a day to remember',
-      'in the end',
-      'linkin park',
-      'all i want',
-      'paramore',
-      'avril'
-    ];
-    return cults.some(cult => value.includes(cult));
-  }
+  // songForm = this.fb.nonNullable.group({
+  //   userEmail: ['', [Validators.required, Validators.email]],
+  //   songRequest: ['', [Validators.required, Validators.minLength(3)]]
+  // });
 
-  sendRequest() {
-    if (this.songForm.invalid || this.isSending) return;
+  // isSending = false;
+  // sentStatus: 'idle' | 'success' | 'error' = 'idle';
 
-    const now = Date.now();
-    if (now - this.lastSentAt < this.COOLDOWN_MS) {
-      this.toast.info('Aspetta qualche secondo prima di inviare un\'altra richiesta.');
-      return;
-    }
+  // isEasterEgg(): boolean {
+  //   const value = this.songForm.get('songRequest')?.value?.toLowerCase() || '';
+  //   const cults = [
+  //     'chelsea smile',
+  //     'bring me the horizon',
+  //     'if it means a lot to you',
+  //     'a day to remember',
+  //     'in the end',
+  //     'linkin park',
+  //     'all i want',
+  //     'paramore',
+  //     'avril'
+  //   ];
+  //   return cults.some(cult => value.includes(cult));
+  // }
 
-    this.isSending = true;
-    this.lastSentAt = now;
+  // sendRequest() {
+  //   if (this.songForm.invalid || this.isSending) return;
 
-    const { userEmail, songRequest } = this.songForm.getRawValue();
-    const eventId = this.eventService.nextEvent().id;
+  //   const now = Date.now();
+  //   if (now - this.lastSentAt < this.COOLDOWN_MS) {
+  //     this.toast.info('Aspetta qualche secondo prima di inviare un\'altra richiesta.');
+  //     return;
+  //   }
 
-    this.eventService.submitSongRequest(userEmail, songRequest, eventId).subscribe({
-      next: () => {
-        this.isSending = false;
-        this.sentStatus = 'success';
-        this.songForm.reset();
-        setTimeout(() => this.sentStatus = 'idle', 3000);
-      },
-      error: (err) => {
-        this.isSending = false;
-        if (err.status === 429) {
-          this.toast.error('Hai già inviato troppe richieste per questo evento.');
-        } else {
-          this.sentStatus = 'error';
-          setTimeout(() => this.sentStatus = 'idle', 3000);
-        }
-      }
-    });
-  }
+  //   this.isSending = true;
+  //   this.lastSentAt = now;
+
+  //   const { userEmail, songRequest } = this.songForm.getRawValue();
+  //   const eventId = this.eventService.nextEvent().id;
+
+  //   this.eventService.submitSongRequest(userEmail, songRequest, eventId).subscribe({
+  //     next: () => {
+  //       this.isSending = false;
+  //       this.sentStatus = 'success';
+  //       this.songForm.reset();
+  //       setTimeout(() => this.sentStatus = 'idle', 3000);
+  //     },
+  //     error: (err) => {
+  //       this.isSending = false;
+  //       if (err.status === 429) {
+  //         this.toast.error('Hai già inviato troppe richieste per questo evento.');
+  //       } else {
+  //         this.sentStatus = 'error';
+  //         setTimeout(() => this.sentStatus = 'idle', 3000);
+  //       }
+  //     }
+  //   });
+  // }
 
   // ─── MAPS ───
   openMaps() {
