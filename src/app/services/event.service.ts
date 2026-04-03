@@ -60,7 +60,7 @@ export class EventService {
   nextEvent = signal<NextEvent>(this.mockNextEvent);
   archiveEvents = signal<ArchiveEvent[]>(this.mockArchiveEvents);
   photos = signal<EnpPhoto[]>(this.mockPhotos);
-  songRequests = signal<SongRequest[]>([])
+  // songRequests = signal<SongRequest[]>([])
 
   // ─── NEXT EVENT ───
 
@@ -106,11 +106,13 @@ export class EventService {
     if (this.USE_BACKEND) {
       const formData = new FormData();
       formData.append('event', JSON.stringify(event));
-      if (file) formData.append('poster', file);
+      if (file) formData.append('file', file);
       return this.http.post(`${this.apiUrl}/archive-events/add.php`, formData).pipe(
-        tap(() => {
+        tap((res:any) => {
+          const newEvent = { ...event, posterUrl: res.url || event.posterUrl };
+          
           this.archiveEvents.update(events =>
-            [...events, event].sort((a, b) => b.id - a.id)
+            [newEvent,...events].sort((a, b) => b.id - a.id)
           );
         }),
         catchError(err => { throw err; })
@@ -122,29 +124,27 @@ export class EventService {
     return of({ success: true });
   }
 
- updateArchiveEvent(event: ArchiveEvent): Observable<any> {
+ updateArchiveEvent(event: ArchiveEvent, file: File | null): Observable<any> {
   if (this.USE_BACKEND) {
-    const body = new URLSearchParams();
-    body.set('id', String(event.id));
-    body.set('vol', event.vol);
-    body.set('name', event.name);
-    body.set('date', event.date);
-    body.set('description', event.description);
-    body.set('spotifyUrl', event.spotifyUrl ?? '');
-    body.set('liveMusicUrl', event.liveMusicUrl ?? '');
+const formData = new FormData();
+formData.append('event', JSON.stringify(event));
+if (file) {
+      formData.append('file', file);
+    }
 
-    return this.http.post(`${this.apiUrl}/archive-events/update.php`, body.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).pipe(
-      tap(() => {
+return this.http.post(`${this.apiUrl}/archive-events/update.php`, formData).pipe(
+      tap((res: any) => {
         this.archiveEvents.update(events =>
-          events.map(e => e.id === event.id ? event : e)
+          events.map(e => e.id === event.id 
+            ? { ...event, posterUrl: res.url || event.posterUrl } 
+            : e
+          )
         );
       }),
       catchError(err => { throw err; })
     );
   }
-  this.archiveEvents.update(events =>
+this.archiveEvents.update(events =>
     events.map(e => e.id === event.id ? event : e)
   );
   return of({ success: true });
@@ -239,78 +239,5 @@ updatePhoto(photo: EnpPhoto): Observable<any> {
   return of({ success: true });
 }
 
-   // ─── SONG REQUEST ───
-
- submitSongRequest(userEmail: string, songRequest: string, eventId: string): Observable<any> {
-  if (this.USE_BACKEND) {
-    const body = new URLSearchParams();
-    body.set('userEmail', userEmail);
-    body.set('songRequest', songRequest);
-    body.set('eventId', eventId);
-
-    return this.http.post(`${this.apiUrl}/song-requests/submit.php`, body.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-  }
-  console.log('Mock song request:', { userEmail, songRequest, eventId });
-  return of({ success: true });
-}
-loadSongRequests(): Observable<SongRequest[]> {
-  if (this.USE_BACKEND) {
-    return this.http.get<SongRequest[]>(`${this.apiUrl}/song-requests/get.php`).pipe(
-      tap(requests => this.songRequests.set(requests)),
-      catchError(() => of([]))
-    );
-  }
-  return of([]);
-}
-
-updateSongRequestStatus(id: number, status: 'pending' | 'played' | 'rejected'): Observable<any> {
-  if (this.USE_BACKEND) {
-    return this.http.post(`${this.apiUrl}/song-requests/update-status.php`, { id, status }).pipe(
-      tap(() => {
-        this.songRequests.update(requests =>
-          requests.map(r => r.id === id ? { ...r, status } : r)
-        );
-      }),
-      catchError(err => { throw err; })
-    );
-  }
-  this.songRequests.update(requests =>
-    requests.map(r => r.id === id ? { ...r, status } : r)
-  );
-  return of({ success: true });
-}
-
-deleteSongRequest(id: number): Observable<any> {
-  if (this.USE_BACKEND) {
-    return this.http.delete(`${this.apiUrl}/song-requests/delete.php?id=${id}`).pipe(
-      tap(() => this.songRequests.update(requests => requests.filter(r => r.id !== id))),
-      catchError(err => { throw err; })
-    );
-  }
-  this.songRequests.update(requests => requests.filter(r => r.id !== id));
-  return of({ success: true });
-}
-
-purgeOldRequests(): Observable<any> {
-  return this.http.post(`${this.apiUrl}/song-requests/purge.php`, {}).pipe(
-    tap(() => {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      this.songRequests.update(requests =>
-        requests.filter(r => new Date(r.requested_at) >= thirtyDaysAgo)
-      );
-    }),
-    catchError(err => { throw err; })
-  );
-}
-
-purgeAllRequests(): Observable<any> {
-  return this.http.post(`${this.apiUrl}/song-requests/purge-all.php`, {}).pipe(
-    tap(() => this.songRequests.set([])),
-    catchError(err => { throw err; })
-  );
-}
 
 }

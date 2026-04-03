@@ -1,397 +1,201 @@
-import { Component, signal, inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service'; 
+import { EventService } from '../../services/event.service'; 
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { EventService } from '../../services/event.service';
-import { ToastService } from '../../services/toast.service';
-import { ArchiveEvent, EnpPhoto, NextEvent, SongRequest } from '../../models/event.model';
+import { NextEvent, ArchiveEvent, EnpPhoto } from '../../models/event.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.css']
+  templateUrl: './dashboard.html'
 })
 export class DashboardComponent implements OnInit {
-
-  private platformId = inject(PLATFORM_ID);
-  protected auth = inject(AuthService);
+  // Iniezione dipendenze
+  public auth = inject(AuthService);
   private eventService = inject(EventService);
   private router = inject(Router);
-  private toast = inject(ToastService);
 
-
-  get archiveEvents() {
-    return this.eventService.archiveEvents;
-  }
-
-  // ─── SEGNALI DAL SERVICE ───────────────────────────────────────
-  eventData = this.eventService.nextEvent;
-  photos = this.eventService.photos;
-  songRequests = this.eventService.songRequests;
-
-  // Copia locale editabile per il form — evita il problema del ngModel sui segnali
-  editableEvent = signal<NextEvent>({ ...this.eventService.nextEvent() });
-  editablePhoto = signal<Omit<EnpPhoto, 'id'>>({ 
-  url: '',
-  title: '',
-  tag: '',
-  eventDate: '',
-  author: '',
-  archiveEventId: null
-});
-
-  // ─── NAVIGAZIONE INTERNA ───────────────────────────────────────
+  // State Management con Signals
   activeTab = signal<'evento' | 'archivio' | 'foto' | 'richieste'>('evento');
-
-  // ─── STATO UI ─────────────────────────────────────────────────
   isSaving = signal(false);
-  saveError = signal('');
-  isConfirmingLogout = signal(false);
+  saveError = signal<string | null>(null);
+  
+  // Tab 01: Prossimo Evento (Sincronizzato con NextEvent model)
+  editableEvent = signal<NextEvent>({
+    id: '',
+    title: '',
+    date: '',
+    time: '',
+    location: '',
+    address: '',
+    description: '',
+    lineup: []
+  });
 
-  // ─── FORM ARCHIVIO EVENTI ─────────────────────────────────────
-  selectedFile: File | null = null;
-
+  // Tab 02: Archivio Eventi
+  archiveEvents = this.eventService.archiveEvents; // Usiamo direttamente il signal del service
   newArchiveEvent = signal<ArchiveEvent>({
-    id: 9,
-    vol: 'VOL. ',
+    id: 0,
+    vol: '',
     name: '',
     date: '',
     description: '',
-    posterUrl: '/poster_placeholder.webp',
-    spotifyUrl: '',
-    liveMusicUrl: ''
+    posterUrl: ''
   });
+  selectedArchiveFile: File | null = null;
+  selectedEditArchiveFile: File | null = null; //
+  editingArchiveEvent = signal<ArchiveEvent | null>(null);
 
-  // ─── FORM ARCHIVIO FOTO ───────────────────────────────────────
+  // Tab 03: Foto
+  photos = this.eventService.photos; // Usiamo direttamente il signal del service
+  editablePhoto = signal<Omit<EnpPhoto, 'id'>>({
+    title: '',
+    tag: '',
+    url: '',
+    eventDate: '',
+    author: '',
+    archiveEventId: undefined
+  });
   selectedPhotoFile: File | null = null;
-  photoPreviewUrl = signal<string>('');
+  photoPreviewUrl = signal<string | null>(null);
   editingPhoto = signal<EnpPhoto | null>(null);
 
-  newPhoto = signal<Omit<EnpPhoto, 'id'>>({
-    url: '',
-    title: '',
-    tag: ''
-  });
-
-  // ─── ngOnInit ───
+  // Logout UI State
+  isConfirmingLogout = signal(false);
 
   ngOnInit() {
-    if (!this.auth.isAuthenticated()) {
-      this.router.navigate(['/backstage']);
-    }
-    this.eventService.loadNextEvent().subscribe(event => {
-      this.editableEvent.set({ ...event, 
-        date: event.date.split(' ')[0]
-       });
-    });
+    this.loadInitialData();
+  }
+
+  loadInitialData() {
+    // Carichiamo i dati tramite gli observable del service
+    this.eventService.loadNextEvent().subscribe(event => this.editableEvent.set(event));
     this.eventService.loadArchiveEvents().subscribe();
     this.eventService.loadPhotos().subscribe();
-    this.eventService.loadSongRequests().subscribe();
   }
 
-  // ─── LOGOUT ───
-
-  logout() {
-    if (!this.isConfirmingLogout()) {
-      this.isConfirmingLogout.set(true);
-      this.playSystemSound(440, 'square');
-      setTimeout(() => {
-        if (this.isConfirmingLogout()) {
-          this.isConfirmingLogout.set(false);
-        }
-      }, 5000);
-    } else {
-      this.playSystemSound(220, 'sawtooth');
-      this.auth.logout();
-    }
-  }
-
-  // ─── EVENTO PRINCIPALE ────────────────────────────────────────
-
+  // --- LOGICA EVENTO CORRENTE ---
   saveCurrentEvent() {
     this.isSaving.set(true);
-    this.saveError.set('');
-
     this.eventService.updateNextEvent(this.editableEvent()).subscribe({
       next: () => {
+        alert("STAGE_INFO_UPDATED");
         this.isSaving.set(false);
-        this.toast.success('Dati aggiornati con successo, emoboy!');
       },
-      error: () => {
-        this.isSaving.set(false);
-        this.saveError.set('Errore durante il salvataggio. Riprova.');
-      }
+      error: () => this.isSaving.set(false)
     });
   }
 
-  // ─── SONG REQUEST ──
-
-  updateRequestStatus(id: number, status: 'pending' | 'played' | 'rejected') {
-    this.eventService.updateSongRequestStatus(id, status).subscribe({
-      error: () => this.saveError.set('Errore aggiornamento status.')
-    });
+  // --- LOGICA ARCHIVIO ---
+  onArchiveFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedArchiveFile = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.newArchiveEvent.update(prev => ({ ...prev, posterUrl: e.target.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   }
-
-  deleteSongRequest(id: number) {
-    if (!confirm('Eliminare questa richiesta?')) return;
-    this.eventService.deleteSongRequest(id).subscribe({
-      error: () => this.saveError.set("Errore durante l'eliminazione.")
-    });
-  }
-
-purgeOldRequests() {
-  this.eventService.purgeOldRequests().subscribe({
-    next: (res: any) => this.toast.success(`PURGE — ${res.deleted} richieste eliminate`),
-    error: () => this.toast.error('Errore durante il purge')
-  });
-}
-
-// ─── STATO PURGE ALL ──────────────────────────────────────────
-isConfirmingPurgeAll = signal(false);
-
-purgeAllRequests() {
-  if (!this.isConfirmingPurgeAll()) {
-    this.isConfirmingPurgeAll.set(true);
-    this.playSystemSound(440, 'square');
-    setTimeout(() => {
-      if (this.isConfirmingPurgeAll()) {
-        this.isConfirmingPurgeAll.set(false);
-      }
-    }, 5000);
-  } else {
-    this.playSystemSound(220, 'sawtooth');
-    this.eventService.purgeAllRequests().subscribe({
-      next: (res: any) => {
-        this.isConfirmingPurgeAll.set(false);
-        this.toast.success(`PURGE — ${res.deleted} richieste eliminate`);
-      },
-      error: () => {
-        this.isConfirmingPurgeAll.set(false);
-        this.toast.error('Errore durante il purge');
-      }
-    });
-  }
-}
-
-  // ─── ARCHIVIO EVENTI ──────────────────────────────────────────
 
   saveToArchive() {
-    const data = this.newArchiveEvent();
-
-    if (!data.name || !data.vol || !data.date) {
-      this.toast.success('Nome, Volume e Data sono obbligatori.');
-      return;
-    }
-
     this.isSaving.set(true);
-    this.saveError.set('');
-
-    this.eventService.addToArchive(data, this.selectedFile).subscribe({
+    this.eventService.addToArchive(this.newArchiveEvent(), this.selectedArchiveFile).subscribe({
       next: () => {
+        // Reset form
+        this.newArchiveEvent.set({ id: 0, vol: '', name: '', date: '', description: '', posterUrl: '' });
+        this.selectedArchiveFile = null;
         this.isSaving.set(false);
-        this.toast.success(`${data.vol} aggiunto con successo!`);
-        this.resetArchiveForm(data.id);
       },
-      error: () => {
-        this.isSaving.set(false);
-        this.saveError.set('Errore durante il salvataggio. Riprova.');
-      }
+      error: () => this.isSaving.set(false)
     });
   }
-
-  onFileSelected(event: any) {
-    const file: File = event.target.files[0];
-    if (!file) return;
-
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      this.toast.success("Seleziona un'immagine valida (JPEG, PNG o WEBP)");
-      return;
-    }
-
-    this.selectedFile = file;
-
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.newArchiveEvent.update(ev => ({
-        ...ev,
-        posterUrl: e.target.result as string
-      }));
-    };
-    reader.readAsDataURL(file);
-  }
-
-  editingArchiveEvent = signal<ArchiveEvent | null>(null);
 
   startEditArchiveEvent(event: ArchiveEvent) {
     this.editingArchiveEvent.set({ ...event });
   }
 
-  cancelEditArchiveEvent() {
-    this.editingArchiveEvent.set(null);
-  }
-
-  saveArchiveEventEdit() {
-    const event = this.editingArchiveEvent();
-    if (!event) return;
-
-    if (!event.name || !event.vol || !event.date) {
-      this.toast.success('Nome, Volume e Data sono obbligatori.');
-      return;
-    }
-
-    this.isSaving.set(true);
-    this.saveError.set('');
-
-    this.eventService.updateArchiveEvent(event).subscribe({
-      next: () => {
-        this.isSaving.set(false);
-        this.editingArchiveEvent.set(null);
-        this.toast.success('Evento aggiornato con successo!');
-      },
-      error: () => {
-        this.isSaving.set(false);
-        this.saveError.set('Errore durante il salvataggio. Riprova.');
-      }
-    });
-  }
-
-  deleteArchiveEvent(id: number) {
-    if (!confirm('Sei sicuro di voler eliminare questo evento dall\'archivio?')) return;
-
-    this.eventService.deleteArchiveEvent(id).subscribe({
-      error: () => this.saveError.set("Errore durante l'eliminazione.")
-    });
-  }
-
-  // ─── ARCHIVIO FOTO ────────────────────────────────────────────
-
-  onPhotoFileSelected(event: any) {
-    const file: File = event.target.files[0];
-    if (!file) return;
-
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      this.toast.success("Seleziona un'immagine valida (JPEG, PNG o WEBP)");
-      return;
-    }
-
-    this.selectedPhotoFile = file;
-
+onEditArchiveFileSelected(event: any) {
+  const file = event.target.files[0];
+  if (file) {
+    this.selectedEditArchiveFile = file;
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      this.photoPreviewUrl.set(e.target.result as string);
+      // Aggiorna l'anteprima nell'oggetto che stai editando
+      this.editingArchiveEvent.update(prev => prev ? ({ ...prev, posterUrl: e.target.result }) : null);
     };
     reader.readAsDataURL(file);
+  }
+}
+
+saveArchiveEventEdit() {
+  const edited = this.editingArchiveEvent();
+  if (!edited) return;
+  this.isSaving.set(true);
+
+  this.eventService.updateArchiveEvent(edited, this.selectedEditArchiveFile).subscribe({
+    next: () => {
+      this.editingArchiveEvent.set(null);
+      this.selectedEditArchiveFile = null; // Reset del file
+      this.isSaving.set(false);
+    },
+    error: () => this.isSaving.set(false)
+  });
+}
+
+  deleteArchiveEvent(id: number) {
+    if (confirm("Sei sicuro di voler eliminare questo evento dall'archivio?")) {
+      this.eventService.deleteArchiveEvent(id).subscribe();
+    }
+  }
+
+
+
+  // --- LOGICA FOTO ---
+  onPhotoFileSelected(event: any) {
+    this.selectedPhotoFile = event.target.files[0];
+    if (this.selectedPhotoFile) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.photoPreviewUrl.set(e.target.result);
+      reader.readAsDataURL(this.selectedPhotoFile);
+    }
   }
 
   uploadPhoto() {
     if (!this.selectedPhotoFile) {
-      this.toast.success('Seleziona un file prima di caricare.');
+      this.saveError.set("SELEZIONA UN FILE");
       return;
     }
-    if (!this.editablePhoto().title || !this.editablePhoto().tag) {
-      this.toast.success('Titolo e tag sono obbligatori.');
-      return;
-    }
-
     this.isSaving.set(true);
-    this.saveError.set('');
-
     this.eventService.uploadPhoto(this.editablePhoto(), this.selectedPhotoFile).subscribe({
       next: () => {
+        this.photoPreviewUrl.set(null);
+        this.selectedPhotoFile = null;
+        this.editablePhoto.set({ title: '', tag: '', url: '', eventDate: '', author: '', archiveEventId: undefined });
         this.isSaving.set(false);
-        this.toast.success('Foto caricata con successo!');
-        this.resetPhotoForm();
       },
-      error: () => {
-        this.isSaving.set(false);
-        this.saveError.set('Errore durante il caricamento. Riprova.');
-      }
+      error: () => this.isSaving.set(false)
     });
   }
 
   deletePhoto(id: number) {
-    if (!confirm('Sei sicuro di voler eliminare questa foto?')) return;
-
-    this.eventService.deletePhoto(id).subscribe({
-      error: () => this.saveError.set("Errore durante l'eliminazione.")
-    });
-  }
-
-  startEditPhoto(photo: EnpPhoto) {
-    this.editingPhoto.set({ ...photo });
-  }
-
-  cancelEditPhoto() {
-    this.editingPhoto.set(null);
-  }
-
-  savePhotoEdit() {
-    const photo = this.editingPhoto();
-    if (!photo) return;
-
-    if (!photo.title || !photo.tag) {
-      this.toast.success('Titolo e tag sono obbligatori.');
-      return;
+    if (confirm("Eliminare definitivamente questa foto?")) {
+      this.eventService.deletePhoto(id).subscribe();
     }
-
-    this.isSaving.set(true);
-    this.saveError.set('');
-
-    this.eventService.updatePhoto(photo).subscribe({
-      next: () => {
-        this.isSaving.set(false);
-        this.editingPhoto.set(null);
-      },
-      error: () => {
-        this.isSaving.set(false);
-        this.saveError.set('Errore durante il salvataggio.');
-      }
-    });
   }
 
-  // ─── HELPERS ──────────────────────────────────────────────────
-
-  private resetArchiveForm(lastId: number) {
-    this.newArchiveEvent.set({
-      id: lastId + 1,
-      vol: 'VOL. ',
-      name: '',
-      date: '',
-      description: '',
-      posterUrl: '/poster_placeholder.webp',
-      spotifyUrl: '',
-      liveMusicUrl: ''
-    });
-    this.selectedFile = null;
-  }
-
-  private resetPhotoForm() {
-  this.editablePhoto.set({ url: '', title: '', tag: '', eventDate: '', author: '', archiveEventId: null });
-  this.photoPreviewUrl.set('');
-  this.selectedPhotoFile = null;
-}
-
-  // ─── SYSTEM SOUND ──────────────────────────────────────────────────
-  private playSystemSound(frequency: number, type: OscillatorType = 'square') {
-    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
-
-    gain.gain.setValueAtTime(0.1, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
-
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.1);
+  // --- LOGOUT ---
+  logout() {
+    if (!this.isConfirmingLogout()) {
+      this.isConfirmingLogout.set(true);
+      setTimeout(() => this.isConfirmingLogout.set(false), 3000);
+    } else {
+      this.auth.logout();
+      this.router.navigate(['/login']);
+    }
   }
 }
