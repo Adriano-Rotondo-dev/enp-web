@@ -22,11 +22,20 @@
         <div
           class="w-full md:w-1/2 aspect-3/4 bg-gray-900 border-2 border-white/10 group overflow-hidden relative rotate-1 hover:rotate-0 transition-all duration-500 shadow-[20px_20px_0px_0px_rgba(147,51,234,0.1)]"
         >
-          <div
-            class="absolute inset-0 flex items-center justify-center text-gray-700 font-black uppercase text-2xl tracking-tighter opacity-50 group-hover:opacity-100 transition-opacity"
+          @if (event.posterUrl) {
+            <img
+              [src]="event.posterUrl"
+              [alt]="event.name"
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+          }
+
+          <!-- testing purpose -->
+          <!-- <div
+            class="absolute inset-0 flex items-center justify-center text-gray-700 font-black uppercase text-2xl tracking-tighter opacity-50 group-hover:opacity-100 transition-opacity bg-black/20"
           >
             [ Poster {{ event.vol }} ]
-          </div>
+          </div> -->
         </div>
 
         <!-- INFO -->
@@ -86,12 +95,6 @@
             }
           </div>
         </div>
-
-        <span
-          class="absolute -top-10 -left-10 text-[10rem] font-black text-white/5 pointer-events-none hidden lg:block"
-        >
-          0{{ event.id }}
-        </span>
       </div>
     }
   </div>
