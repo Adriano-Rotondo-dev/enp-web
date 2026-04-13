@@ -38,13 +38,3 @@ export interface EnpPhoto {
   eventVol?: string; //? non obbligatorio
   eventName?: string; //? non obbligatorio
 }
-
-export interface SongRequest {
-  id: number;
-  event_id: number | null;
-  user_email: string;
-  song_request: string;
-  requested_at: string;
-  status: 'pending' | 'played' | 'rejected';
-  event_title?: string; //? non obbligatorio
-}
