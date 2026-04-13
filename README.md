@@ -1,7 +1,7 @@
 # Enp-web
 
 Frontend Angular per **Emo Night Palermo** — sito pubblico e pannello admin per la gestione dell'evento.  
-Progetto companion: [enp-backend](../enp-backend/README.md)
+Progetto companion: [enp-backend]([../enp-backend/README.md](https://github.com/Adriano-Rotondo-dev/enp-backend/blob/main/README.md))
 
 ---
 
