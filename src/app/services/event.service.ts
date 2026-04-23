@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { NextEvent, ArchiveEvent, EnpPhoto, SongRequest } from '../models/event.model';
+import { NextEvent, ArchiveEvent, EnpPhoto} from '../models/event.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
