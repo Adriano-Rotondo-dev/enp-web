@@ -9,7 +9,7 @@ import { NextEvent, ArchiveEvent, EnpPhoto} from '../models/event.model';
 export class EventService {
 
   //! Unica riga da cambiare quando il backend è pronto
-  private USE_BACKEND = true;
+  private USE_BACKEND = false;
   // cambiando environment.prod.ts in produzione Angular userà automaticamente quello corretto
   private apiUrl = environment.apiUrl
   private http = inject(HttpClient);
