@@ -19,7 +19,7 @@ export class EventService {
   private mockNextEvent: NextEvent = {
     id: '1',
     title: 'The Next Chapter',
-    date: '2026-05-09T21:30:00',
+    date: '2026-05-08T21:30:00',
     time: '21:30',
     location: 'MindHouse',
     address: 'Via San Lorenzo, 273/A, Palermo',
