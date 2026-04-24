@@ -90,7 +90,9 @@ export class ArchivioFotoComponent implements OnInit {
     if (!current) return;
     const list = this.photos();
     const idx = list.findIndex(p => p.id === current.id);
-    if (idx < list.length - 1) this.selectedPhoto.set(list[idx + 1]);
+   // Se è l'ultima, torna alla prima
+  const nextIdx = idx === list.length - 1 ? 0 : idx + 1;
+  this.selectedPhoto.set(list[nextIdx]);
   }
 
   prevPhoto() {
@@ -98,6 +100,8 @@ export class ArchivioFotoComponent implements OnInit {
     if (!current) return;
     const list = this.photos();
     const idx = list.findIndex(p => p.id === current.id);
-    if (idx > 0) this.selectedPhoto.set(list[idx - 1]);
+    // Se è la prima, vai all'ultima
+  const prevIdx = idx === 0 ? list.length - 1 : idx - 1;
+  this.selectedPhoto.set(list[prevIdx]);
   }
 }

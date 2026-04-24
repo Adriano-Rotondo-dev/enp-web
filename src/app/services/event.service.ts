@@ -95,11 +95,11 @@ export class EventService {
     if (this.USE_BACKEND) {
       return this.http.get<ArchiveEvent[]>(`${this.apiUrl}/archive-events/get.php`).pipe(
          tap(events => {
-        console.log('Archive events dal backend:', events);
+        //console.log('Archive events dal backend:', events);
         this.archiveEvents.set(events);
       }),
        catchError(err => {
-        console.error('Errore loadArchiveEvents:', err);
+        //console.error('Errore loadArchiveEvents:', err);
         return of(this.mockArchiveEvents);
       })
     );
