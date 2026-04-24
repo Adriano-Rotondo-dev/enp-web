@@ -8,6 +8,7 @@ import { ContactsComponent } from './components/contacts/contacts';
 import { BackstageComponent } from './components/backstage/backstage';
 import { NotFoundComponent } from './components/not-found/not-found';
 import { authGuard } from './auth-guard';
+import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy';
 //! CHECK NAMES  
 
 export const routes: Routes = [
@@ -18,6 +19,11 @@ export const routes: Routes = [
   { path: 'chi-siamo', component: ChiSiamoComponent },
   { path: 'contact-us', component: ContactsComponent},
   {path: 'backstage', component: BackstageComponent},
+  {
+  path: 'legal',
+  loadComponent: () =>
+    import('./pages/privacy-policy/privacy-policy').then(m => m.PrivacyPolicyComponent)
+},
 
   //protected routes
   { path: 'backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_',
