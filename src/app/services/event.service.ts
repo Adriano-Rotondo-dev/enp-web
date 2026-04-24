@@ -94,13 +94,19 @@ export class EventService {
   loadArchiveEvents(): Observable<ArchiveEvent[]> {
     if (this.USE_BACKEND) {
       return this.http.get<ArchiveEvent[]>(`${this.apiUrl}/archive-events/get.php`).pipe(
-        tap(events => this.archiveEvents.set(events)),
-        catchError(() => of(this.mockArchiveEvents))
-      );
-    }
-    this.archiveEvents.set(this.mockArchiveEvents);
-    return of(this.mockArchiveEvents);
+         tap(events => {
+        console.log('Archive events dal backend:', events);
+        this.archiveEvents.set(events);
+      }),
+       catchError(err => {
+        console.error('Errore loadArchiveEvents:', err);
+        return of(this.mockArchiveEvents);
+      })
+    );
   }
+  this.archiveEvents.set(this.mockArchiveEvents);
+  return of(this.mockArchiveEvents);
+}
 
   addToArchive(event: ArchiveEvent, file: File | null): Observable<any> {
     if (this.USE_BACKEND) {
@@ -109,7 +115,7 @@ export class EventService {
       if (file) formData.append('file', file);
       return this.http.post(`${this.apiUrl}/archive-events/add.php`, formData).pipe(
         tap((res:any) => {
-          const newEvent = { ...event, posterUrl: res.url || event.posterUrl };
+          const newEvent = { ...event, posterUrl: res.posterurl || event.posterUrl };
           
           this.archiveEvents.update(events =>
             [newEvent,...events].sort((a, b) => b.id - a.id)
@@ -136,7 +142,7 @@ return this.http.post(`${this.apiUrl}/archive-events/update.php`, formData).pipe
       tap((res: any) => {
         this.archiveEvents.update(events =>
           events.map(e => e.id === event.id 
-            ? { ...event, posterUrl: res.url || event.posterUrl } 
+            ? { ...event, posterUrl: res.posterurl || event.posterUrl } 
             : e
           )
         );
