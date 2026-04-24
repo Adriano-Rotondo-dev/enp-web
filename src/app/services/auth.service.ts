@@ -4,13 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment'
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
   // ← Unica riga da cambiare quando il backend è pronto
   private USE_BACKEND = true;
-  private apiUrl = 'http://localhost/enp-backend/public';
+  private apiUrl = 'environment.apiUrl';
 
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
