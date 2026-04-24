@@ -85,15 +85,15 @@ export class ArchivioFotoComponent implements OnInit {
     this.selectedPhoto.set(null);
   }
 
-  nextPhoto() {
-    const current = this.selectedPhoto();
-    if (!current) return;
-    const list = this.photos();
-    const idx = list.findIndex(p => p.id === current.id);
-   // Se è l'ultima, torna alla prima
+ nextPhoto() {
+  const current = this.selectedPhoto();
+  if (!current) return;
+  const list = this.photos();
+  const idx = list.findIndex(p => p.id === current.id);
   const nextIdx = idx === list.length - 1 ? 0 : idx + 1;
+  console.log('idx:', idx, 'list.length:', list.length, 'nextIdx:', nextIdx);
   this.selectedPhoto.set(list[nextIdx]);
-  }
+}
 
   prevPhoto() {
     const current = this.selectedPhoto();
