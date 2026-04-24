@@ -24,7 +24,7 @@ export class ContactsComponent implements OnInit {
     { name: 'Instagram', link: 'https://instagram.com/emonightpalermo', handle: '@emonightpalermo' },
     { name: 'TikTok', link: 'https://www.tiktok.com/@emonightpalermo', handle: '@emonightpalermo' },
     { name: 'Telegram', link: '#', handle: 'Emo Night Palermo' },
-    { name: 'Whatsapp', link: '#', handle: 'Emo Night Palermo' }
+    { name: 'Whatsapp', link: 'https://chat.whatsapp.com/Cr2lbpKJHzfI8sHTtbxB0r', handle: 'Emo Night Palermo' }
   ];
 
  ngOnInit() {
