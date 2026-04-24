@@ -18,12 +18,8 @@ export const routes: Routes = [
   { path: 'archivio-eventi', component: ArchivioEventiComponent },
   { path: 'chi-siamo', component: ChiSiamoComponent },
   { path: 'contact-us', component: ContactsComponent},
-  {path: 'backstage', component: BackstageComponent},
-  {
-  path: 'legal',
-  loadComponent: () =>
-    import('./pages/privacy-policy/privacy-policy').then(m => m.PrivacyPolicyComponent)
-},
+  { path: 'backstage', component: BackstageComponent},
+  { path: 'legal', component: PrivacyPolicyComponent},
 
   //protected routes
   { path: 'backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_',
@@ -32,7 +28,7 @@ export const routes: Routes = [
    },
 
 //ERROR HANDLING AND REDIRECT 
-  {path: 'm4N4g3_eNP-v1_01_01_d4shB04Rd_', redirectTo: '/backstage', pathMatch:'full'},
+  { path: 'm4N4g3_eNP-v1_01_01_d4shB04Rd_', redirectTo: '/backstage', pathMatch:'full'},
   { path: '404', component: NotFoundComponent },
   { path: '**', redirectTo: '404' }
 ]
