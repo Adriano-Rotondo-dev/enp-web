@@ -24,3 +24,18 @@ button {
 button:hover {
   text-shadow: 2px 2px #000;
 }
+
+/* mobile bar */
+@keyframes marquee {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 7s linear infinite;
+  white-space: nowrap;
+}
