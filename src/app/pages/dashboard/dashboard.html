@@ -378,7 +378,9 @@
                       >
                       <p class="text-white font-black uppercase text-sm mt-1">{{ event.name }}</p>
                     </div>
-                    <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-all">
+                    <div
+                      class="flex gap-4 opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                    >
                       <button
                         (click)="startEditArchiveEvent(event)"
                         class="text-[10px] font-black uppercase text-gray-500 hover:text-white"
