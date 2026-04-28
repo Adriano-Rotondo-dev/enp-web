@@ -1,6 +1,6 @@
 @if (auth.isAuthenticated()) {
   <div class="dashboard-wrapper min-h-screen bg-black text-white flex font-mono">
-    <aside class="w-72 border-r border-white/10 flex flex-col p-8 bg-[#050505]">
+    <aside class="hidden md:flex w-72 border-r border-white/10 flex-col p-8 bg-[#050505]">
       <div class="mb-12">
         <h2 class="text-purple-600 font-black text-2xl tracking-tighter italic leading-none pt-6">
           ENP_ADMIN
@@ -48,7 +48,7 @@
       </nav>
     </aside>
 
-    <main class="flex-1 p-12 overflow-y-auto">
+    <main class="flex-1 p-12 overflow-y-auto pb-24 md:pb-12">
       @if (activeTab() === 'evento') {
         <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
           <header class="mb-12 border-b-4 border-white pb-4 pt-6">
@@ -503,6 +503,55 @@
         </div>
       }
     </main>
+
+    <!-- TAB BAR MOBILE -->
+    <nav
+      class="md:hidden fixed bottom-0 left-0 right-0 bg-[#050505] border-t border-white/10 flex z-50"
+    >
+      <button
+        (click)="activeTab.set('evento')"
+        class="flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors"
+        [class.text-purple-500]="activeTab() === 'evento'"
+        [class.text-gray-600]="activeTab() !== 'evento'"
+      >
+        <span class="text-[8px] font-black uppercase tracking-widest">01</span>
+        <span class="text-[10px] font-black uppercase tracking-tighter">Evento</span>
+      </button>
+
+      <button
+        (click)="activeTab.set('archivio')"
+        class="flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors border-x border-white/10"
+        [class.text-purple-500]="activeTab() === 'archivio'"
+        [class.text-gray-600]="activeTab() !== 'archivio'"
+      >
+        <span class="text-[8px] font-black uppercase tracking-widest">02</span>
+        <span class="text-[10px] font-black uppercase tracking-tighter">Archivio</span>
+      </button>
+
+      <button
+        (click)="activeTab.set('foto')"
+        class="flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors border-r border-white/10"
+        [class.text-purple-500]="activeTab() === 'foto'"
+        [class.text-gray-600]="activeTab() !== 'foto'"
+      >
+        <span class="text-[8px] font-black uppercase tracking-widest">03</span>
+        <span class="text-[10px] font-black uppercase tracking-tighter">Foto</span>
+      </button>
+
+      <button
+        (click)="logout()"
+        class="flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors"
+        [class.text-red-500]="!isConfirmingLogout()"
+        [class.text-white]="isConfirmingLogout()"
+        [class.bg-red-600]="isConfirmingLogout()"
+        [class.animate-pulse]="isConfirmingLogout()"
+      >
+        <span class="text-[8px] font-black uppercase tracking-widest">EXIT</span>
+        <span class="text-[10px] font-black uppercase tracking-tighter">
+          {{ isConfirmingLogout() ? 'Conferma' : 'Logout' }}
+        </span>
+      </button>
+    </nav>
   </div>
 } @else {
   <div class="min-h-screen bg-black flex items-center justify-center">
