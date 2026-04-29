@@ -78,7 +78,7 @@ export class ContactsComponent implements OnInit {
 emailCopied = false;
 
 copyEmail() {
-  navigator.clipboard.writeText('info@emonightpalermo.it').then(() => {
+  navigator.clipboard.writeText('info@emonightpalermo.com').then(() => {
     this.emailCopied = true;
     setTimeout(() => this.emailCopied = false, 2000);
   });
