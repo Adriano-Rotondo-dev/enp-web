@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Meta } from '@angular/platform-browser'
 
 @Component({
   selector: 'app-backstage',
@@ -18,6 +19,10 @@ export class BackstageComponent {
 
   private auth = inject(AuthService);
   private router = inject(Router);
+
+constructor(private meta: Meta){
+this.meta.addTag({ name: 'robots', content: 'noindex, nofollow' })
+}
 
   login() {
     if (!this.password()) return;
