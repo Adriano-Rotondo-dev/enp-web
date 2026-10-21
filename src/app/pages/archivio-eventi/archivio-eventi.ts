@@ -12,6 +12,7 @@ import { EventService } from '../../services/event.service'
 export class ArchivioEventiComponent implements OnInit {
   // Segnale "sorgente" privato
  private eventService = inject(EventService);
+ status = this.eventService.archiveStatus;
 
  // Computed -> ordinamento decrescente 
 events = computed(() =>

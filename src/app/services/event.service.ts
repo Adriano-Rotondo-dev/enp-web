@@ -5,6 +5,8 @@ import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NextEvent, ArchiveEvent, EnpPhoto} from '../models/event.model';
 
+export type LoadStatus = 'loading' | 'ready' | 'unavailable';
+
 @Injectable({ providedIn: 'root' })
 export class EventService {
 
@@ -59,7 +61,7 @@ export class EventService {
 
   nextEvent = signal<NextEvent>(this.mockNextEvent);
   // 'loading' finché il backend non risponde, 'unavailable' se la chiamata fallisce
-  nextEventStatus = signal<'loading' | 'ready' | 'unavailable'>('loading');
+  nextEventStatus = signal<LoadStatus>('loading');
   // true solo se l'evento arriva dal backend e non è ancora concluso
   // (la serata resta "in corso" fino alle 6 del giorno dopo)
   hasUpcomingEvent = computed(() => {
@@ -69,8 +71,11 @@ export class EventService {
     day.setHours(0, 0, 0, 0);
     return Date.now() < day.getTime() + 30 * 3600000;
   });
-  archiveEvents = signal<ArchiveEvent[]>(this.mockArchiveEvents);
-  photos = signal<EnpPhoto[]>(this.mockPhotos);
+  // archivio e foto partono vuoti: i mock si usano solo con USE_BACKEND = false
+  archiveEvents = signal<ArchiveEvent[]>([]);
+  archiveStatus = signal<LoadStatus>('loading');
+  photos = signal<EnpPhoto[]>([]);
+  photosStatus = signal<LoadStatus>('loading');
 
   // ─── NEXT EVENT ───
 
@@ -114,16 +119,19 @@ export class EventService {
     if (this.USE_BACKEND) {
       return this.http.get<ArchiveEvent[]>(`${this.apiUrl}/archive-events/get.php`).pipe(
          tap(events => {
-        //console.log('Archive events dal backend:', events);
         this.archiveEvents.set(events);
+        this.archiveStatus.set('ready');
       }),
        catchError(err => {
-        //console.error('Errore loadArchiveEvents:', err);
-        return of(this.mockArchiveEvents);
+        console.error('Errore caricamento archivio:', err);
+        // niente archivio finto: la pagina mostra "non disponibile"
+        if (this.archiveStatus() !== 'ready') this.archiveStatus.set('unavailable');
+        return of(this.archiveEvents());
       })
     );
   }
   this.archiveEvents.set(this.mockArchiveEvents);
+  this.archiveStatus.set('ready');
   return of(this.mockArchiveEvents);
 }
 
@@ -193,11 +201,20 @@ deleteArchiveEvent(id: number): Observable<any> {
   loadPhotos(): Observable<EnpPhoto[]> {
     if (this.USE_BACKEND) {
       return this.http.get<EnpPhoto[]>(`${this.apiUrl}/photos/get.php`).pipe(
-        tap(photos => this.photos.set(photos)),
-        catchError(() => of(this.mockPhotos))
+        tap(photos => {
+          this.photos.set(photos);
+          this.photosStatus.set('ready');
+        }),
+        catchError(err => {
+          console.error('Errore caricamento foto:', err);
+          // niente galleria finta: la pagina mostra "non disponibile"
+          if (this.photosStatus() !== 'ready') this.photosStatus.set('unavailable');
+          return of(this.photos());
+        })
       );
     }
     this.photos.set(this.mockPhotos);
+    this.photosStatus.set('ready');
     return of(this.mockPhotos);
   }
 

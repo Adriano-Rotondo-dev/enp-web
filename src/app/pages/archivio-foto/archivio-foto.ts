@@ -24,6 +24,7 @@ export class ArchivioFotoComponent implements OnInit {
   // ─── DATI ───
   allPhotos = this.eventService.photos;
   archiveEvents = this.eventService.archiveEvents;
+  status = this.eventService.photosStatus;
 
   // Tag unici dalle foto caricate
   availableTags = computed(() => {

@@ -46,3 +46,39 @@ describe('EventService - prossimo evento', () => {
     expect(service.hasUpcomingEvent()).toBe(false);
   });
 });
+
+describe('EventService - archivio e galleria', () => {
+  let service: EventService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(EventService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('non mostra un archivio finto se il backend fallisce', () => {
+    service.loadArchiveEvents().subscribe();
+    http.expectOne(r => r.url.endsWith('/archive-events/get.php')).flush('errore', { status: 500, statusText: 'Server Error' });
+    expect(service.archiveStatus()).toBe('unavailable');
+    expect(service.archiveEvents()).toEqual([]);
+  });
+
+  it('non mostra una galleria finta se il backend fallisce', () => {
+    service.loadPhotos().subscribe();
+    http.expectOne(r => r.url.endsWith('/photos/get.php')).flush('errore', { status: 500, statusText: 'Server Error' });
+    expect(service.photosStatus()).toBe('unavailable');
+    expect(service.photos()).toEqual([]);
+  });
+
+  it('mostra i poster reali arrivati dal backend', () => {
+    service.loadArchiveEvents().subscribe();
+    const poster = 'https://enpback.altervista.org/backend/uploads/posters/p.jpg';
+    http.expectOne(r => r.url.endsWith('/archive-events/get.php'))
+      .flush([{ id: 16, vol: 'VOL. 9', name: 'X', date: '8 MAG', description: '', posterUrl: poster }]);
+    expect(service.archiveStatus()).toBe('ready');
+    expect(service.archiveEvents()[0].posterUrl).toBe(poster);
+  });
+});
