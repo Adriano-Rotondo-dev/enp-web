@@ -68,7 +68,11 @@
       <span
         class="text-white group-hover:text-purple-500 font-black text-sm tabular-nums transition-colors"
       >
-        {{ countdown().days }}g {{ countdown().hours }}h {{ countdown().minutes }}m
+        @if (hasUpcomingEvent()) {
+          {{ countdown().days }}g {{ countdown().hours }}h {{ countdown().minutes }}m
+        } @else {
+          Stay Tuned
+        }
       </span>
       <img src="/emo-boy-ico.png" class="h-6 w-6 object-contain" alt="" />
       <span class="text-white group-hover:text-purple-500 font-black text-xs transition-colors">
