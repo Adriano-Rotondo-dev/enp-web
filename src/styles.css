@@ -1,6 +1,12 @@
 /* NEEDS FIXING */
 
 @import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* breakpoint xs usato in navbar (Tailwind 4 non legge tailwind.config.js) */
+@theme {
+  --breakpoint-xs: 30rem;
+}
 
 /* root */
 :root {
@@ -35,6 +41,18 @@ body {
   height: 100%;
   /* bg black come easy solution ai white flash */
   background-color: black;
+}
+
+/* accessibilità: riduce animazioni e transizioni se richiesto dal sistema */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* gestione dei componenti per il main come blocchi */

@@ -309,6 +309,7 @@
                       @if (editingArchiveEvent()?.posterUrl) {
                         <img
                           [src]="editingArchiveEvent()?.posterUrl"
+                          [alt]="'Poster ' + (editingArchiveEvent()?.name ?? '')"
                           class="w-20 h-20 object-cover border border-white/10 mb-2"
                         />
                       }
@@ -453,6 +454,7 @@
               @if (photoPreviewUrl()) {
                 <img
                   [src]="photoPreviewUrl()"
+                  alt="Anteprima foto da caricare"
                   class="w-full object-cover max-h-48 border border-white/10"
                 />
               }
@@ -492,6 +494,7 @@
               <div class="relative group border border-white/10 overflow-hidden">
                 <img
                   [src]="photo.url"
+                  [alt]="photo.title"
                   class="w-full h-40 object-cover transition-all group-hover:brightness-50"
                 />
                 <div

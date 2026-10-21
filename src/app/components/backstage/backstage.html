@@ -23,7 +23,9 @@
       />
       <!-- password -->
       <div class="relative">
+        <label for="pwd" class="sr-only">Chiave di accesso</label>
         <input
+          id="pwd"
           type="password"
           [ngModel]="password()"
           (ngModelChange)="password.set($event)"
@@ -36,6 +38,7 @@
         <!-- error message  -->
         @if (errorMessage()) {
           <p
+            role="alert"
             class="text-red-500 text-[10px] mt-2 font-bold animate-pulse uppercase tracking-widest"
           >
             {{ errorMessage() }}

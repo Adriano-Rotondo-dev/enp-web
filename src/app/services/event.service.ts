@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -35,15 +35,15 @@ export class EventService {
   };
 
   private mockArchiveEvents: ArchiveEvent[] = [
-    { id: 9, vol: 'VOL. 8', name:'NIGHT OF ANIME', date: '21 FEB', description: 'Anime Night with Cyber, CosplayNight and more.', posterUrl: '/poster_placeholder.webp' },
-    { id: 8, vol: 'VOL. 7', name: 'NIGHT OF XMAS', date: '19 DIC', description: 'Cold weather for REFRAINED.', posterUrl: '/poster_placeholder.webp' },
-    { id: 7, vol: 'VOL. 6', name: 'NIGHT OF HALLOWEEN 2.0', date: '25 OTT', description: 'This is Halloween, everybody make a SCREAM with Nihil', posterUrl: '/poster_placeholder.webp' },
-    { id: 6, vol: 'VOL. 5', name: 'NIGHT OF COMICON', date: '14 SET', description: 'Expanding our influence. Yuriko Tiger Dj', posterUrl: '/poster_placeholder.webp' },
-    { id: 5, vol: 'VOL. 4', name: 'NIGHT OF MAKERS', date: '10 MAG', description: 'MEET MY MAKER bring Tesla in the Mosh', posterUrl: '/poster_placeholder.webp' },
-    { id: 4, vol: 'VOL. 3', name: 'NIGHT OF DIAMONDS', date: '22 MAR', description: 'XDIEMONDX was here', posterUrl: '/poster_placeholder.webp' },
-    { id: 3, vol: 'VOL. 2', name: 'NIGHT OF HALLOWEEN', date: '31 OTT', description: 'This Halloween is Ours', posterUrl: '/poster_placeholder.webp' },
-    { id: 2, vol: 'VOL. 1', name: 'NIGHT OF REBELLION', date: '14 SET', description: 'Notte di fuoco e lacrime. La famiglia cresce.', posterUrl: '/poster_placeholder.webp' },
-    { id: 1, vol: 'VOL. 0', name: 'THE BEGINNING', date: '29 GIU', description: 'Dove tutto è iniziato. Un piccolo locale pieno di emozioni.', posterUrl: '/poster_placeholder.webp' }
+    { id: 9, vol: 'VOL. 8', name:'NIGHT OF ANIME', date: '21 FEB', description: 'Anime Night with Cyber, CosplayNight and more.', posterUrl: '/emp_1.webp' },
+    { id: 8, vol: 'VOL. 7', name: 'NIGHT OF XMAS', date: '19 DIC', description: 'Cold weather for REFRAINED.', posterUrl: '/emp_1.webp' },
+    { id: 7, vol: 'VOL. 6', name: 'NIGHT OF HALLOWEEN 2.0', date: '25 OTT', description: 'This is Halloween, everybody make a SCREAM with Nihil', posterUrl: '/emp_1.webp' },
+    { id: 6, vol: 'VOL. 5', name: 'NIGHT OF COMICON', date: '14 SET', description: 'Expanding our influence. Yuriko Tiger Dj', posterUrl: '/emp_1.webp' },
+    { id: 5, vol: 'VOL. 4', name: 'NIGHT OF MAKERS', date: '10 MAG', description: 'MEET MY MAKER bring Tesla in the Mosh', posterUrl: '/emp_1.webp' },
+    { id: 4, vol: 'VOL. 3', name: 'NIGHT OF DIAMONDS', date: '22 MAR', description: 'XDIEMONDX was here', posterUrl: '/emp_1.webp' },
+    { id: 3, vol: 'VOL. 2', name: 'NIGHT OF HALLOWEEN', date: '31 OTT', description: 'This Halloween is Ours', posterUrl: '/emp_1.webp' },
+    { id: 2, vol: 'VOL. 1', name: 'NIGHT OF REBELLION', date: '14 SET', description: 'Notte di fuoco e lacrime. La famiglia cresce.', posterUrl: '/emp_1.webp' },
+    { id: 1, vol: 'VOL. 0', name: 'THE BEGINNING', date: '29 GIU', description: 'Dove tutto è iniziato. Un piccolo locale pieno di emozioni.', posterUrl: '/emp_1.webp' }
   ];
 
   private mockPhotos: EnpPhoto[] = [
@@ -58,30 +58,49 @@ export class EventService {
   // ─── SEGNALI CENTRALI ───
 
   nextEvent = signal<NextEvent>(this.mockNextEvent);
+  // 'loading' finché il backend non risponde, 'unavailable' se la chiamata fallisce
+  nextEventStatus = signal<'loading' | 'ready' | 'unavailable'>('loading');
+  // true solo se l'evento arriva dal backend e non è ancora concluso
+  // (la serata resta "in corso" fino alle 6 del giorno dopo)
+  hasUpcomingEvent = computed(() => {
+    if (this.nextEventStatus() !== 'ready') return false;
+    const day = new Date(this.nextEvent().date);
+    if (isNaN(day.getTime())) return false;
+    day.setHours(0, 0, 0, 0);
+    return Date.now() < day.getTime() + 30 * 3600000;
+  });
   archiveEvents = signal<ArchiveEvent[]>(this.mockArchiveEvents);
   photos = signal<EnpPhoto[]>(this.mockPhotos);
-  // songRequests = signal<SongRequest[]>([])
 
   // ─── NEXT EVENT ───
 
   loadNextEvent(): Observable<NextEvent> {
     if (this.USE_BACKEND) {
       return this.http.get<NextEvent>(`${this.apiUrl}/get-event.php`).pipe(
-        tap(event => this.nextEvent.set(event)),
+        tap(event => {
+          this.nextEvent.set(event);
+          this.nextEventStatus.set('ready');
+        }),
         catchError(err => {
           console.error('Errore caricamento evento:', err);
+          // niente dati finti in pagina: le viste mostrano lo "Stay Tuned"
+          if (this.nextEventStatus() !== 'ready') this.nextEventStatus.set('unavailable');
           return of(this.mockNextEvent);
         })
       );
     }
     this.nextEvent.set(this.mockNextEvent);
+    this.nextEventStatus.set('ready');
     return of(this.mockNextEvent);
   }
 
   updateNextEvent(event: NextEvent): Observable<any> {
     if (this.USE_BACKEND) {
       return this.http.post(`${this.apiUrl}/update-event.php`, event).pipe(
-        tap(() => this.nextEvent.set(event)),
+        tap(() => {
+          this.nextEvent.set(event);
+          this.nextEventStatus.set('ready');
+        }),
         catchError(err => { throw err; })
       );
     }

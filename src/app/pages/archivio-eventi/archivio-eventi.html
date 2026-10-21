@@ -26,6 +26,8 @@
             <img
               [src]="event.posterUrl"
               [alt]="event.name"
+              loading="lazy"
+              decoding="async"
               class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
           }

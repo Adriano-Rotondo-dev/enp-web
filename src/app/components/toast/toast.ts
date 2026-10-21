@@ -7,7 +7,7 @@ import { ToastService } from '../../services/toast.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none" role="status" aria-live="polite">
       @for (toast of toastService.toasts(); track toast.id) {
         <div
           class="pointer-events-auto px-6 py-4 font-black uppercase text-[10px] tracking-widest animate-in slide-in-from-bottom-4 fade-in duration-300"

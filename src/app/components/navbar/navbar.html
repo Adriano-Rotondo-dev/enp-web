@@ -43,6 +43,8 @@
       (click)="toggleMenu()"
       class="min-[1031px]:hidden text-white flex flex-col gap-1.5 z-50 relative"
       aria-label="Toggle Menu"
+      aria-controls="mobile-menu"
+      [attr.aria-expanded]="isMenuOpen()"
     >
       <span
         class="w-8 h-0.5 bg-white transition-all"
@@ -62,6 +64,7 @@
 
 @if (isMenuOpen()) {
   <div
+    id="mobile-menu"
     class="fixed inset-0 bg-black/98 z-40 flex flex-col items-center justify-center p-6 animate-in fade-in duration-300"
   >
     <nav class="flex flex-col items-center gap-4 w-full max-h-[80vh] overflow-y-auto">

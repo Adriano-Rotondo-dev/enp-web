@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service'; 
 import { EventService } from '../../services/event.service'; 
-import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 import { NextEvent, ArchiveEvent, EnpPhoto } from '../../models/event.model';
 
 @Component({
@@ -16,10 +16,10 @@ export class DashboardComponent implements OnInit {
   // Iniezione dipendenze
   public auth = inject(AuthService);
   private eventService = inject(EventService);
-  private router = inject(Router);
+  private toast = inject(ToastService);
 
   // State Management con Signals
-  activeTab = signal<'evento' | 'archivio' | 'foto' | 'richieste'>('evento');
+  activeTab = signal<'evento' | 'archivio' | 'foto'>('evento');
   isSaving = signal(false);
   saveError = signal<string | null>(null);
   
@@ -82,10 +82,13 @@ export class DashboardComponent implements OnInit {
     this.isSaving.set(true);
     this.eventService.updateNextEvent(this.editableEvent()).subscribe({
       next: () => {
-        alert("STAGE_INFO_UPDATED");
+        this.toast.success('Evento aggiornato');
         this.isSaving.set(false);
       },
-      error: () => this.isSaving.set(false)
+      error: () => {
+        this.toast.error('Salvataggio non riuscito');
+        this.isSaving.set(false);
+      }
     });
   }
 
@@ -110,6 +113,8 @@ export class DashboardComponent implements OnInit {
         this.newArchiveEvent.set({ id: 0, vol: '', name: '', date: '', description: '', posterUrl: '' });
         this.selectedArchiveFile = null;
         this.isSaving.set(false);
+        // Ricarica l'archivio per avere gli id reali assegnati dal backend
+        this.eventService.loadArchiveEvents().subscribe();
       },
       error: () => this.isSaving.set(false)
     });
@@ -194,8 +199,7 @@ saveArchiveEventEdit() {
       this.isConfirmingLogout.set(true);
       setTimeout(() => this.isConfirmingLogout.set(false), 3000);
     } else {
-      this.auth.logout();
-      this.router.navigate(['/login']);
+      this.auth.logout(); // naviga già su /backstage
     }
   }
 }

@@ -42,7 +42,10 @@ export class AuthService {
       const token = this.getToken();
       if (!token) return false;
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Il payload JWT è base64url: va convertito in base64 standard prima di atob
+        const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+        const payload = JSON.parse(atob(padded));
         return payload.exp * 1000 > Date.now();
       } catch {
         return false;

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 
@@ -25,6 +25,7 @@ export class NavbarComponent {
     this.isMenuOpen.update(val => !val);
   }
 
+  @HostListener('document:keydown.escape')
   closeMenu() {
     this.isMenuOpen.set(false);
 }

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ProssimoEventoComponent } from './prossimo-evento';
 
@@ -8,7 +10,8 @@ describe('ProssimoEvento', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProssimoEventoComponent]
+      imports: [ProssimoEventoComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()]
     })
     .compileComponents();
 

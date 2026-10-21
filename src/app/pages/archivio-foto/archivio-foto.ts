@@ -91,7 +91,6 @@ export class ArchivioFotoComponent implements OnInit {
   const list = this.photos();
   const idx = list.findIndex(p => p.id === current.id);
   const nextIdx = idx === list.length - 1 ? 0 : idx + 1;
-  console.log('idx:', idx, 'list.length:', list.length, 'nextIdx:', nextIdx);
   this.selectedPhoto.set(list[nextIdx]);
 }
 
