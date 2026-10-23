@@ -489,26 +489,132 @@
             </div>
           </div>
 
+          <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-6 italic">
+            // Gallery_List — {{ photos().length }} foto
+          </h4>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
             @for (photo of photos(); track photo.id) {
-              <div class="relative group border border-white/10 overflow-hidden">
-                <img
-                  [src]="photo.url"
-                  [alt]="photo.title"
-                  class="w-full h-40 object-cover transition-all group-hover:brightness-50"
-                />
+              @if (editingPhoto()?.id === photo.id) {
                 <div
-                  class="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 transition-all bg-black/40"
+                  class="col-span-2 md:col-span-3 border border-purple-600 p-6 bg-white/5 grid grid-cols-1 md:grid-cols-[160px_1fr] gap-6 animate-in zoom-in-95 duration-200"
                 >
-                  <p class="text-white font-black text-xs uppercase">{{ photo.title }}</p>
-                  <button
-                    (click)="deletePhoto(photo.id)"
-                    class="text-[10px] text-red-500 hover:text-white mt-2"
-                  >
-                    [ DELETE ]
-                  </button>
+                  <img
+                    [src]="photo.url"
+                    [alt]="photo.title"
+                    class="w-full md:w-40 h-40 object-cover border border-white/10"
+                  />
+                  <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="flex flex-col gap-1">
+                        <label for="edit-photo-title" class="text-[9px] uppercase text-purple-500 font-bold"
+                          >Titolo</label
+                        >
+                        <input
+                          id="edit-photo-title"
+                          [(ngModel)]="editingPhoto()!.title"
+                          class="w-full bg-black border border-white/20 p-2 text-sm outline-none focus:border-purple-600"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label for="edit-photo-tag" class="text-[9px] uppercase text-purple-500 font-bold"
+                          >Tag</label
+                        >
+                        <input
+                          id="edit-photo-tag"
+                          [(ngModel)]="editingPhoto()!.tag"
+                          class="w-full bg-black border border-white/20 p-2 text-sm outline-none focus:border-purple-600"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                      <label for="edit-photo-event" class="text-[9px] uppercase text-purple-500 font-bold"
+                        >Collega a Evento</label
+                      >
+                      <select
+                        id="edit-photo-event"
+                        [(ngModel)]="editingPhoto()!.archiveEventId"
+                        class="w-full bg-black border border-white/20 p-2 text-sm outline-none focus:border-purple-600 text-white"
+                      >
+                        <option [ngValue]="null">— Nessun evento —</option>
+                        @for (event of archiveEvents(); track event.id) {
+                          <option [ngValue]="event.id">{{ event.vol }} — {{ event.name }}</option>
+                        }
+                      </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="flex flex-col gap-1">
+                        <label for="edit-photo-date" class="text-[9px] uppercase text-purple-500 font-bold"
+                          >Data</label
+                        >
+                        <input
+                          id="edit-photo-date"
+                          [(ngModel)]="editingPhoto()!.eventDate"
+                          class="w-full bg-black border border-white/20 p-2 text-sm outline-none focus:border-purple-600 uppercase"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label for="edit-photo-author" class="text-[9px] uppercase text-purple-500 font-bold"
+                          >Autore</label
+                        >
+                        <input
+                          id="edit-photo-author"
+                          [(ngModel)]="editingPhoto()!.author"
+                          class="w-full bg-black border border-white/20 p-2 text-sm outline-none focus:border-purple-600"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                      <button
+                        (click)="savePhotoEdit()"
+                        [disabled]="isSaving()"
+                        class="bg-purple-600 text-white px-6 py-2 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-colors disabled:opacity-50"
+                      >
+                        {{ isSaving() ? 'SAVING...' : 'SAVE_CHANGES' }}
+                      </button>
+                      <button
+                        (click)="cancelEditPhoto()"
+                        class="border border-white/20 text-gray-500 px-6 py-2 text-[10px] font-black uppercase hover:text-white"
+                      >
+                        CANCEL
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              } @else {
+                <div class="relative group border border-white/10 overflow-hidden">
+                  <img
+                    [src]="photo.url"
+                    [alt]="photo.title"
+                    class="w-full h-40 object-cover transition-all md:group-hover:brightness-50"
+                  />
+                  <!-- su mobile le azioni sono sempre visibili (non esiste l'hover) -->
+                  <div
+                    class="absolute inset-0 flex flex-col justify-end p-3 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-all"
+                  >
+                    <p class="text-white font-black text-xs uppercase">{{ photo.title }}</p>
+                    @if (photo.eventVol) {
+                      <p class="text-purple-400 text-[9px] font-black uppercase">{{ photo.eventVol }}</p>
+                    }
+                    <div class="flex gap-4 mt-2">
+                      <button
+                        (click)="startEditPhoto(photo)"
+                        class="text-[10px] font-black text-gray-300 hover:text-white"
+                      >
+                        [ EDIT ]
+                      </button>
+                      <button
+                        (click)="deletePhoto(photo.id)"
+                        class="text-[10px] font-black text-red-500 hover:text-white"
+                      >
+                        [ DELETE ]
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
             }
           </div>
         </div>

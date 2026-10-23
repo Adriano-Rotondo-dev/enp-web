@@ -172,18 +172,59 @@ saveArchiveEventEdit() {
 
   uploadPhoto() {
     if (!this.selectedPhotoFile) {
-      this.saveError.set("SELEZIONA UN FILE");
+      this.toast.error('Seleziona un file');
+      return;
+    }
+    const photo = this.editablePhoto();
+    if (!photo.title.trim() || !photo.tag.trim()) {
+      this.toast.error('Titolo e tag sono obbligatori');
       return;
     }
     this.isSaving.set(true);
-    this.eventService.uploadPhoto(this.editablePhoto(), this.selectedPhotoFile).subscribe({
+    this.eventService.uploadPhoto(photo, this.selectedPhotoFile).subscribe({
       next: () => {
         this.photoPreviewUrl.set(null);
         this.selectedPhotoFile = null;
         this.editablePhoto.set({ title: '', tag: '', url: '', eventDate: '', author: '', archiveEventId: undefined });
         this.isSaving.set(false);
+        this.toast.success('Foto caricata');
       },
-      error: () => this.isSaving.set(false)
+      error: (err) => {
+        this.isSaving.set(false);
+        // il backend spiega il motivo (formato non supportato, file troppo grande, ...)
+        this.toast.error(err?.error?.error ?? 'Upload non riuscito');
+      }
+    });
+  }
+
+  startEditPhoto(photo: EnpPhoto) {
+    this.editingPhoto.set({ ...photo });
+  }
+
+  cancelEditPhoto() {
+    this.editingPhoto.set(null);
+  }
+
+  savePhotoEdit() {
+    const photo = this.editingPhoto();
+    if (!photo) return;
+    if (!photo.title.trim() || !photo.tag.trim()) {
+      this.toast.error('Titolo e tag sono obbligatori');
+      return;
+    }
+    this.isSaving.set(true);
+    this.eventService.updatePhoto(photo).subscribe({
+      next: () => {
+        this.editingPhoto.set(null);
+        this.isSaving.set(false);
+        this.toast.success('Foto aggiornata');
+        // ricarica per aggiornare VOL e nome della serata collegata
+        this.eventService.loadPhotos().subscribe();
+      },
+      error: (err) => {
+        this.isSaving.set(false);
+        this.toast.error(err?.error?.error ?? 'Salvataggio non riuscito');
+      }
     });
   }
 
