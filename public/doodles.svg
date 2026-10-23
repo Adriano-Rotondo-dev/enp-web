@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" viewBox="0 0 560 560">
+  <!-- Motivo di doodle emo/pop-punk, ripetuto come sfondo del sito.
+       Tratto "a pennarello": linee spesse, estremità arrotondate, forme volutamente imperfette. -->
+  <defs>
+    <style>
+      .p { stroke: #ff4fa0; stroke-opacity: .30; }
+      .v { stroke: #a83db8; stroke-opacity: .42; }
+      .t { stroke: #edede8; stroke-opacity: .16; }
+      g { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+      .fp { fill: #ff4fa0; fill-opacity: .22; stroke: none; }
+      .ft { fill: #edede8; fill-opacity: .12; stroke: none; }
+    </style>
+  </defs>
+
+  <!-- cuore spezzato -->
+  <g class="p" transform="translate(38 36) rotate(-12)">
+    <path d="M26 50 C10 38 0 28 1 16 C2 4 18 -1 26 12 C34 -1 50 4 51 16 C52 28 42 38 26 50 Z" />
+    <path d="M26 12 L21 22 L30 28 L23 38 L26 50" />
+  </g>
+
+  <!-- stella -->
+  <g class="t" transform="translate(170 30) rotate(8)">
+    <path d="M24 2 L30 18 L47 19 L34 30 L39 47 L24 37 L9 47 L14 30 L1 19 L18 18 Z" />
+  </g>
+
+  <!-- spilla da balia -->
+  <g class="v" transform="translate(290 40) rotate(28)">
+    <circle cx="9" cy="12" r="7" />
+    <path d="M14 7 L64 7" />
+    <path d="M14 17 L58 17" />
+    <path d="M58 2 L78 2 C86 2 86 22 78 22 L58 22 Z" />
+  </g>
+
+  <!-- teschio con occhi a X -->
+  <g class="t" transform="translate(440 26) rotate(-6)">
+    <path d="M6 30 C0 12 14 0 30 0 C46 0 60 12 54 30 C52 36 46 38 46 44 L14 44 C14 38 8 36 6 30 Z" />
+    <path d="M14 18 L24 28 M24 18 L14 28" />
+    <path d="M36 18 L46 28 M46 18 L36 28" />
+    <path d="M27 34 L30 30 L33 34" />
+    <path d="M20 44 L20 52 M30 44 L30 52 M40 44 L40 52 M16 52 L44 52" />
+  </g>
+
+  <!-- fulmine -->
+  <g class="p" transform="translate(110 150) rotate(14)">
+    <path d="M22 0 L4 34 L18 34 L10 64 L36 24 L22 24 L30 0 Z" />
+  </g>
+
+  <!-- cassetta -->
+  <g class="v" transform="translate(220 150) rotate(-8)">
+    <rect x="0" y="0" width="92" height="58" rx="6" />
+    <rect x="14" y="12" width="64" height="22" rx="3" />
+    <circle cx="30" cy="23" r="6" />
+    <circle cx="62" cy="23" r="6" />
+    <path d="M20 58 L26 44 L66 44 L72 58" />
+  </g>
+
+  <!-- plettro -->
+  <g class="t" transform="translate(380 160) rotate(20)">
+    <path d="M22 54 C10 40 0 24 2 12 C4 2 14 0 22 0 C30 0 40 2 42 12 C44 24 34 40 22 54 Z" />
+    <path d="M14 18 C18 14 26 14 30 18" />
+  </g>
+
+  <!-- pipistrello -->
+  <g class="p" transform="translate(470 150) rotate(-10)">
+    <path d="M40 18 C34 6 22 4 10 8 C14 12 14 18 8 22 C16 22 20 26 22 32 C28 26 34 26 40 30 C46 26 52 26 58 32 C60 26 64 22 72 22 C66 18 66 12 70 8 C58 4 46 6 40 18 Z" />
+    <path d="M36 14 L38 8 M44 14 L42 8" />
+  </g>
+
+  <!-- rondine stile tattoo -->
+  <g class="v" transform="translate(28 250) rotate(-16)">
+    <path d="M2 30 C14 26 22 22 30 14 C26 6 30 0 38 2 C44 4 46 10 44 16 L70 6 L58 22 L76 26 L52 30 C42 40 26 44 10 40 L20 34 Z" />
+    <circle cx="38" cy="8" r="1.5" />
+  </g>
+
+  <!-- ragnatela -->
+  <g class="t" transform="translate(160 260)">
+    <path d="M0 0 L70 0 M0 0 L0 70 M0 0 L56 40 M0 0 L40 56" />
+    <path d="M22 0 C22 10 18 14 12 16 C14 20 16 22 16 22 C18 16 10 20 0 22" />
+    <path d="M44 0 C44 16 40 24 30 28 C34 34 30 40 28 40 C22 38 16 44 0 44" />
+    <path d="M66 0 C66 22 60 34 48 42 C46 52 40 58 38 56 C30 60 20 66 0 66" />
+  </g>
+
+  <!-- XOXO -->
+  <g class="p" transform="translate(280 290) rotate(-6)">
+    <path d="M2 2 L22 26 M22 2 L2 26" />
+    <ellipse cx="42" cy="14" rx="11" ry="13" />
+    <path d="M64 2 L84 26 M84 2 L64 26" />
+    <ellipse cx="104" cy="14" rx="11" ry="13" />
+  </g>
+
+  <!-- toppa a scacchi -->
+  <g transform="translate(440 270) rotate(10)">
+    <rect class="ft" x="0" y="0" width="14" height="14" /><rect class="ft" x="28" y="0" width="14" height="14" /><rect class="ft" x="56" y="0" width="14" height="14" />
+    <rect class="ft" x="14" y="14" width="14" height="14" /><rect class="ft" x="42" y="14" width="14" height="14" />
+    <rect class="ft" x="0" y="28" width="14" height="14" /><rect class="ft" x="28" y="28" width="14" height="14" /><rect class="ft" x="56" y="28" width="14" height="14" />
+    <rect class="ft" x="14" y="42" width="14" height="14" /><rect class="ft" x="42" y="42" width="14" height="14" />
+  </g>
+
+  <!-- note musicali -->
+  <g class="v" transform="translate(70 380) rotate(-8)">
+    <ellipse cx="8" cy="40" rx="8" ry="6" />
+    <ellipse cx="38" cy="34" rx="8" ry="6" />
+    <path d="M16 40 L16 6 L46 0 L46 34" />
+    <path d="M16 14 L46 8" />
+  </g>
+
+  <!-- faccina triste -->
+  <g class="t" transform="translate(190 400) rotate(12)">
+    <circle cx="26" cy="26" r="24" />
+    <path d="M16 18 L18 22 M36 18 L34 22" />
+    <path d="M14 40 C20 32 32 32 38 40" />
+    <path d="M16 24 C15 30 13 32 14 34" />
+  </g>
+
+  <!-- cuore pieno -->
+  <g transform="translate(330 400) rotate(10)">
+    <path class="fp" d="M20 38 C8 30 0 22 1 12 C2 3 14 -1 20 9 C26 -1 38 3 39 12 C40 22 32 30 20 38 Z" />
+  </g>
+
+  <!-- filo spinato -->
+  <g class="p" transform="translate(400 420) rotate(-14)">
+    <path d="M0 10 C20 2 30 18 50 10 C70 2 80 18 100 10 C120 2 130 18 150 10" />
+    <path d="M24 2 L32 18 M32 2 L24 18 M74 2 L82 18 M82 2 L74 18 M124 2 L132 18 M132 2 L124 18" />
+  </g>
+
+  <!-- asterisco / scintilla -->
+  <g class="v" transform="translate(40 500)">
+    <path d="M14 0 L14 28 M0 14 L28 14 M4 4 L24 24 M24 4 L4 24" />
+  </g>
+
+  <!-- stella piccola -->
+  <g class="p" transform="translate(290 500) rotate(-20)">
+    <path d="M14 1 L17 10 L27 11 L19 17 L22 27 L14 21 L6 27 L9 17 L1 11 L11 10 Z" />
+  </g>
+
+  <!-- ossa incrociate -->
+  <g class="t" transform="translate(140 500) rotate(6)">
+    <path d="M6 6 L56 36 M56 6 L6 36" />
+    <circle cx="4" cy="4" r="4" /><circle cx="58" cy="4" r="4" />
+    <circle cx="4" cy="38" r="4" /><circle cx="58" cy="38" r="4" />
+  </g>
+
+  <!-- fulmine piccolo -->
+  <g class="t" transform="translate(500 490) rotate(-12)">
+    <path d="M14 0 L2 22 L11 22 L6 42 L24 16 L15 16 L20 0 Z" />
+  </g>
+</svg>
