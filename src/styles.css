@@ -1,26 +1,38 @@
-/* NEEDS FIXING */
-
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-/* breakpoint xs usato in navbar (Tailwind 4 non legge tailwind.config.js) */
+/* Font ospitati sul sito (niente CDN esterni: nessun dato inviato a terzi) */
+@import '@fontsource/anton';
+@import '@fontsource/permanent-marker';
+@import '@fontsource-variable/archivo/wdth.css';
+
+/* ─── DESIGN SYSTEM "flyer fotocopiati sul muro del locale" ─── */
 @theme {
+  /* breakpoint xs usato in navbar (Tailwind 4 non legge tailwind.config.js) */
   --breakpoint-xs: 30rem;
+
+  /* Colori */
+  --color-wall: #000000; /* il muro del locale: sfondo di tutto il sito */
+  --color-toner: #edede8; /* foglio fotocopiato */
+  --color-brand: #a83db8; /* viola Emo Night Palermo */
+  --color-flyer: #ff4fa0; /* cartoncino rosa dei volantini pop-punk */
+  --color-xerox: #8c8c88; /* grigio fotocopia per i testi secondari */
+
+  /* Tipografia */
+  --font-display: 'Anton', 'Impact', 'Arial Narrow', sans-serif; /* titoli da manifesto */
+  --font-marker: 'Permanent Marker', 'Comic Sans MS', cursive; /* pennarello */
+  --font-sans: 'Archivo Variable', system-ui, sans-serif; /* testi */
 }
 
-/* root */
+/* Vecchi nomi viola ancora usati nelle pagine non ridisegnate: puntano al viola del marchio */
 :root {
-  /* sovrascrive purple-500 con il CORE Color */
-  --color-purple-500: #a83db8;
-  /* variante hover*/
   --color-purple-400: #c250d4;
-  /* variante scura bordi/btn */
-  --color-purple-600: #8e2f9e;
-  /* blend/deep shadows */
+  --color-purple-500: #a83db8;
+  --color-purple-600: #a83db8;
   --color-purple-900: #3d1242;
 }
 
-/* Font */
+/* Font del logo */
 @font-face {
   font-family: 'AnotherDangerSlanted';
   src: url('/fonts/AnotherDangerSlanted.otf') format('opentype');
@@ -39,8 +51,133 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  /* bg black come easy solution ai white flash */
-  background-color: black;
+  /* bg nero come soluzione al flash bianco */
+  background-color: var(--color-wall);
+  color: var(--color-toner);
+}
+
+body {
+  font-variation-settings: 'wdth' 100;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grana da fotocopia su tutto il sito (fissa, non intercetta i clic) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Focus da tastiera ben visibile ovunque */
+:focus-visible {
+  outline: 3px solid var(--color-flyer);
+  outline-offset: 3px;
+}
+
+/* ─── COMPONENTI ─── */
+
+/* Foto fotocopiata: bianco e nero contrastato */
+.xerox {
+  filter: grayscale(1) contrast(1.35) brightness(1.4);
+}
+
+/* Retino tipografico sopra una foto o un foglio */
+.halftone {
+  position: relative;
+  isolation: isolate;
+}
+.halftone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(0 0 0 / 0.35) 1px, transparent 1.3px);
+  background-size: 5px 5px;
+  mix-blend-mode: multiply;
+}
+
+/* Sul cartoncino rosa il retino è più leggero, per non disturbare il testo */
+.paper-pink.halftone::after {
+  opacity: 0.45;
+}
+
+/* Foglio di carta: toner su carta, con un'ombra netta da poster attaccato al muro */
+.paper {
+  background-color: var(--color-toner);
+  color: #000;
+  box-shadow: 6px 8px 0 0 rgb(0 0 0 / 0.6);
+}
+.paper-pink {
+  background-color: var(--color-flyer);
+  color: #000;
+  box-shadow: 6px 8px 0 0 rgb(0 0 0 / 0.6);
+}
+
+/* Striscia di nastro adesivo in alto al centro */
+.tape {
+  position: relative;
+}
+.tape::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 96px;
+  height: 28px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgb(237 237 232 / 0.55);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  z-index: 2;
+}
+
+/* Linguette da strappare in fondo al flyer */
+.tear-tabs {
+  display: flex;
+  border-top: 2px dashed #000;
+}
+.tear-tabs > a {
+  flex: 1 1 0;
+  min-width: 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  padding: 0.9rem 0;
+  border-left: 1px dashed #000;
+  font-family: var(--font-marker);
+  font-size: 0.8rem;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: transform 0.15s;
+}
+.tear-tabs > a:last-child {
+  border-left: none;
+}
+.tear-tabs > a:hover {
+  transform: rotate(180deg) translateY(-6px);
+}
+
+/* Entrata del flyer principale: "attaccato" al muro, una volta sola */
+@keyframes slap {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px) rotate(-6deg) scale(1.04);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(2px) rotate(-1.2deg) scale(1);
+  }
+  100% {
+    transform: rotate(-1.5deg);
+  }
+}
+.slap {
+  transform: rotate(-1.5deg);
+  animation: slap 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
 }
 
 /* accessibilità: riduce animazioni e transizioni se richiesto dal sistema */

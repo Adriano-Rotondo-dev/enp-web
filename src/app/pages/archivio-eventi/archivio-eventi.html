@@ -1,120 +1,86 @@
-<div class="min-h-screen bg-black pt-32 pb-20 px-6">
-  <div class="max-w-5xl mx-auto mb-20">
-    <h1 class="text-7xl md:text-8xl font-black text-white uppercase tracking-tighter italic">
-      The <span class="text-purple-600">Story</span> so far
-    </h1>
-    <p
-      class="text-gray-500 font-bold uppercase tracking-[0.3em] text-sm mt-4 border-l-4 border-white pl-4"
-    >
-      Cronologia delle notti
-    </p>
-  </div>
+<div class="min-h-screen pt-32 pb-20 px-6">
+  <header class="max-w-6xl mx-auto mb-16">
+    <h1 class="font-display uppercase text-toner text-7xl md:text-9xl leading-[0.86]">The story<br />so far</h1>
+    <p class="mt-5 font-marker text-flyer text-2xl -rotate-1 inline-block">ogni serata, dal Vol. 0 a oggi</p>
+  </header>
 
   @if (status() === 'loading') {
-    <div class="max-w-5xl mx-auto py-24 text-center border border-white/10" role="status">
-      <p class="text-gray-600 text-[10px] uppercase tracking-[0.4em] font-black animate-pulse">
-        // Caricamento archivio...
-      </p>
-    </div>
+    <p class="max-w-6xl mx-auto py-24 text-center text-xerox animate-pulse" role="status">
+      Sto appendendo i poster…
+    </p>
   } @else if (status() === 'unavailable') {
-    <div class="max-w-5xl mx-auto py-24 px-6 text-center border border-white/10" role="status">
-      <p class="text-white font-black uppercase italic text-2xl md:text-4xl tracking-tighter mb-4">
-        Archivio momentaneamente non disponibile
-      </p>
-      <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-black">
-        // Riprova tra qualche minuto
-      </p>
+    <div class="max-w-xl mx-auto paper tape -rotate-1 p-8 text-center" role="status">
+      <p class="font-display uppercase text-4xl leading-none">Archivio momentaneamente non disponibile</p>
+      <p class="mt-3">Riprova tra qualche minuto.</p>
     </div>
   } @else {
-    <div class="max-w-5xl mx-auto space-y-32 relative">
-      <div class="absolute left-1/2 top-0 bottom-0 w-px bg-white/5 hidden md:block"></div>
-
+    <!-- Muro di poster: rotazioni alterne, come attaccati a mano -->
+    <ol class="max-w-6xl mx-auto grid gap-x-12 gap-y-24 md:grid-cols-2">
       @for (event of events(); track event.id; let isEven = $even) {
-        <div
-          class="flex flex-col md:flex-row items-center gap-10 md:gap-20 relative"
-          [class.md:flex-row-reverse]="isEven"
-        >
-          <!-- POSTER -->
+        <li class="flex flex-col" [class.md:mt-28]="!isEven">
           <div
-            class="w-full md:w-1/2 aspect-3/4 bg-gray-900 border-2 border-white/10 group overflow-hidden relative rotate-1 hover:rotate-0 transition-all duration-500 shadow-[20px_20px_0px_0px_rgba(147,51,234,0.1)]"
+            class="tape relative bg-toner p-2.5 shadow-[8px_10px_0_0_rgb(0_0_0/0.7)] transition-transform duration-300 hover:rotate-0"
+            [class.rotate-2]="isEven"
+            [class.-rotate-2]="!isEven"
           >
-            @if (event.posterUrl) {
-              <img
-                [src]="event.posterUrl"
-                [alt]="event.name"
-                loading="lazy"
-                decoding="async"
-                class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-            }
-
-            <!-- testing purpose -->
-            <!-- <div
-              class="absolute inset-0 flex items-center justify-center text-gray-700 font-black uppercase text-2xl tracking-tighter opacity-50 group-hover:opacity-100 transition-opacity bg-black/20"
-            >
-              [ Poster {{ event.vol }} ]
-            </div> -->
-          </div>
-
-          <!-- INFO -->
-          <div class="w-full md:w-1/2 text-left">
+            <div class="aspect-3/4 bg-wall overflow-hidden">
+              @if (event.posterUrl) {
+                <img
+                  [src]="event.posterUrl"
+                  [alt]="'Poster di ' + event.name"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-full object-cover"
+                />
+              }
+            </div>
+            <!-- Il volume come adesivo sul poster -->
             <span
-              class="bg-purple-600 text-white font-black px-4 py-1 text-2xl uppercase tracking-tighter"
+              class="absolute -right-4 -bottom-4 bg-flyer text-black font-display uppercase text-2xl px-3 py-1 rotate-6 shadow-[3px_3px_0_0_rgb(0_0_0/0.8)]"
             >
               {{ event.vol }}
             </span>
+          </div>
 
-            <h2
-              class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mt-6 leading-none"
-            >
-              {{ event.name }}
-            </h2>
+          <div class="mt-9">
+            <h2 class="font-display uppercase text-4xl md:text-5xl leading-[0.9] text-toner">{{ event.name }}</h2>
+            <p class="font-marker text-xl text-flyer mt-2">{{ event.date }}</p>
+            @if (event.description) {
+              <p class="mt-3 text-toner/80 leading-relaxed max-w-prose">{{ event.description }}</p>
+            }
 
-            <p class="text-purple-500 font-bold text-lg mt-2 uppercase tracking-widest italic">
-              {{ event.date }}
-            </p>
-
-            <p class="text-gray-400 mt-6 text-lg leading-relaxed max-w-md">
-              {{ event.description }}
-            </p>
-
-            <div class="mt-8 flex flex-wrap gap-4">
-              <!-- GALLERY — sempre visibile -->
+            <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 font-semibold">
               <a
                 [routerLink]="['/archivio-foto']"
                 [queryParams]="{ eventId: event.id }"
-                class="px-6 py-2 border border-white/20 text-white font-bold uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all"
+                class="text-toner underline decoration-flyer decoration-2 underline-offset-4 hover:text-flyer"
               >
-                Gallery
+                Guarda le foto
               </a>
-
-              <!-- SETLIST — solo se spotifyUrl esiste -->
               @if (event.spotifyUrl) {
                 <a
                   [href]="event.spotifyUrl"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="px-6 py-2 border border-purple-600/50 text-purple-500 font-bold uppercase text-[10px] tracking-widest hover:bg-purple-600 hover:text-white transition-all"
+                  class="text-toner underline decoration-flyer decoration-2 underline-offset-4 hover:text-flyer"
                 >
-                  Setlist
+                  Ascolta la setlist
                 </a>
               }
-
-              <!-- LIVE MUSIC — solo se liveMusicUrl esiste -->
               @if (event.liveMusicUrl) {
                 <a
                   [href]="event.liveMusicUrl"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="px-6 py-2 border border-white/20 text-white font-bold uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all"
+                  class="text-toner underline decoration-flyer decoration-2 underline-offset-4 hover:text-flyer"
                 >
-                  Live Music
+                  Chi ha suonato
                 </a>
               }
             </div>
           </div>
-        </div>
+        </li>
       }
-    </div>
+    </ol>
   }
 </div>

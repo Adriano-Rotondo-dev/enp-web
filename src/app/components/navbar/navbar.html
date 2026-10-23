@@ -1,103 +1,86 @@
 <nav
-  class="fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-black/20 backdrop-blur-md border-b border-white/10 py-4 px-8 flex justify-between items-center"
+  class="fixed top-0 left-0 w-full z-50 bg-wall/90 backdrop-blur-sm border-b border-toner/10 py-3 px-5 md:px-8 flex justify-between items-center"
 >
   <div
-    class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-danger-slanted tracking-tighter cursor-pointer shrink-0"
+    class="text-2xl xs:text-3xl sm:text-4xl md:text-[2.6rem] font-danger-slanted tracking-tighter shrink-0 leading-none"
   >
-    <a
-      routerLink="/"
-      routerLinkActive="text-purple-500"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      <span class="text-purple-500">EMO</span><span class="text-white">NIGHTPALERMO</span>
+    <a routerLink="/" aria-label="Emo Night Palermo, home">
+      <span class="text-brand">EMO</span><span class="text-toner">NIGHTPALERMO</span>
     </a>
   </div>
 
-  <div
-    class="hidden min-[1031px]:flex gap-8 font-bold text-sm uppercase tracking-widest text-gray-300"
-  >
+  <div class="hidden min-[1031px]:flex gap-7 text-[0.95rem] font-semibold text-toner/80">
     @for (link of navLinks; track link.path) {
       <a
         [routerLink]="link.path"
-        routerLinkActive="text-purple-500"
+        routerLinkActive="text-flyer underline decoration-wavy decoration-2 underline-offset-8"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="hover:text-purple-400 transition-all duration-300 relative group"
+        class="hover:text-toner transition-colors"
       >
         {{ link.label }}
-        <span
-          class="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-500 transition-all group-hover:w-full"
-        ></span>
       </a>
     }
   </div>
 
   <div class="flex items-center gap-4">
-    <button
+    <a
       routerLink="/contact-us"
-      class="hidden min-[1031px]:block bg-white text-black hover:bg-purple-600 hover:text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-tighter transition-all active:scale-95 shadow-lg"
+      class="hidden min-[1031px]:inline-block paper-pink font-display text-lg uppercase px-4 py-1 -rotate-2 hover:rotate-0 transition-transform"
     >
       Contattaci
-    </button>
+    </a>
 
     <button
       (click)="toggleMenu()"
-      class="min-[1031px]:hidden text-white flex flex-col gap-1.5 z-50 relative"
-      aria-label="Toggle Menu"
+      class="min-[1031px]:hidden text-toner flex flex-col gap-1.5 z-50 relative p-1"
+      aria-label="Apri il menu"
       aria-controls="mobile-menu"
       [attr.aria-expanded]="isMenuOpen()"
     >
       <span
-        class="w-8 h-0.5 bg-white transition-all"
+        class="w-8 h-0.5 bg-toner transition-all"
         [class.rotate-45]="isMenuOpen()"
         [class.translate-y-2]="isMenuOpen()"
       ></span>
-      <span class="w-8 h-0.5 bg-white transition-all" [class.opacity-0]="isMenuOpen()"></span>
+      <span class="w-8 h-0.5 bg-toner transition-all" [class.opacity-0]="isMenuOpen()"></span>
       <span
-        class="w-8 h-0.5 bg-white transition-all"
+        class="w-8 h-0.5 bg-toner transition-all"
         [class.-rotate-45]="isMenuOpen()"
         [class.-translate-y-2]="isMenuOpen()"
       ></span>
     </button>
   </div>
 </nav>
-<!-- HAMBURGER MENU mobile -->
 
+<!-- Menu mobile: i link come titoli da manifesto -->
 @if (isMenuOpen()) {
   <div
     id="mobile-menu"
-    class="fixed inset-0 bg-black/98 z-40 flex flex-col items-center justify-center p-6 animate-in fade-in duration-300"
+    class="fixed inset-0 bg-wall z-40 flex flex-col justify-center px-8 animate-in fade-in duration-200"
   >
-    <nav class="flex flex-col items-center gap-4 w-full max-h-[80vh] overflow-y-auto">
+    <nav class="flex flex-col gap-1 w-full max-h-[80vh] overflow-y-auto">
       @for (item of navLinks; track item.path) {
         <a
           [routerLink]="item.path"
           (click)="closeMenu()"
-          routerLinkActive="text-purple-500"
+          routerLinkActive="text-flyer"
           [routerLinkActiveOptions]="{ exact: true }"
-          class="group relative text-xl font-black uppercase italic text-white tracking-widest hover:text-purple-600 transition-colors py-2"
+          class="font-display text-5xl uppercase leading-[1.05] text-toner hover:text-flyer transition-colors"
         >
           {{ item.label }}
-          <span
-            class="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full"
-          ></span>
         </a>
       }
-      <div class="w-12 h-px bg-white/20 my-2"></div>
-
       <a
         routerLink="/contact-us"
         (click)="closeMenu()"
-        class="group relative text-xl font-black uppercase italic text-purple-500 tracking-widest hover:text-white transition-colors py-2"
+        class="self-start mt-8 paper-pink font-display text-2xl uppercase px-5 py-2 -rotate-2"
       >
         Contattaci
-        <span
-          class="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"
-        ></span>
       </a>
     </nav>
 
-    <div class="absolute bottom-10 text-[10px] text-gray-600 font-bold uppercase tracking-[0.5em]">
-      Emo Night Palermo © 2026
-    </div>
+    <p class="absolute bottom-8 left-8 font-marker text-xerox text-base">
+      it's not a phase. since 2024.
+    </p>
   </div>
 }

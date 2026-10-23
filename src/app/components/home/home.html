@@ -1,272 +1,135 @@
-<div class="min-h-screen bg-black">
-  <div class="relative h-screen w-full overflow-hidden">
-    <!-- Carosello -->
-    <div class="absolute inset-0 z-0">
-      @for (img of images; track $index) {
-        <div
-          class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-          [style.opacity]="$index === currentIndex() ? '0.6' : '0'"
-        >
-          <img
-            [src]="img"
-            [attr.fetchpriority]="$index === 0 ? 'high' : null"
-            class="object-cover w-full h-full grayscale"
-            alt=""
-          />
-          <div class="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent"></div>
-          <div class="absolute inset-0 bg-purple-900/10 mix-blend-multiply"></div>
+<div class="min-h-screen">
+  <!-- HERO: la foto della serata fotocopiata e attaccata al muro -->
+  <section class="relative min-h-[min(100svh,56rem)] pt-28 pb-16 px-6 md:px-10 flex items-center overflow-hidden">
+    <div class="max-w-6xl w-full mx-auto grid gap-12 md:grid-cols-12 md:items-center">
+      <div class="md:col-span-6 relative z-10 order-2 md:order-1">
+        <h1 class="font-display uppercase text-toner text-[17vw] md:text-[7.5rem] leading-[0.86]">
+          Pronti a<br />tornare<br />nel 2008?
+        </h1>
+        <p class="mt-7 max-w-md text-lg leading-relaxed text-toner/85">
+          Il party più alternative di Palermo: hardcore, metalcore, i brani che ti hanno cresciuto e
+          band dal vivo.
+        </p>
+        <p class="mt-5 font-marker text-flyer text-2xl -rotate-2 inline-block">pop-punk's not dead!</p>
+      </div>
+
+      <figure class="md:col-span-6 order-1 md:order-2 tape rotate-2 relative">
+        <div class="relative aspect-[4/5] bg-toner p-3 pb-12 shadow-[10px_12px_0_0_rgb(0_0_0/0.7)]">
+          <div class="relative w-full h-full overflow-hidden halftone bg-wall">
+            @for (img of images; track $index) {
+              <img
+                [src]="img"
+                [attr.fetchpriority]="$index === 0 ? 'high' : null"
+                class="absolute inset-0 object-cover w-full h-full xerox transition-opacity duration-1000"
+                [style.opacity]="$index === currentIndex() ? '1' : '0'"
+                alt=""
+              />
+            }
+          </div>
+          <figcaption class="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+            <span class="font-marker text-black text-base">dalle nostre serate</span>
+            <span class="flex gap-1.5" aria-hidden="true">
+              @for (img of images; track $index) {
+                <span
+                  class="h-2 w-2 rounded-full border border-black transition-colors"
+                  [class.bg-black]="$index === currentIndex()"
+                ></span>
+              }
+            </span>
+          </figcaption>
         </div>
-      }
+      </figure>
     </div>
+  </section>
 
-    <!-- Text Hovering -->
-    <div class="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
-      <span
-        class="inline-block bg-white text-black text-[8px] md:text-[10px] font-black px-3 py-1 uppercase tracking-[0.3em] mb-6"
-      >
-        Palermo Based // Since 2024
-      </span>
-      <h1
-        class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-6 max-w-4xl"
-      >
-        Pronti a tornare nel 2008 con il party più
-        <span class="text-purple-600"> alternative</span>
-        di tutta Palermo? 🖤
-      </h1>
-      <p
-        class="text-gray-300 text-base md:text-xl font-bold uppercase tracking-tight max-w-2xl leading-relaxed border-l-4 border-purple-600 pl-4 text-left"
-      >
-        Le sonorità hardcore, metalcore, i tuoi brani preferiti e grandi artisti live!<br />
-        Tutto ciò che ha formato la cultura Emo ed alternative torna in Sicilia, più viva che mai<br />
-        <span class="text-purple-500 font-danger-slanted">PoP-Punk's not dead!</span>
-      </p>
-    </div>
-
-    <!-- Indicatori carosello -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 md:gap-3 z-10">
-      @for (img of images; track $index) {
-        <div
-          [class]="
-            'h-1 transition-all duration-500 ' +
-            ($index === currentIndex() ? 'bg-purple-600 w-8 md:w-12' : 'bg-white/10 w-3 md:w-4')
-          "
-        ></div>
-      }
-    </div>
-  </div>
-
-  <!-- MOBILE QUICK BAR -->
-
-  <a
-    href="#countdown"
-    class="md:hidden flex items-center justify-between bg-purple-600 px-6 py-3 w-full overflow-hidden hover:bg-black transition-colors duration-300 group"
-  >
-    <div class="flex items-center gap-3 animate-marquee">
-      <span class="text-white font-black uppercase text-[10px] tracking-widest">
-        Count Your Days
-      </span>
-      <span
-        class="text-white group-hover:text-purple-500 font-black text-sm tabular-nums transition-colors"
-      >
+  <!-- Barra mobile: conto alla rovescia sul cartoncino rosa -->
+  <a href="#countdown" class="md:hidden block bg-flyer text-black py-3 overflow-hidden">
+    <div class="flex items-center gap-4 animate-marquee font-display uppercase text-lg">
+      <span>
         @if (hasUpcomingEvent()) {
-          {{ countdown().days }}g {{ countdown().hours }}h {{ countdown().minutes }}m
+          Mancano {{ countdown().days }}g {{ countdown().hours }}h {{ countdown().minutes }}m
         } @else {
-          Stay Tuned
+          Prossima data: stay tuned
         }
       </span>
       <img src="/emo-boy-ico.png" class="h-6 w-6 object-contain" alt="" />
-      <span class="text-white group-hover:text-purple-500 font-black text-xs transition-colors">
-        Sleep is for the Weak!
-      </span>
+      <span>Sleep is for the weak!</span>
     </div>
   </a>
 
-  <!-- Info -->
-  <div class="bg-black px-6 py-24 flex flex-col items-center gap-20">
-    <div class="w-full max-w-3xl">
-      <div class="text-center mb-12">
-        <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-black mb-4">
-          get ready to mosh!!
-        </p>
-        <h2
-          class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter italic leading-none"
-        >
-          Vuoi sapere quand'è la prossima
-          <span class="text-purple-600">EmoNight?</span>
-        </h2>
-      </div>
+  <!-- IL FLYER DEL PROSSIMO EVENTO -->
+  <section class="px-6 py-24">
+    <p class="font-marker text-toner/80 text-2xl text-center -rotate-1">
+      Vuoi sapere quand'è la prossima?
+    </p>
 
-      <!-- COUNTDOWN -->
-      <div
-        id="countdown"
-        class="relative border-l-4 md:border-l-8 border-purple-600 bg-black/60 backdrop-blur-xl p-6 md:p-12 shadow-[15px_15px_0px_0px_rgba(0,0,0,0.5)]"
-      >
+    <article id="countdown" class="paper-pink halftone tape slap max-w-xl mx-auto mt-12">
+      <div class="p-7 md:p-10">
         @if (hasUpcomingEvent()) {
-          <span
-            class="inline-block bg-white text-black text-[8px] md:text-[10px] font-black px-2 py-1 uppercase tracking-[0.3em] mb-4 md:mb-6"
-          >
-            Next Event // {{ nextEvent().location }}
-          </span>
-
-          <h2
-            class="text-3xl md:text-7xl font-danger-slanted text-white mb-2 uppercase tracking-tighter leading-none italic"
-          >
+          <p class="font-marker text-lg">Emo Night Palermo presenta</p>
+          <h2 class="font-display uppercase text-6xl md:text-8xl leading-[0.88] mt-2 break-words">
             {{ nextEvent().title }}
           </h2>
 
-          <p
-            class="text-lg md:text-xl font-bold text-purple-500 uppercase tracking-widest mb-8 md:mb-10 italic"
-          >
-            {{ nextEvent().date | date: 'd MMMM yyyy' }}
-          </p>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 md:mb-10 max-w-md">
-            <div class="flex flex-col border-b-2 border-white/10 pb-2">
-              <span class="text-2xl md:text-4xl font-black text-white">{{ countdown().days }}</span>
-              <span class="text-[9px] uppercase text-gray-500 font-black tracking-widest"
-                >Giorni</span
-              >
-            </div>
-            <div class="flex flex-col border-b-2 border-white/10 pb-2">
-              <span class="text-2xl md:text-4xl font-black text-white">{{ countdown().hours }}</span>
-              <span class="text-[9px] uppercase text-gray-500 font-black tracking-widest">Ore</span>
-            </div>
-            <div class="flex flex-col border-b-2 border-white/10 pb-2">
-              <span class="text-2xl md:text-4xl font-black text-white">{{
-                countdown().minutes
-              }}</span>
-              <span class="text-[9px] uppercase text-gray-500 font-black tracking-widest">Min</span>
-            </div>
-            <div class="flex flex-col border-b-2 border-purple-600/50 pb-2">
-              <span class="text-2xl md:text-4xl font-black text-purple-600 animate-pulse">
-                {{ countdown().seconds }}
-              </span>
-              <span class="text-[9px] uppercase text-purple-400 font-black tracking-widest">Sec</span>
+          <div class="mt-7 grid grid-cols-[auto_1fr] items-center gap-x-5 border-y-2 border-black py-4">
+            <p class="font-display text-6xl leading-none">{{ nextEvent().date | date: 'dd.MM' }}</p>
+            <div class="leading-snug">
+              <p class="font-bold text-lg capitalize">{{ nextEvent().date | date: 'EEEE d MMMM' }}</p>
+              <p>Porte alle {{ nextEvent().time }}, {{ nextEvent().location }}</p>
             </div>
           </div>
 
-          <p
-            class="text-gray-300 leading-tight mb-8 md:mb-12 text-base md:text-lg font-medium border-l-2 border-white/20 pl-4 md:pl-6 italic"
-          >
-            "{{ nextEvent().description }}"
+          <p class="font-marker text-2xl mt-6 -rotate-1">
+            mancano {{ countdown().days }} giorni, {{ countdown().hours }} ore e
+            {{ countdown().minutes }} minuti
           </p>
+
+          @if (nextEvent().description) {
+            <p class="mt-5 text-base leading-relaxed max-w-prose">{{ nextEvent().description }}</p>
+          }
+
+          <button
+            (click)="goToNextEventPage()"
+            class="mt-8 bg-black text-toner font-display uppercase text-2xl px-7 py-3 hover:bg-brand transition-colors"
+          >
+            Scopri la serata
+          </button>
         } @else if (eventStatus() === 'loading') {
-          <div class="animate-pulse mb-8 md:mb-12" aria-busy="true" aria-label="Caricamento prossimo evento">
-            <div class="h-4 w-40 bg-white/20 mb-6"></div>
-            <div class="h-10 md:h-16 w-3/4 bg-white/10 mb-4"></div>
-            <div class="h-6 w-1/2 bg-purple-600/30"></div>
+          <div class="animate-pulse" aria-busy="true" aria-label="Caricamento prossimo evento">
+            <div class="h-5 w-48 bg-black/20 mb-5"></div>
+            <div class="h-20 w-4/5 bg-black/15 mb-6"></div>
+            <div class="h-16 w-full bg-black/10"></div>
           </div>
         } @else {
-          <span
-            class="inline-block bg-white text-black text-[8px] md:text-[10px] font-black px-2 py-1 uppercase tracking-[0.3em] mb-4 md:mb-6"
-          >
-            Next Event // TBA
-          </span>
-
-          <h2
-            class="text-3xl md:text-7xl font-danger-slanted text-white mb-2 uppercase tracking-tighter leading-none italic"
-          >
-            Stay Tuned
-          </h2>
-
-          <p
-            class="text-lg md:text-xl font-bold text-purple-500 uppercase tracking-widest mb-8 md:mb-10 italic"
-          >
-            Nuova data in arrivo
-          </p>
-
-          <p
-            class="text-gray-300 leading-tight mb-8 md:mb-12 text-base md:text-lg font-medium border-l-2 border-white/20 pl-4 md:pl-6 italic"
-          >
-            Stiamo preparando la prossima EmoNight. Seguici su Instagram per essere tra i primi a saperlo.
+          <p class="font-marker text-lg">Prossima data:</p>
+          <h2 class="font-display uppercase text-7xl md:text-8xl leading-[0.88] mt-2">Stay tuned</h2>
+          <p class="mt-6 text-base leading-relaxed max-w-prose">
+            Stiamo preparando la prossima EmoNight. Strappa una linguetta e seguici su Instagram per
+            sapere tra i primi quando e dove.
           </p>
         }
+      </div>
 
-        <div class="flex flex-col md:flex-row items-stretch md:items-end justify-between gap-6">
+      <!-- Linguette da strappare: portano al profilo Instagram -->
+      <div class="tear-tabs h-36" aria-label="Seguici su Instagram">
+        @for (tab of [1, 2, 3, 4, 5, 6, 7, 8]; track tab) {
           <a
             href="https://www.instagram.com/emonightpalermo"
             target="_blank"
             rel="noopener noreferrer"
-            class="group flex flex-col items-start transition-all cursor-pointer"
+            [attr.aria-hidden]="tab > 1 ? 'true' : null"
+            [attr.tabindex]="tab > 1 ? -1 : null"
+            >@emonightpalermo</a
           >
-            <span
-              class="text-[10px] text-gray-500 uppercase font-black tracking-[0.2em] group-hover:text-purple-500 transition-colors"
-            >
-              Follow the Scene // IG
-            </span>
-            <div class="flex items-center gap-3 mt-1">
-              <span
-                class="text-2xl md:text-3xl text-white font-black italic group-hover:text-purple-400 transition-colors leading-none"
-              >
-                @emonightpalermo
-              </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="text-purple-500 group-hover:text-white group-hover:rotate-12 transition-all"
-              >
-                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-              </svg>
-            </div>
-          </a>
-          @if (hasUpcomingEvent()) {
-            <button
-              (click)="goToNextEventPage()"
-              class="relative px-8 py-3 bg-purple-600 text-white font-black uppercase tracking-tighter text-xl border-2 border-white cursor-pointer transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0 hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] active:shadow-none"
-            >
-              Event Details
-            </button>
-          }
-        </div>
+        }
       </div>
-    </div>
+    </article>
 
-    <!-- LINK SOCIALS -->
-    <div class="flex flex-col items-center gap-4 border-t border-white/10 pt-12 w-full max-w-3xl">
-      <p class="text-gray-600 text-[10px] uppercase tracking-[0.4em] font-black">// Seguici!</p>
-      <a
-        href="https://www.instagram.com/emonightpalermo"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="group flex items-center gap-3 transition-all"
+    <p class="mt-16 text-center text-toner/70">
+      Vuoi portare la Emo Night nel tuo locale o suonare con noi?
+      <a routerLink="/contact-us" class="text-flyer underline underline-offset-4 hover:text-toner"
+        >Scrivici</a
       >
-        <span
-          class="text-2xl md:text-3xl text-white font-black italic group-hover:text-purple-400 transition-colors leading-none"
-        >
-          @emonightpalermo
-        </span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-purple-500 group-hover:text-white group-hover:rotate-12 transition-all"
-        >
-          <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-        </svg>
-      </a>
-      <a
-        routerLink="/contact-us"
-        class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-purple-500 transition-colors border-b border-transparent hover:border-purple-500 pb-1"
-      >
-        Vuoi comunicare con Emo Night Palermo o entrare nella community? →
-      </a>
-    </div>
-  </div>
+    </p>
+  </section>
 </div>

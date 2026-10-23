@@ -1,120 +1,100 @@
-<div class="min-h-screen bg-black pt-32 pb-20 px-6 flex flex-col items-center">
-  <div class="max-w-4xl w-full">
+<div class="min-h-screen pt-32 pb-20 px-6">
+  <div class="max-w-5xl mx-auto">
     @if (hasUpcomingEvent()) {
-      <div class="border-l-8 border-white pl-6 mb-16">
-        <h1
-          class="text-6xl md:text-8xl font-black text-white mb-2 uppercase tracking-tighter italic leading-none"
-        >
-          <!-- <h1
-          class="text-6xl md:text-8xl font-danger-slanted text-white mb-2 uppercase tracking-tighter italic leading-none"
-        > -->
-          {{ eventData().title }}
-        </h1>
+      <div class="grid gap-14 md:grid-cols-12 md:items-start">
+        <!-- Il flyer della serata -->
+        <article class="md:col-span-7 paper-pink halftone tape slap">
+          <div class="p-7 md:p-10">
+            <p class="font-marker text-lg">Emo Night Palermo presenta</p>
+            <h1 class="font-display uppercase text-6xl md:text-[6.5rem] leading-[0.86] mt-2 break-words">
+              {{ eventData().title }}
+            </h1>
 
-        <p class="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs mb-8">
-          {{ eventData().description }}
-        </p>
+            <div class="mt-8 grid grid-cols-[auto_1fr] items-center gap-x-5 border-y-2 border-black py-4">
+              <p class="font-display text-6xl md:text-7xl leading-none">
+                {{ eventData().date | date: 'dd.MM' }}
+              </p>
+              <div class="leading-snug">
+                <p class="font-bold text-lg capitalize">{{ eventData().date | date: 'EEEE d MMMM yyyy' }}</p>
+                <p>Porte alle {{ eventData().time }}</p>
+                @if (eventData().price) {
+                  <p>Ingresso {{ eventData().price }} €</p>
+                }
+              </div>
+            </div>
 
-        <div class="flex flex-wrap gap-4 mt-6">
-          <div
-            class="bg-white text-black px-6 py-3 shadow-[6px_6px_0px_0px_#A83DB8] border-2 border-white transform -rotate-1"
-          >
-            <span class="text-[10px] font-black uppercase block leading-none opacity-50">Data_</span>
-            <span class="text-2xl font-black uppercase tracking-tighter">{{
-              eventData().date | date: 'dd.MM.yy'
-            }}</span>
-          </div>
-
-          <div
-            class="border-2 border-purple-600 bg-black text-white px-6 py-3 shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] transform rotate-1"
-          >
-            <span class="text-[10px] font-black text-purple-600 uppercase block leading-none"
-              >Doors_</span
-            >
-            <span class="text-2xl font-black uppercase tracking-tighter italic">{{
-              eventData().time
-            }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-        <div class="bg-white p-8 shadow-[12px_12px_0px_0px_#A83DB8] border-2 border-white">
-          <h3
-            class="text-black font-black uppercase text-2xl mb-8 italic border-b-4 border-purple-600 inline-block"
-          >
-            Lineup // DJ Set
-          </h3>
-          <ul class="space-y-6">
-            @for (item of eventData().lineup; track item.time) {
-              <li class="flex flex-col border-b border-black/10 pb-2">
-                <span class="text-purple-600 font-black text-xs tracking-widest">{{
-                  item.time
-                }}</span>
-                <span class="text-black font-black uppercase text-lg leading-tight">{{
-                  item.act
-                }}</span>
-              </li>
+            @if (eventData().description) {
+              <p class="mt-6 text-base leading-relaxed max-w-prose">{{ eventData().description }}</p>
             }
-          </ul>
-        </div>
+          </div>
+        </article>
 
-        <div class="flex flex-col gap-6">
-          <div
-            class="bg-purple-600 p-10 flex flex-col items-center text-center shadow-[12px_12px_0px_0px_rgba(255,255,255,0.1)]"
-          >
-            <div class="text-5xl mb-6 animate-pulse">📍</div>
-            <h3
-              class="text-white font-black text-4xl tracking-tighter uppercase italic leading-none mb-2"
-            >
+        <div class="md:col-span-5 flex flex-col gap-12 md:pt-10">
+          <!-- La setlist scritta a pennarello -->
+          <section class="paper tape rotate-1 p-7" aria-labelledby="lineup-title">
+            <h2 id="lineup-title" class="font-display uppercase text-3xl">Setlist</h2>
+            <ol class="mt-4 space-y-3">
+              @for (item of eventData().lineup; track item.time) {
+                <li class="grid grid-cols-[4.5rem_1fr] items-baseline gap-3 border-b border-black/15 pb-2">
+                  <span class="font-display text-xl">{{ item.time }}</span>
+                  <span class="font-marker text-xl leading-tight">{{ item.act }}</span>
+                </li>
+              }
+            </ol>
+          </section>
+
+          <!-- Il locale -->
+          <section class="border-2 border-toner/80 p-7 -rotate-1" aria-labelledby="venue-title">
+            <h2 id="venue-title" class="font-display uppercase text-4xl leading-none">
               {{ eventData().location }}
-            </h3>
-            <p class="text-purple-200 font-bold text-sm mb-8 uppercase tracking-tight">
-              {{ eventData().address }}
-            </p>
-
+            </h2>
+            <p class="mt-2 text-toner/80">{{ eventData().address }}</p>
             <button
               (click)="openMaps()"
-              class="w-full cursor-pointer bg-white text-black font-black py-4 uppercase tracking-tighter text-xl hover:bg-black hover:text-white transition-all transform hover:-translate-y-1 active:translate-y-0"
+              class="mt-6 w-full bg-toner text-black font-display uppercase text-xl py-3 hover:bg-flyer transition-colors"
             >
-              Apri in Maps
+              Apri in Google Maps
             </button>
-          </div>
-
+          </section>
         </div>
       </div>
     } @else if (eventStatus() === 'loading') {
-      <div class="animate-pulse border-l-8 border-white pl-6" aria-busy="true" aria-label="Caricamento prossimo evento">
-        <div class="h-16 md:h-24 w-3/4 bg-white/10 mb-4"></div>
-        <div class="h-4 w-1/2 bg-white/20"></div>
+      <div class="paper-pink tape max-w-xl p-10 animate-pulse" aria-busy="true" aria-label="Caricamento prossimo evento">
+        <div class="h-6 w-48 bg-black/20 mb-5"></div>
+        <div class="h-24 w-4/5 bg-black/15"></div>
       </div>
     } @else {
-      <div class="border-l-8 border-white pl-6 mb-16">
-        <h1
-          class="text-6xl md:text-8xl font-black text-white mb-2 uppercase tracking-tighter italic leading-none"
-        >
-          Stay Tuned
-        </h1>
-        <p class="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs mb-8">
-          La prossima EmoNight è in preparazione. Data e lineup in arrivo.
-        </p>
-      </div>
+      <div class="grid gap-14 md:grid-cols-12 md:items-start">
+        <article class="md:col-span-7 paper-pink halftone tape slap">
+          <div class="p-7 md:p-10">
+            <p class="font-marker text-lg">Prossima data:</p>
+            <h1 class="font-display uppercase text-7xl md:text-[7rem] leading-[0.86] mt-2">Stay tuned</h1>
+            <p class="mt-6 text-base leading-relaxed max-w-prose">
+              La prossima EmoNight è in preparazione: data, locale e setlist arrivano presto.
+            </p>
+          </div>
+          <div class="tear-tabs h-36" aria-label="Seguici su Instagram">
+            @for (tab of [1, 2, 3, 4, 5, 6, 7, 8]; track tab) {
+              <a
+                href="https://www.instagram.com/emonightpalermo"
+                target="_blank"
+                rel="noopener noreferrer"
+                [attr.aria-hidden]="tab > 1 ? 'true' : null"
+                [attr.tabindex]="tab > 1 ? -1 : null"
+                >@emonightpalermo</a
+              >
+            }
+          </div>
+        </article>
 
-      <div class="bg-white p-8 shadow-[12px_12px_0px_0px_#A83DB8] border-2 border-white">
-        <h2 class="text-black font-black uppercase text-2xl mb-4 italic border-b-4 border-purple-600 inline-block">
-          Non perderti l'annuncio
-        </h2>
-        <p class="text-black font-bold uppercase text-sm mb-8">
-          Seguici sui social per essere tra i primi a sapere quando e dove.
+        <p class="md:col-span-5 md:pt-16 font-marker text-2xl text-toner/85 rotate-1 leading-snug">
+          Nel frattempo riguardati le
+          <a routerLink="/archivio-eventi" class="text-flyer underline decoration-wavy underline-offset-4"
+            >serate passate</a
+          >
+          e le
+          <a routerLink="/archivio-foto" class="text-flyer underline decoration-wavy underline-offset-4">foto</a>.
         </p>
-        <a
-          href="https://www.instagram.com/emonightpalermo"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="block w-full bg-purple-600 text-white text-center font-black py-4 uppercase tracking-tighter text-xl hover:bg-black transition-all"
-        >
-          Seguici su Instagram
-        </a>
       </div>
     }
   </div>
