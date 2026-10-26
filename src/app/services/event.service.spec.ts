@@ -82,3 +82,136 @@ describe('EventService - archivio e galleria', () => {
     expect(service.archiveEvents()[0].posterUrl).toBe(poster);
   });
 });
+
+describe('EventService - caricamento foto a lotti', () => {
+  let service: EventService;
+  let http: HttpTestingController;
+  const file = (name: string) => new File(['x'], name, { type: 'image/jpeg' });
+  const isUpload = (r: { url: string }) => r.url.endsWith('/photos/upload.php');
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(EventService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => http.verify());
+
+  it('invia un file alla volta e riassume 201, 409 e 415', () => {
+    let summary: any = null;
+    service.uploadPhotos(
+      [file('EMONIGHT-17102026-001.jpg'), file('EMONIGHT-17102026-002.jpg'), file('IMG_1.jpg'), file('strano.webp')],
+      { tag: 'Crowd' }
+    ).subscribe(s => summary = s);
+
+    // il primo file è in invio, il secondo aspetta
+    const first = http.expectOne(isUpload);
+    expect(service.uploadProgress()).toEqual({ done: 0, total: 4, current: 'EMONIGHT-17102026-001.jpg' });
+    expect((first.request.body as FormData).get('photo')).toBe('{"tag":"Crowd"}');
+    first.flush({ id: 1, url: 'u1', parsed: true, autoLinked: true }, { status: 201, statusText: 'Created' });
+
+    expect(service.uploadProgress()?.done).toBe(1);
+    http.expectOne(isUpload).flush({ error: 'Foto già caricata', existingId: 1 }, { status: 409, statusText: 'Conflict' });
+    http.expectOne(isUpload).flush({ id: 2, url: 'u2', parsed: false, autoLinked: false }, { status: 201, statusText: 'Created' });
+    http.expectOne(isUpload).flush({ error: 'Formato non supportato' }, { status: 415, statusText: 'Unsupported Media Type' });
+
+    expect(summary).toEqual({
+      caricate: 2, collegateAuto: 1, nonConformi: 1, duplicate: 1,
+      errori: [{ nome: 'strano.webp', motivo: 'Formato non supportato' }],
+      nomiNonConformi: ['IMG_1.jpg'], nomiDuplicati: ['EMONIGHT-17102026-002.jpg'], annullato: false
+    });
+    expect(service.uploadProgress()).toBeNull();
+    expect(service.photos().map(p => p.id)).toEqual([2, 1]);
+  });
+
+  it('si ferma alla sessione scaduta', () => {
+    let summary: any = null;
+    service.uploadPhotos([file('a.jpg'), file('b.jpg')]).subscribe(s => summary = s);
+    http.expectOne(isUpload).flush({ error: 'Non autorizzato' }, { status: 401, statusText: 'Unauthorized' });
+    http.expectNone(isUpload);
+    expect(summary.errori.length).toBe(2);
+    expect(summary.errori[1].motivo).toContain('Sessione scaduta');
+  });
+
+  it('annulla i file non ancora inviati', () => {
+    let summary: any = null;
+    service.uploadPhotos([file('a.jpg'), file('b.jpg')]).subscribe(s => summary = s);
+    service.cancelUpload();
+    http.expectOne(isUpload).flush({ id: 1, url: 'u', parsed: false }, { status: 201, statusText: 'Created' });
+    http.expectNone(isUpload);
+    expect(summary.caricate).toBe(1);
+    expect(summary.annullato).toBe(true);
+  });
+
+  it('non invia il JSON photo se titolo, tag e serata sono vuoti', () => {
+    service.uploadPhoto({ title: ' ', tag: '' }, file('a.jpg')).subscribe();
+    const req = http.expectOne(isUpload);
+    expect((req.request.body as FormData).has('photo')).toBe(false);
+    expect((req.request.body as FormData).get('file')).toBeTruthy();
+    req.flush({ id: 1, url: 'u' }, { status: 201, statusText: 'Created' });
+  });
+
+  it('invia tipologia e data nella modifica della foto', () => {
+    service.updatePhoto({ id: 3, url: 'u', title: null, tag: null, eventTypeId: 2, eventDay: '2026-10-17' }).subscribe();
+    const req = http.expectOne(r => r.url.endsWith('/photos/update.php'));
+    expect(req.request.body).toContain('eventTypeId=2');
+    expect(req.request.body).toContain('eventDay=2026-10-17');
+    expect(req.request.body).toContain('title=&');
+    req.flush({ success: true });
+  });
+});
+
+describe('EventService - tipologie evento', () => {
+  let service: EventService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(EventService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => http.verify());
+
+  it('carica, aggiunge, rinomina ed elimina', () => {
+    service.loadEventTypes().subscribe();
+    http.expectOne(r => r.url.endsWith('/event-types/get.php'))
+      .flush([{ id: 1, prefix: 'EMONIGHT', label: 'Emo Night', archiveCount: 2, photoCount: 10 }]);
+    expect(service.eventTypes().length).toBe(1);
+
+    service.addEventType(' emoxmas ', 'Emo Xmas Night').subscribe();
+    const add = http.expectOne(r => r.url.endsWith('/event-types/add.php'));
+    expect(add.request.body).toEqual({ prefix: 'EMOXMAS', label: 'Emo Xmas Night' });
+    add.flush({ id: 2, prefix: 'EMOXMAS', label: 'Emo Xmas Night' }, { status: 201, statusText: 'Created' });
+    expect(service.eventTypes().map(t => t.prefix)).toEqual(['EMONIGHT', 'EMOXMAS']);
+    expect(service.eventTypes()[1].photoCount).toBe(0);
+
+    service.photos.set([{ id: 9, url: 'u', eventTypeId: 1, eventTypeLabel: 'Emo Night' }]);
+    service.updateEventType(1, 'Emo Night Palermo').subscribe();
+    const upd = http.expectOne(r => r.url.endsWith('/event-types/update.php'));
+    expect(upd.request.body).toEqual({ id: 1, label: 'Emo Night Palermo' });
+    upd.flush({ id: 1, prefix: 'EMONIGHT', label: 'Emo Night Palermo' });
+    expect(service.eventTypes()[0].label).toBe('Emo Night Palermo');
+    expect(service.photos()[0].eventTypeLabel).toBe('Emo Night Palermo');
+
+    service.deleteEventType(2).subscribe();
+    const del = http.expectOne(r => r.url.includes('/event-types/delete.php'));
+    expect(del.request.method).toBe('DELETE');
+    expect(del.request.urlWithParams).toContain('id=2');
+    del.flush({ success: true });
+    expect(service.eventTypes().map(t => t.id)).toEqual([1]);
+  });
+
+  it('manda tipologia e data della serata, null se vuote', () => {
+    service.addToArchive({ id: 0, vol: 'VOL. 9', name: 'X', date: '', description: '', posterUrl: '', eventTypeId: null, eventDay: '' }, null).subscribe();
+    const req = http.expectOne(r => r.url.endsWith('/archive-events/add.php'));
+    const sent = JSON.parse((req.request.body as FormData).get('event') as string);
+    expect(sent.eventTypeId).toBeNull();
+    expect(sent.eventDay).toBeNull();
+    req.flush({ success: true, linkedPhotos: 0 });
+  });
+});

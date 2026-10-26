@@ -1,8 +1,9 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { EnpPhoto } from '../../models/event.model';
+import { photoDisplayTitle } from '../../utils/photo-filename';
 
 @Component({
   selector: 'app-archivio-foto',
@@ -13,10 +14,14 @@ import { EnpPhoto } from '../../models/event.model';
 export class ArchivioFotoComponent implements OnInit {
   private eventService = inject(EventService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  // titolo della foto, o "{tipologia} {gg.mm.aaaa}" se manca
+  photoTitle = photoDisplayTitle;
 
   // ─── FILTRI ───
   activeEventId = signal<number | null>(null);
-  activeTag = signal<string | null>(null);
+  activeType = signal<string | null>(null); // prefisso, es. EMONIGHT
 
   // ─── LIGHTBOX ───
   selectedPhoto = signal<EnpPhoto | null>(null);
@@ -26,12 +31,22 @@ export class ArchivioFotoComponent implements OnInit {
   archiveEvents = this.eventService.archiveEvents;
   status = this.eventService.photosStatus;
 
-  // Tag unici dalle foto caricate
-  availableTags = computed(() => {
-    const tags = this.allPhotos()
-      .map(p => p.tag)
-      .filter((t): t is string => !!t);
-    return [...new Set(tags)];
+  // Solo le tipologie che hanno almeno una foto, in ordine di nome
+  availableTypes = computed(() => {
+    const types = new Map<string, string>();
+    for (const p of this.allPhotos()) {
+      if (p.eventTypePrefix && !types.has(p.eventTypePrefix)) {
+        types.set(p.eventTypePrefix, p.eventTypeLabel || p.eventTypePrefix);
+      }
+    }
+    return [...types].map(([prefix, label]) => ({ prefix, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  });
+
+  activeTypeLabel = computed(() => {
+    const prefix = this.activeType();
+    if (prefix === null) return null;
+    return this.availableTypes().find(t => t.prefix === prefix)?.label ?? prefix;
   });
 
   // Label VOL dell'evento attivo per l'indicatore filtro
@@ -40,7 +55,7 @@ export class ArchivioFotoComponent implements OnInit {
     return this.archiveEvents().find(e => e.id === this.activeEventId())?.vol ?? null;
   });
 
-  // Foto filtrate per eventId e/o tag
+  // Foto filtrate per serata e/o tipologia
   photos = computed(() => {
     let filtered = this.allPhotos();
 
@@ -48,8 +63,8 @@ export class ArchivioFotoComponent implements OnInit {
       filtered = filtered.filter(p => p.archiveEventId === this.activeEventId());
     }
 
-    if (this.activeTag() !== null) {
-      filtered = filtered.filter(p => p.tag === this.activeTag());
+    if (this.activeType() !== null) {
+      filtered = filtered.filter(p => p.eventTypePrefix === this.activeType());
     }
 
     return filtered;
@@ -59,22 +74,42 @@ export class ArchivioFotoComponent implements OnInit {
     this.eventService.loadPhotos().subscribe();
     this.eventService.loadArchiveEvents().subscribe();
 
-    // Legge il query param ?eventId= passato dall'archivio eventi
+    // Legge i query param ?eventId= (dall'archivio eventi) e ?tipo=PREFIX
     this.route.queryParams.subscribe(params => {
       const id = params['eventId'];
       this.activeEventId.set(id ? Number(id) : null);
+      const tipo = params['tipo'];
+      this.activeType.set(tipo ? String(tipo).toUpperCase() : null);
     });
   }
 
   // ─── FILTRO EVENTO ───
   setEventFilter(id: number | null) {
     this.activeEventId.set(id);
-    this.activeTag.set(null);
+    this.activeType.set(null);
+    this.syncUrl();
   }
 
-  // ─── FILTRO TAG ───
-  setTagFilter(tag: string | null) {
-    this.activeTag.set(tag);
+  // ─── FILTRO TIPOLOGIA ───
+  setTypeFilter(prefix: string | null) {
+    this.activeType.set(prefix);
+    this.syncUrl();
+  }
+
+  resetFilters() {
+    this.activeEventId.set(null);
+    this.activeType.set(null);
+    this.syncUrl();
+  }
+
+  // i filtri restano nell'URL, così il link si può condividere
+  private syncUrl() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { eventId: this.activeEventId(), tipo: this.activeType() },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   // ─── LIGHTBOX ───
