@@ -33,7 +33,7 @@ describe('ArchivioFotoComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('offre solo le tipologie che hanno foto e filtra per tipologia', () => {
+  it('senza elenco tipologie usa quelle presenti nelle foto e filtra per tipologia', () => {
     component.allPhotos.set(PHOTOS);
     expect(component.availableTypes()).toEqual([
       { prefix: 'EMONIGHT', label: 'Emo Night' },
@@ -44,6 +44,31 @@ describe('ArchivioFotoComponent', () => {
     expect(component.activeTypeLabel()).toBe('Emo Xmas Night');
     component.resetFilters();
     expect(component.photos().length).toBe(3);
+  });
+
+  it('mostra tutte le tipologie, anche quelle ancora senza foto', () => {
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne(r => r.url.endsWith('/event-types/get.php')).flush([
+      { id: 4, prefix: 'EMOMTV', label: 'Emo MTV Night', archiveCount: 0, photoCount: 0 },
+      { id: 1, prefix: 'EMONIGHT', label: 'Emo Night', archiveCount: 1, photoCount: 1 }
+    ]);
+    component.allPhotos.set(PHOTOS);
+    expect(component.availableTypes().map(t => t.prefix)).toEqual(['EMOMTV', 'EMONIGHT', 'EMOXMAS']);
+    // nessun filtro scelto: si vedono tutte le foto
+    expect(component.photos().length).toBe(3);
+    component.setTypeFilter('EMOMTV');
+    expect(component.photos()).toEqual([]);
+    expect(component.activeTypeLabel()).toBe('Emo MTV Night');
+  });
+
+  it('nel lightbox mostra il pulsante per scaricare la foto', async () => {
+    component.allPhotos.set(PHOTOS);
+    component.openPhoto(PHOTOS[1]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a[download]');
+    expect(link?.textContent?.trim()).toBe('Vuoi scaricare la foto e ripubblicarla? Clicca qui!');
+    expect(link?.getAttribute('href')).toMatch(/\/photos\/download\.php\?id=2$/);
   });
 
   it('scegliendo una serata azzera la tipologia', () => {

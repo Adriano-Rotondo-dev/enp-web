@@ -172,7 +172,11 @@
       @if (photos().length === 0) {
         <div class="col-span-3 py-24 text-center border border-white/5">
           <p class="text-gray-600 text-[10px] uppercase tracking-[0.4em] font-black">
-            // No_Results_Found
+            @if (activeType() !== null && activeEventId() === null) {
+              // Ancora nessuna foto per {{ activeTypeLabel() }}
+            } @else {
+              // No_Results_Found
+            }
           </p>
         </div>
       }
@@ -207,8 +211,17 @@
       <img
         [src]="selectedPhoto()!.url"
         [alt]="photoTitle(selectedPhoto()!) || 'Foto Emo Night Palermo'"
-        class="max-h-[80vh] w-auto object-contain border border-white/10"
+        class="max-h-[70vh] w-auto object-contain border border-white/10"
       />
+
+      <!-- Download della foto aperta -->
+      <a
+        [href]="downloadUrl(selectedPhoto()!)"
+        download
+        class="mt-5 bg-purple-600 text-white font-black uppercase tracking-tighter text-sm md:text-base px-6 py-3 shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)] hover:bg-white hover:text-black transition-all text-center"
+      >
+        Vuoi scaricare la foto e ripubblicarla? Clicca qui!
+      </a>
 
       <button
         (click)="nextPhoto()"

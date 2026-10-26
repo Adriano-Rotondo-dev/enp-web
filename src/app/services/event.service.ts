@@ -276,6 +276,11 @@ deleteArchiveEvent(id: number): Observable<any> {
 
   // ─── PHOTOS ───
 
+  // Link di download pubblico: il backend invia la foto come allegato con il nome originale
+  photoDownloadUrl(id: number): string {
+    return `${this.apiUrl}/photos/download.php?id=${id}`;
+  }
+
   loadPhotos(): Observable<EnpPhoto[]> {
     if (this.USE_BACKEND) {
       return this.http.get<EnpPhoto[]>(`${this.apiUrl}/photos/get.php`).pipe(

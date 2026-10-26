@@ -19,6 +19,11 @@ export class ArchivioFotoComponent implements OnInit {
   // titolo della foto, o "{tipologia} {gg.mm.aaaa}" se manca
   photoTitle = photoDisplayTitle;
 
+  // link per scaricare la foto aperta nel lightbox
+  downloadUrl(photo: EnpPhoto): string {
+    return this.eventService.photoDownloadUrl(photo.id);
+  }
+
   // ─── FILTRI ───
   activeEventId = signal<number | null>(null);
   activeType = signal<string | null>(null); // prefisso, es. EMONIGHT
@@ -31,9 +36,13 @@ export class ArchivioFotoComponent implements OnInit {
   archiveEvents = this.eventService.archiveEvents;
   status = this.eventService.photosStatus;
 
-  // Solo le tipologie che hanno almeno una foto, in ordine di nome
+  // Tutte le tipologie (anche senza foto) + quelle presenti nelle foto, in ordine di nome
   availableTypes = computed(() => {
     const types = new Map<string, string>();
+    for (const t of this.eventService.eventTypes()) {
+      types.set(t.prefix, t.label || t.prefix);
+    }
+    // ripiego: se l'elenco tipologie non arriva, restano quelle lette dalle foto
     for (const p of this.allPhotos()) {
       if (p.eventTypePrefix && !types.has(p.eventTypePrefix)) {
         types.set(p.eventTypePrefix, p.eventTypeLabel || p.eventTypePrefix);
@@ -73,6 +82,7 @@ export class ArchivioFotoComponent implements OnInit {
   ngOnInit() {
     this.eventService.loadPhotos().subscribe();
     this.eventService.loadArchiveEvents().subscribe();
+    this.eventService.loadEventTypes().subscribe();
 
     // Legge i query param ?eventId= (dall'archivio eventi) e ?tipo=PREFIX
     this.route.queryParams.subscribe(params => {
