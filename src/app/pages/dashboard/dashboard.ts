@@ -9,7 +9,7 @@ import {
 } from '../../models/event.model';
 import {
   EVENT_TYPE_PREFIX_REGEX, ParsedPhotoName, findArchiveMatch, formatDay, hasPhotoExtension,
-  parsePhotoFileName, photoDisplayTitle
+  parsePhotoFileName, photoBaseName, photoDisplayTitle
 } from '../../utils/photo-filename';
 
 // riga dell'anteprima prima dell'invio
@@ -131,7 +131,7 @@ export class DashboardComponent implements OnInit {
         parsed,
         serata,
         serataNote,
-        giaCaricata: parsed.conforme && known.has(file.name.toLowerCase()),
+        giaCaricata: parsed.conforme && known.has(photoBaseName(file.name).toLowerCase()),
         troppoGrande: file.size > MAX_PHOTO_BYTES
       };
     });
@@ -294,7 +294,11 @@ saveArchiveEventEdit() {
 
   deleteArchiveEvent(id: number) {
     if (confirm("Sei sicuro di voler eliminare questo evento dall'archivio?")) {
-      this.eventService.deleteArchiveEvent(id).subscribe(() => this.eventService.loadEventTypes().subscribe());
+      this.eventService.deleteArchiveEvent(id).subscribe(() => {
+        // le foto della serata eliminata restano senza serata (FK ON DELETE SET NULL)
+        this.eventService.loadPhotos().subscribe();
+        this.eventService.loadEventTypes().subscribe();
+      });
     }
   }
 

@@ -94,3 +94,18 @@ describe('utilità nome file', () => {
     expect(photoDisplayTitle({ title: null, eventTypeLabel: null, eventDay: null })).toBe('');
   });
 });
+
+describe('allineamento con middleware/photo-name.php (QA)', () => {
+  it('ignora spazi ai lati e percorso, come trim(basename()) del backend', () => {
+    expect(parsePhotoFileName(' EMONIGHT-17102026-001.jpg ', TYPES).conforme).toBe(true);
+    expect(parsePhotoFileName('sub/dir/EMONIGHT-17102026-001.jpg', TYPES).conforme).toBe(true);
+    expect(parsePhotoFileName('EMONIGHT-17102026-001 .jpg', TYPES).conforme).toBe(false);
+  });
+
+  it('checkdate anche per gli anni 1-99 e rifiuta anno 0', () => {
+    expect(isValidDate(1, 1, 29)).toBe(true);
+    expect(isValidDate(29, 2, 2000)).toBe(true);
+    expect(isValidDate(29, 2, 1900)).toBe(false);
+    expect(isValidDate(1, 1, 0)).toBe(false);
+  });
+});

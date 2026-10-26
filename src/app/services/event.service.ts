@@ -220,7 +220,7 @@ export class EventService {
       if (file) formData.append('file', file);
       return this.http.post(`${this.apiUrl}/archive-events/add.php`, formData).pipe(
         tap((res:any) => {
-          const newEvent = this.withTypeInfo({ ...event, posterUrl: res.posterurl || event.posterUrl });
+          const newEvent = this.withTypeInfo({ ...event, posterUrl: res?.posterUrl || event.posterUrl });
 
           this.archiveEvents.update(events =>
             [newEvent,...events].sort((a, b) => b.id - a.id)
@@ -247,7 +247,7 @@ return this.http.post(`${this.apiUrl}/archive-events/update.php`, formData).pipe
       tap((res: any) => {
         this.archiveEvents.update(events =>
           events.map(e => e.id === event.id
-            ? this.withTypeInfo({ ...event, posterUrl: res.posterurl || event.posterUrl })
+            ? this.withTypeInfo({ ...event, posterUrl: res?.posterUrl || event.posterUrl })
             : e
           )
         );

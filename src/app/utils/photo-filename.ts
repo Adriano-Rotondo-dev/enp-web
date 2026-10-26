@@ -25,10 +25,17 @@ export function hasPhotoExtension(name: string): boolean {
   return name.includes('.') && PHOTO_EXTENSIONS.includes(ext);
 }
 
+/** Nome salvato dal backend come originalName: trim(basename(nome)) */
+export function photoBaseName(name: string): string {
+  return (name.replace(/\\/g, '/').split('/').pop() ?? '').trim();
+}
+
 /** Equivalente di checkdate() in PHP */
 export function isValidDate(day: number, month: number, year: number): boolean {
   if (year < 1 || month < 1 || month > 12 || day < 1) return false;
-  const d = new Date(Date.UTC(year, month - 1, day));
+  // setUTCFullYear: Date.UTC trasformerebbe gli anni 0-99 in 1900-1999
+  const d = new Date(0);
+  d.setUTCFullYear(year, month - 1, day);
   return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
 }
 
@@ -41,7 +48,8 @@ export function parsePhotoFileName(name: string, types: EventType[]): ParsedPhot
     conforme: false, prefix, eventType: null, eventDay: null, sequence: null, motivo
   });
 
-  const m = PHOTO_FILENAME_REGEX.exec(name);
+  // come il backend: solo il nome (senza percorso), senza spazi ai lati
+  const m = PHOTO_FILENAME_REGEX.exec(photoBaseName(name));
   if (!m) return fail('Nome non nel formato PREFISSO-GGMMAAAA-NNN');
 
   const prefix = m[1].toUpperCase();
