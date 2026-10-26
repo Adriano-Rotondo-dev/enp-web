@@ -18,6 +18,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Legge lo stesso segnale centrale — nessuna duplicazione di dati
   nextEvent = this.eventService.nextEvent;
+  eventStatus = this.eventService.nextEventStatus;
+  hasUpcomingEvent = this.eventService.hasUpcomingEvent;
 
   images = ['/emp_1.webp', '/emp_2.webp', '/emp_3.webp'];
   currentIndex = signal(0);

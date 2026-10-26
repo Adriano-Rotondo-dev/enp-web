@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,7 +12,7 @@ import { Meta } from '@angular/platform-browser'
   templateUrl: './backstage.html',
   styleUrls: ['./backstage.css']
 })
-export class BackstageComponent {
+export class BackstageComponent implements OnDestroy {
   password = signal('');
   errorMessage = signal('');
   isLoading = signal(false);
@@ -21,8 +21,13 @@ export class BackstageComponent {
   private router = inject(Router);
 
 constructor(private meta: Meta){
-this.meta.addTag({ name: 'robots', content: 'noindex, nofollow' })
+this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' })
 }
+
+  ngOnDestroy() {
+    // evita che il noindex resti sulle pagine visitate dopo (navigazione SPA)
+    this.meta.removeTag("name='robots'");
+  }
 
   login() {
     if (!this.password()) return;
