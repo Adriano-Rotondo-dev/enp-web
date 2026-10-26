@@ -148,6 +148,9 @@ export class DashboardComponent implements OnInit {
     };
   });
 
+  // file che verranno davvero inviati: i già caricati (sarebbero un 409) si saltano
+  filesToSend = computed(() => this.uploadPreview().filter(r => !r.giaCaricata).map(r => r.file));
+
   uploadPercent = computed(() => {
     const p = this.uploadProgress();
     return p && p.total ? Math.round((p.done / p.total) * 100) : 0;
@@ -409,15 +412,23 @@ saveArchiveEventEdit() {
   }
 
   startUpload() {
-    const files = this.pendingFiles();
-    if (!files.length) {
+    if (!this.pendingFiles().length) {
       this.toast.error('Seleziona dei file o una cartella');
+      return;
+    }
+    const files = this.filesToSend();
+    const skipped = this.uploadPreview().filter(r => r.giaCaricata).map(r => r.name);
+    if (!files.length) {
+      this.toast.error('Tutti i file sono già caricati');
       return;
     }
     this.isUploading.set(true);
     this.uploadSummary.set(null);
     this.eventService.uploadPhotos(files, this.uploadMeta()).subscribe({
       next: (summary) => {
+        // i già caricati saltati contano come duplicati nel riepilogo
+        summary.duplicate += skipped.length;
+        summary.nomiDuplicati.push(...skipped);
         this.isUploading.set(false);
         this.uploadSummary.set(summary);
         this.pendingFiles.set([]);

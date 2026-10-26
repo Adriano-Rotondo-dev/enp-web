@@ -207,7 +207,7 @@
                       class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600"
                     />
                   </div>
-                  <div class="grid grid-cols-2 gap-4">
+                  <div class="grid grid-cols-1 gap-4">
                     <div class="flex flex-col gap-2 min-w-0">
                       <label for="new-archive-type" class="text-[10px] uppercase font-black text-purple-500 tracking-widest"
                         >Tipologia</label
@@ -215,7 +215,7 @@
                       <select
                         id="new-archive-type"
                         [(ngModel)]="newArchiveEvent().eventTypeId"
-                        class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600 text-white"
+                        class="w-full bg-black border border-white/20 p-3 outline-none focus:border-purple-600 text-white"
                       >
                         <option [ngValue]="null">— Nessuna —</option>
                         @for (type of eventTypes(); track type.id) {
@@ -231,7 +231,7 @@
                         id="new-archive-day"
                         type="date"
                         [(ngModel)]="newArchiveEvent().eventDay"
-                        class="bg-black border border-white/20 p-3 outline-none focus:border-purple-600 [color-scheme:dark]"
+                        class="w-full bg-black border border-white/20 p-3 outline-none focus:border-purple-600 [color-scheme:dark]"
                       />
                     </div>
                   </div>
@@ -322,7 +322,7 @@
                           </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 gap-4">
                           <div class="flex flex-col gap-1 min-w-0">
                             <label for="edit-archive-type" class="text-[9px] uppercase text-purple-500 font-bold">Tipologia</label>
                             <select
@@ -847,13 +847,24 @@
               </div>
             }
 
+            @if (!isUploading() && uploadPreviewStats().giaCaricate > 0) {
+              <p class="text-[10px] uppercase tracking-widest text-yellow-400" role="status">
+                @if (filesToSend().length) {
+                  {{ uploadPreviewStats().giaCaricate }} già caricat{{ uploadPreviewStats().giaCaricate === 1 ? 'o' : 'i' }} {{ uploadPreviewStats().giaCaricate === 1 ? 'verrà saltato' : 'verranno saltati' }}
+                } @else {
+                  Tutti i file sono già caricati: niente da inviare
+                }
+              </p>
+            }
+
             <div class="flex flex-col sm:flex-row gap-3">
               <button
                 (click)="startUpload()"
-                [disabled]="isUploading() || !pendingFiles().length"
+                [disabled]="isUploading() || !filesToSend().length"
+                [title]="pendingFiles().length && !filesToSend().length ? 'Tutti i file sono già caricati' : ''"
                 class="flex-1 bg-purple-600 text-white font-black py-4 uppercase tracking-[0.2em] shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)] hover:bg-white hover:text-black transition-all disabled:opacity-50"
               >
-                {{ isUploading() ? 'UPLOADING...' : 'PUSH_TO_GALLERY' + (pendingFiles().length ? ' (' + pendingFiles().length + ')' : '') }}
+                {{ isUploading() ? 'UPLOADING...' : 'PUSH_TO_GALLERY' + (filesToSend().length ? ' (' + filesToSend().length + ')' : '') }}
               </button>
               @if (isUploading()) {
                 <button

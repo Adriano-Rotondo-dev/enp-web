@@ -30,6 +30,15 @@ describe('Dashboard', () => {
     await fixture.whenStable();
   });
 
+  // la dashboard si vede solo da autenticati: token finto con scadenza tra un'ora
+  const renderAsAdmin = async () => {
+    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }));
+    sessionStorage.setItem('enp_token', `x.${payload}.y`);
+    fixture.componentRef.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -162,6 +171,37 @@ describe('Dashboard', () => {
       expect(component.pendingFiles().length).toBe(0);
       expect(component.uploadSummary()?.caricate).toBe(1);
       expect(component.uploadSummary()?.duplicate).toBe(1);
+    });
+
+    it('salta i file già caricati e lo indica sul pulsante', async () => {
+      component.photos.set([{ id: 1, url: 'u', originalName: 'EMONIGHT-17102026-002.jpg' }]);
+      component.addPendingFiles([file('EMONIGHT-17102026-001.jpg'), file('EMONIGHT-17102026-002.jpg')]);
+      expect(component.filesToSend().map(f => f.name)).toEqual(['EMONIGHT-17102026-001.jpg']);
+      component.activeTab.set('foto');
+      await renderAsAdmin();
+      const html: string = fixture.nativeElement.textContent;
+      expect(html).toContain('PUSH_TO_GALLERY (1)');
+      expect(html).toContain('1 già caricato verrà saltato');
+      component.startUpload();
+      http.expectOne(r => r.url.endsWith('/photos/upload.php'))
+        .flush({ id: 2, url: 'u', parsed: true, autoLinked: false }, { status: 201, statusText: 'Created' });
+      http.expectNone(r => r.url.endsWith('/photos/upload.php'));
+      expect(component.uploadSummary()?.caricate).toBe(1);
+      expect(component.uploadSummary()?.duplicate).toBe(1);
+      expect(component.uploadSummary()?.nomiDuplicati).toEqual(['EMONIGHT-17102026-002.jpg']);
+      sessionStorage.removeItem('enp_token');
+    });
+
+    it('disabilita l\'invio se tutti i file sono già caricati', async () => {
+      component.photos.set([{ id: 1, url: 'u', originalName: 'EMONIGHT-17102026-002.jpg' }]);
+      component.addPendingFiles([file('EMONIGHT-17102026-002.jpg')]);
+      component.activeTab.set('foto');
+      await renderAsAdmin();
+      const btn = [...fixture.nativeElement.querySelectorAll('button')]
+        .find((b: HTMLButtonElement) => b.textContent?.includes('PUSH_TO_GALLERY')) as HTMLButtonElement;
+      expect(btn.disabled).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain('Tutti i file sono già caricati');
+      sessionStorage.removeItem('enp_token');
     });
   });
 
