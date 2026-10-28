@@ -2,7 +2,7 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment'
 
@@ -58,9 +58,9 @@ export class AuthService {
 
   // ─── LOGIN ───
 
-  login(password: string): Observable<{ token: string } | { success: boolean }> {
+  login(username: string, password: string): Observable<{ token: string } | { success: boolean }> {
     if (this.USE_BACKEND) {
-      return this.http.post<{ token: string }>(`${this.apiUrl}/login.php`, { password }).pipe(
+      return this.http.post<{ token: string }>(`${this.apiUrl}/login.php`, { username: username.trim(), password }).pipe(
         tap((res) => {
           if ('token' in res) {
             this.saveToken(res.token);
@@ -75,14 +75,8 @@ export class AuthService {
       );
     }
 
-    //! Modalità mock: controlla password localmente
-    //!  Solo per sviluppo — in produzione la password non esiste mai nel client
-    if (password === 'emo') {
-      sessionStorage.setItem('enp_access_granted', 'true');
-      return of({ success: true });
-    }
-
-    throw new Error('Credenziali non valide');
+    // Senza backend non si può verificare nessuna credenziale: nessuna password nel client
+    return throwError(() => new Error('Login non disponibile senza backend'));
   }
 
   // ─── LOGOUT ───

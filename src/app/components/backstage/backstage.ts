@@ -13,6 +13,7 @@ import { Meta } from '@angular/platform-browser'
   styleUrls: ['./backstage.css']
 })
 export class BackstageComponent implements OnDestroy {
+  username = signal('');
   password = signal('');
   errorMessage = signal('');
   isLoading = signal(false);
@@ -30,18 +31,21 @@ this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' })
   }
 
   login() {
-    if (!this.password()) return;
+    if (!this.username().trim() || !this.password()) return;
 
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.auth.login(this.password()).subscribe({
+    this.auth.login(this.username(), this.password()).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.router.navigate(['/backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_']);
       },
-      error: () => {
-        this.errorMessage.set('ACCESS DENIED. WRONG KEY.');
+      error: (err) => {
+        // messaggio generico: non rivela se è sbagliato l'utente o la password
+        this.errorMessage.set(
+          err?.status === 429 ? 'TOO MANY ATTEMPTS. RETRY IN 15 MIN.' : 'ACCESS DENIED. WRONG USER OR KEY.'
+        );
         this.isLoading.set(false);
         this.password.set('');
       }

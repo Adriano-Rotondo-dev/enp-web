@@ -12,15 +12,23 @@
     </h2>
 
     <form (ngSubmit)="login()" class="space-y-6">
-      <!-- hidden username _keeps browsers happy -->
-      <input
-        type="text"
-        name="username"
-        value="admin"
-        autocomplete="username"
-        class="hidden"
-        style="display: none"
-      />
+      <!-- username -->
+      <div>
+        <label for="user" class="sr-only">Utente</label>
+        <input
+          id="user"
+          type="text"
+          [ngModel]="username()"
+          (ngModelChange)="username.set($event)"
+          name="username"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="USER_"
+          class="w-full bg-black/40 border-b-2 border-white/20 p-4 text-white placeholder:text-white/10 focus:outline-none focus:border-purple-600 transition-all tracking-[0.2em]"
+          [disabled]="isLoading()"
+        />
+      </div>
       <!-- password -->
       <div class="relative">
         <label for="pwd" class="sr-only">Chiave di accesso</label>
@@ -48,7 +56,7 @@
       <!-- submit to send password via form -->
       <button
         type="submit"
-        [disabled]="isLoading() || !password()"
+        [disabled]="isLoading() || !username().trim() || !password()"
         class="w-full py-4 bg-white text-black font-extrabold uppercase text-xs tracking-widest hover:bg-purple-600 hover:text-white transition-all disabled:opacity-20"
       >
         @if (!isLoading()) {
