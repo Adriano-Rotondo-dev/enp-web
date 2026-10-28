@@ -4,6 +4,8 @@ import { EventService } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 import { NextEvent } from '../../models/event.model';
 
+const LINEUP_ROWS = 4;
+
 // Scheda 01 della dashboard: modifica del prossimo evento
 @Component({
   selector: 'app-dashboard-evento',
@@ -23,7 +25,13 @@ export class DashboardEventoComponent implements OnInit {
   ngOnInit() {
     this.eventService.loadNextEvent().subscribe({
       // copia: il modulo modifica l'oggetto, che non deve cambiare nel service finché non si salva
-      next: event => this.editableEvent.set(structuredClone(event)),
+      next: event => {
+        const copy = structuredClone(event);
+        // almeno 4 righe da compilare: con la lineup vuota non ci sarebbero campi.
+        // Le righe senza orario o nome il backend non le salva
+        while (copy.lineup.length < LINEUP_ROWS) copy.lineup.push({ time: '', act: '' });
+        this.editableEvent.set(copy);
+      },
       complete: () => {
         if (this.eventService.nextEventStatus() !== 'ready') {
           this.toast.error('Evento attuale non caricato: ricarica la pagina prima di salvare');

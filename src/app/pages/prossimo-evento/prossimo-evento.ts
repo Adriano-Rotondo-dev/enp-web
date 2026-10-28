@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, computed, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { EventService } from '../../services/event.service';
 
@@ -16,6 +16,8 @@ export class ProssimoEventoComponent implements OnInit {
   eventData = this.eventService.nextEvent;
   eventStatus = this.eventService.nextEventStatus;
   hasUpcomingEvent = this.eventService.hasUpcomingEvent;
+  // stessa regola del backend: una riga conta solo con orario e nome
+  lineup = computed(() => this.eventData().lineup.filter(i => i.time?.trim() && i.act?.trim()));
 
   // ─── MAPS ───
   openMaps() {

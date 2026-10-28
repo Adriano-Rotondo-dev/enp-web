@@ -46,7 +46,7 @@
             Lineup // DJ Set
           </h3>
           <ul class="space-y-6">
-            @for (item of eventData().lineup; track item.time) {
+            @for (item of lineup(); track $index) {
               <li class="flex flex-col border-b border-black/10 pb-2">
                 <span class="text-purple-600 font-black text-xs tracking-widest">{{
                   item.time
@@ -54,6 +54,14 @@
                 <span class="text-black font-black uppercase text-lg leading-tight">{{
                   item.act
                 }}</span>
+              </li>
+            } @empty {
+              <li class="flex flex-col border-b border-black/10 pb-2">
+                <span class="text-purple-600 font-black text-xs tracking-widest">// TBA_</span>
+                <span class="text-black font-black uppercase text-lg leading-tight">Lineup in arrivo</span>
+                <span class="text-black/60 font-bold uppercase text-xs tracking-widest mt-2"
+                  >Orari e artisti annunciati a breve sui nostri social</span
+                >
               </li>
             }
           </ul>

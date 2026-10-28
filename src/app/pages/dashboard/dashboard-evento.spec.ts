@@ -42,6 +42,11 @@ describe('Dashboard - prossimo evento', () => {
     expect(input.value).toBe('2026-10-17');
   });
 
+  it('con la lineup vuota offre comunque 4 righe da compilare', () => {
+    http.expectOne(r => r.url.endsWith('/get-event.php')).flush(EVENT);
+    expect(component.editableEvent().lineup.length).toBe(4);
+  });
+
   it('le modifiche non salvate non cambiano l\'evento mostrato nel sito', () => {
     http.expectOne(r => r.url.endsWith('/get-event.php')).flush(EVENT);
     component.editableEvent().title = 'Bozza';
