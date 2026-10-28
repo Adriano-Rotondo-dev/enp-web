@@ -9,6 +9,34 @@
         "start"
       ],
       "port": 4200
+    },
+    {
+      "name": "be-test",
+      "runtimeExecutable": "C:/xampp/php/php.exe",
+      "runtimeArgs": ["-S", "127.0.0.1:8085", "-t", "C:/Users/blood/Desktop/enp_web/claude-tools/be-test/app"],
+      "port": 8085
+    },
+    {
+      "name": "preview-test",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:/Users/blood/Desktop/enp_web/claude-tools/preview-proxy.mjs",
+        "C:/Users/blood/AppData/Local/Temp/claude/C--Users-blood-Desktop-enp-web-enp-web/0aaa6f89-7810-437c-9e66-ca313132c386/scratchpad/build-fix12/browser",
+        "4324"
+      ],
+      "env": { "API_UPSTREAM": "http://127.0.0.1:8085/public", "DEV_LOGIN": "1" },
+      "port": 4324
+    },
+    {
+      "name": "preview-live",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--use-system-ca",
+        "C:/Users/blood/Desktop/enp_web/claude-tools/preview-proxy.mjs",
+        "C:/Users/blood/AppData/Local/Temp/claude/C--Users-blood-Desktop-enp-web-enp-web/0aaa6f89-7810-437c-9e66-ca313132c386/scratchpad/build-fix12/browser",
+        "4330"
+      ],
+      "port": 4330
     }
   ]
 }
