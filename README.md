@@ -6,10 +6,11 @@ Progetto companion: [enp-backend](https://github.com/Adriano-Rotondo-dev/enp-bac
 
 ## Stack
 
-- Angular 19 (Standalone Components, Signals)
-- TailwindCSS
-- SSR con Angular Universal / hydration
+- Angular 21 (Standalone Components, Signals, zoneless)
+- Tailwind CSS 4 (+ `tw-animate-css`)
+- Vitest per i test (`npx ng test --watch=false`)
 - TypeScript strict
+- Sito statico su Vercel (niente SSR)
 
 ---
 
@@ -25,22 +26,25 @@ src/app/
 │   ├── navbar/             # Navbar globale
 │   ├── not-found/          # Pagina 404
 │   └── toast/              # Componente toast notifiche
-├── guards/
-│   └── auth.guard.ts       # Protezione route dashboard
+├── auth-guard.ts           # Protezione route dashboard
 ├── interceptors/
-│   └── auth.interceptor.ts # Aggiunge JWT header a tutte le richieste HTTP
+│   └── auth.interceptor.ts # Aggiunge il JWT alle richieste; con un 401 riporta al login
 ├── models/
 │   └── event.model.ts      # Interfacce TypeScript
 ├── pages/
 │   ├── archivio-eventi/    # Pagina pubblica eventi passati
 │   ├── archivio-foto/      # Pagina pubblica galleria foto con filtri e lightbox
 │   ├── chi-siamo/          # Pagina crew
-│   ├── dashboard/          # Pannello admin (lazy loaded, auth guard)
+│   ├── dashboard/          # Pannello admin (lazy loaded, auth guard): cornice + una scheda per file
+│   │                       #   dashboard-evento / dashboard-archivio / dashboard-foto
+│   ├── privacy-policy/     # Pagina /legal
 │   └── prossimo-evento/    # Pagina dettaglio prossimo evento
-└── services/
-    ├── auth.service.ts     # Login, logout, gestione JWT
-    ├── event.service.ts    # Tutti i dati dell'app (segnali centrali)
-    └── toast.service.ts    # Gestione notifiche toast
+├── services/
+│   ├── auth.service.ts     # Login, logout, gestione JWT
+│   ├── event.service.ts    # Tutti i dati dell'app (segnali centrali)
+│   └── toast.service.ts    # Gestione notifiche toast
+└── utils/
+    └── photo-filename.ts   # Regole del nome file PREFISSO-GGMMAAAA-NNN (identiche al backend)
 ```
 
 ---
@@ -48,8 +52,8 @@ src/app/
 ## Setup locale
 
 ### Requisiti
-- Node.js 18+
-- Angular CLI 19+
+- Node.js 20+
+- npm 10
 
 ### Installazione
 
@@ -90,6 +94,7 @@ export const environment = {
 | `/archivio-foto` | ArchivioFotoComponent | — |
 | `/chi-siamo` | ChiSiamoComponent | — |
 | `/contact-us` | ContactsComponent | — |
+| `/legal` | PrivacyPolicyComponent | — |
 | `/backstage` | BackstageComponent | — |
 | `/backstage/m4N4g3_eNP-v1_01_01_d4shB04Rd_` | DashboardComponent | authGuard |
 | `/404` | NotFoundComponent | — |
@@ -185,7 +190,7 @@ Pagina contatti con tre sezioni:
 Pagina crew — contenuto statico.
 
 ### `BackstageComponent`
-Form di login admin. Redirige alla dashboard dopo autenticazione.
+Form di login admin con username e password (account separati nella tabella `admins`). Redirige alla dashboard dopo l'autenticazione; dopo troppi tentativi falliti il backend risponde 429.
 
 ### `NotFoundComponent`
 Pagina 404 con link alla home.
@@ -196,35 +201,20 @@ Pagina 404 con link alla home.
 
 Accessibile solo dopo login su `/backstage`. Il path della dashboard è offuscato.
 
-### Tab `[01] Prossimo Evento`
-Modifica i dati del prossimo evento: titolo, data, orario, location, indirizzo, lineup (time + act per ogni slot), descrizione. Il salvataggio aggiorna sia `next_event` che `next_event_lineup` in un'unica chiamata.
+`DashboardComponent` è solo la cornice (menu, schede, logout). Ogni scheda è un componente a sé, sempre montato e solo nascosto quando non è attivo: cambiando scheda non si perdono file in caricamento, filtri e moduli. Le classi dei campi (`enp-input`, `enp-label`…) sono definite in `src/styles.css`.
 
-### Tab `[02] Gestione Archivio`
-Gestione completa degli eventi passati.
+### `[01] Prossimo Evento` (`dashboard-evento`)
+Modifica titolo, data, orario, location, indirizzo, lineup e descrizione. Il modulo lavora su una copia: le modifiche arrivano al sito solo dopo il salvataggio. Se l'evento non si carica, il modulo resta vuoto e compare un avviso.
 
-**Aggiunta nuovo evento:**
-- Vol, nome, data, descrizione
-- Spotify URL (opzionale) — link playlist della serata
-- Live Music IG URL (opzionale) — link Instagram del feat
-- Upload poster (WebP/JPG/PNG, max 5MB)
-- Live preview card durante la compilazione
+### `[02] Gestione Archivio` (`dashboard-archivio`)
+- Serate: volume, nome, tipologia, data vera, data mostrata, descrizione, poster (max 5 MB), Spotify e Live Music in modifica.
+- Salvando una serata, le foto con stessa tipologia e stessa data si collegano da sole.
+- Riquadro **Tipologie evento**: aggiunta, rinomina, eliminazione (solo se non in uso).
 
-**Edit/Delete inline:**
-- Ogni evento in lista ha modalità edit con tutti i campi inclusi i due URL opzionali
-- Pattern `@if (editingArchiveEvent(); as editing)` per evitare errori null su ngModel
-
-### Tab `[03] Archivio Foto`
-Gestione foto delle serate.
-
-**Upload:**
-- Selezione file con preview istantanea
-- Metadati: titolo, tag, data evento, fotografo
-- Dropdown *Collega a Evento* — associa la foto a una serata tramite `archive_event_id`
-
-**Griglia foto esistenti:**
-- Hover mostra titolo, tag, VOL dell'evento collegato
-- Edit inline con tutti i campi incluso il dropdown di collegamento evento
-- Delete con conferma
+### `[03] Archivio Foto` (`dashboard-foto`)
+- "Carica file" e "Carica cartella", con anteprima: conforme, già caricata, oltre 5 MB, serata collegata.
+- Invio un file alla volta con barra di avanzamento, STOP e riepilogo.
+- Gestione: schede Tutte / Foto non collegate, filtri Tipologia/Serata/Data, blocchi da 48, modifica ed eliminazione.
 
 ---
 
@@ -233,13 +223,9 @@ Gestione foto delle serate.
 ### `EventService`
 Unica sorgente di verità per tutti i dati dell'app. Espone segnali centrali:
 
-```typescript
-nextEvent = signal<NextEvent>(mockNextEvent);
-archiveEvents = signal<ArchiveEvent[]>(mockArchiveEvents);
-photos = signal<EnpPhoto[]>(mockPhotos);
-```
+`nextEvent`, `archiveEvents`, `photos`, `eventTypes`, con lo stato di caricamento in `nextEventStatus`, `archiveStatus` e `photosStatus` (`loading` / `ready` / `unavailable`).
 
-Tutti i componenti leggono da questi segnali. I mock vengono sovrascritti dai dati reali al primo `load*()`. Il flag `USE_BACKEND = true` abilita le chiamate reali — con `false` usa solo i mock per sviluppo offline.
+Tutti i componenti leggono da questi segnali. Non ci sono dati finti: se il backend non risponde, le pagine mostrano "Stay Tuned" o "momentaneamente non disponibile".
 
 Metodi principali:
 
@@ -276,17 +262,11 @@ this.toast.info('Messaggio informativo');
 
 ## Autenticazione e sicurezza
 
-`authInterceptor` aggiunge automaticamente `Authorization: Bearer <token>` a tutte le richieste HTTP quando il token è presente.
+`authInterceptor` aggiunge automaticamente `Authorization: Bearer <token>` a tutte le richieste HTTP quando il token è presente. Se il backend risponde 401 (token scaduto o non valido), fa logout e torna a `/backstage` con l'avviso "Sessione scaduta".
 
 `authGuard` protegge la route della dashboard — redirige su `/backstage` se non autenticato.
 
 Il path della dashboard è offuscato per ridurre la superficie di attacco da bot e scanner automatici.
-
----
-
-## SSR
-
-L'app usa Angular SSR con hydration. Tutti i timer (`setInterval`, `setTimeout`) e le chiamate browser-only (`AudioContext`, `sessionStorage`) sono protetti con `isPlatformBrowser()`. La prima immagine LCP usa `loading="eager"`, le successive `loading="lazy"`.
 
 ---
 
@@ -296,11 +276,11 @@ L'app usa Angular SSR con hydration. Tutti i timer (`setInterval`, `setTimeout`)
 ng build --configuration production
 ```
 
-L'output viene generato in `dist/`. Aggiorna `environment.prod.ts` prima del build.
+L'output viene generato in `dist/enp-web/browser`, che Vercel pubblica come sito statico (`vercel.json`: rewrite verso `index.html`, header di sicurezza e CSP). La prima immagine LCP usa `loading="eager"`, le successive `loading="lazy"`.
 
 ---
 
 ## Privacy e dati personali
 
-Il sito non raccoglie dati personali degli utenti. Non vengono usati cookie di tracciamento, analytics di terze parti o social widget embedded. I link Google Maps e social aprono una nuova scheda verso servizi esterni senza embedding di iframe.
+Il sito non raccoglie dati personali degli utenti. Non vengono usati cookie di tracciamento né social widget embedded. Per le statistiche di visita c'è Vercel Web Analytics (`@vercel/analytics`), che conta le visite in forma aggregata senza cookie. I link Google Maps e social aprono una nuova scheda verso servizi esterni senza embedding di iframe.
 

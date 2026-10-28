@@ -9,7 +9,6 @@ import { BackstageComponent } from './components/backstage/backstage';
 import { NotFoundComponent } from './components/not-found/not-found';
 import { authGuard } from './auth-guard';
 import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy';
-//! CHECK NAMES  
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

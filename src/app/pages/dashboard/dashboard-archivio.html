@@ -1,0 +1,454 @@
+<div class="max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <header class="mb-12 border-b-4 border-white pb-4 pt-6">
+    <h1
+      class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter leading-none"
+    >
+      Archive_Manager
+    </h1>
+  </header>
+
+  <!-- a sinistra form ed elenco serate, a destra le tipologie (sotto su mobile) -->
+  <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-10 items-start">
+    <div class="min-w-0">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-10 bg-white/5 p-6 md:p-8 border border-white/10 shadow-[10px_10px_0px_0px_rgba(147,51,234,0.1)]"
+      >
+        <div class="space-y-6">
+          <div class="flex flex-col gap-2">
+            <label for="new-archive-vol" class="enp-label-accent"
+              >Volume Serata</label
+            >
+            <input
+              id="new-archive-vol"
+              [(ngModel)]="newArchiveEvent().vol"
+              maxlength="20"
+              class="enp-input"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="new-archive-name" class="enp-label-accent"
+              >Nome Evento</label
+            >
+            <input
+              id="new-archive-name"
+              [(ngModel)]="newArchiveEvent().name"
+              class="enp-input"
+            />
+          </div>
+          <div class="grid grid-cols-1 gap-4">
+            <div class="flex flex-col gap-2 min-w-0">
+              <label for="new-archive-type" class="enp-label-accent"
+                >Tipologia</label
+              >
+              <select
+                id="new-archive-type"
+                [(ngModel)]="newArchiveEvent().eventTypeId"
+                class="w-full enp-input text-white"
+              >
+                <option [ngValue]="null">— Nessuna —</option>
+                @for (type of eventTypes(); track type.id) {
+                  <option [ngValue]="type.id">{{ type.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="flex flex-col gap-2 min-w-0">
+              <label for="new-archive-day" class="enp-label-accent"
+                >Data Serata</label
+              >
+              <input
+                id="new-archive-day"
+                type="date"
+                [(ngModel)]="newArchiveEvent().eventDay"
+                class="w-full enp-input [color-scheme:dark]"
+              />
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="new-archive-date" class="enp-label-accent"
+              >Data mostrata (es. 15 GEN)</label
+            >
+            <input
+              id="new-archive-date"
+              [(ngModel)]="newArchiveEvent().date"
+              maxlength="20"
+              class="enp-input uppercase"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="flex flex-col gap-2">
+            <label for="new-archive-desc" class="enp-label-accent"
+              >Descrizione</label
+            >
+            <textarea
+              id="new-archive-desc"
+              [(ngModel)]="newArchiveEvent().description"
+              rows="4"
+              class="enp-input"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="enp-label-accent"
+              >Carica Poster_</label
+            >
+            <input
+              type="file"
+              #archiveFileInput
+              (change)="onPosterSelected($event, 'new')"
+              accept="image/*"
+              class="hidden"
+            />
+            <button
+              (click)="archiveFileInput.click()"
+              class="w-full bg-black border border-dashed border-white/30 p-4 text-[10px] text-gray-500 hover:border-purple-600 hover:text-white transition-all flex flex-col items-center gap-2"
+            >
+              <span class="text-xl">📁</span>
+              {{ selectedArchiveFile ? selectedArchiveFile.name : 'SELECT_IMAGE_FILE' }}
+            </button>
+          </div>
+
+          <button
+            (click)="saveToArchive()"
+            [disabled]="isSaving()"
+            class="w-full bg-white text-black font-black py-4 uppercase tracking-[0.2em] hover:bg-purple-600 hover:text-white transition-all disabled:opacity-50"
+          >
+            {{ isSaving() ? 'PUSHING...' : 'PUSH_TO_HISTORY' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-16">
+        <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-6 italic">
+          // Archive_List — {{ archiveEvents().length }} eventi
+        </h4>
+        <div class="space-y-3">
+          @for (event of archiveEvents(); track event.id) {
+            @if (editingArchiveEvent()?.id === event.id) {
+              <div
+                class="border border-purple-600 p-6 space-y-4 bg-white/5 animate-in zoom-in-95 duration-200"
+              >
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1">
+                    <label for="edit-archive-vol" class="enp-label-sm">Volume</label>
+                    <input
+                      id="edit-archive-vol"
+                      [(ngModel)]="editingArchiveEvent()!.vol"
+                      maxlength="20"
+                      class="enp-input-sm"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label for="edit-archive-date" class="enp-label-sm">Data mostrata</label>
+                    <input
+                      id="edit-archive-date"
+                      [(ngModel)]="editingArchiveEvent()!.date"
+                      maxlength="20"
+                      class="enp-input-sm uppercase"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                  <div class="flex flex-col gap-1 min-w-0">
+                    <label for="edit-archive-type" class="enp-label-sm">Tipologia</label>
+                    <select
+                      id="edit-archive-type"
+                      [(ngModel)]="editingArchiveEvent()!.eventTypeId"
+                      class="enp-input-sm text-white"
+                    >
+                      <option [ngValue]="null">— Nessuna —</option>
+                      @for (type of eventTypes(); track type.id) {
+                        <option [ngValue]="type.id">{{ type.label }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="flex flex-col gap-1 min-w-0">
+                    <label for="edit-archive-day" class="enp-label-sm">Data Serata</label>
+                    <input
+                      id="edit-archive-day"
+                      type="date"
+                      [(ngModel)]="editingArchiveEvent()!.eventDay"
+                      class="enp-input-sm [color-scheme:dark]"
+                    />
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label for="edit-archive-name" class="enp-label-sm"
+                    >Nome Evento</label
+                  >
+                  <input
+                    id="edit-archive-name"
+                    [(ngModel)]="editingArchiveEvent()!.name"
+                    class="enp-input-sm"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label for="edit-archive-desc" class="enp-label-sm"
+                    >Descrizione</label
+                  >
+                  <textarea
+                    id="edit-archive-desc"
+                    [(ngModel)]="editingArchiveEvent()!.description"
+                    rows="3"
+                    class="enp-input-sm"
+                  ></textarea>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="enp-label-sm"
+                    >Aggiorna Poster_</label
+                  >
+
+                  @if (editingArchiveEvent()?.posterUrl) {
+                    <img
+                      [src]="editingArchiveEvent()?.posterUrl"
+                      [alt]="'Poster ' + (editingArchiveEvent()?.name ?? '')"
+                      class="w-20 h-20 object-cover border border-white/10 mb-2"
+                    />
+                  }
+
+                  <input
+                    type="file"
+                    #editArchiveFileInput
+                    (change)="onPosterSelected($event, 'edit')"
+                    accept="image/*"
+                    class="hidden"
+                  />
+
+                  <button
+                    type="button"
+                    (click)="editArchiveFileInput.click()"
+                    class="w-full bg-black border border-dashed border-white/30 p-3 text-[10px] text-gray-500 hover:border-purple-600 hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>📷</span>
+                    {{
+                      selectedEditArchiveFile
+                        ? selectedEditArchiveFile.name
+                        : 'CAMBIA_IMAGE_FILE'
+                    }}
+                  </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1">
+                    <label for="edit-archive-spotify" class="enp-label-sm"
+                      >Spotify URL</label
+                    >
+                    <input
+                      id="edit-archive-spotify"
+                      [(ngModel)]="editingArchiveEvent()!.spotifyUrl"
+                      placeholder="https://open.spotify.com/..."
+                      class="enp-input-sm"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label for="edit-archive-live" class="enp-label-sm"
+                      >Live Music URL</label
+                    >
+                    <input
+                      id="edit-archive-live"
+                      [(ngModel)]="editingArchiveEvent()!.liveMusicUrl"
+                      placeholder="https://..."
+                      class="enp-input-sm"
+                    />
+                  </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                  <button
+                    (click)="saveArchiveEventEdit()"
+                    [disabled]="isSaving()"
+                    class="bg-purple-600 text-white px-6 py-2 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-colors disabled:opacity-50"
+                  >
+                    SAVE_CHANGES
+                  </button>
+                  <button
+                    (click)="editingArchiveEvent.set(null)"
+                    class="border border-white/20 text-gray-500 px-6 py-2 text-[10px] font-black uppercase hover:text-white"
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div
+                class="flex items-center justify-between gap-4 border border-white/10 p-4 hover:border-white/30 transition-all group"
+              >
+                <div class="min-w-0">
+                  <span
+                    class="text-purple-500 font-black text-[10px] uppercase tracking-widest"
+                    >{{ event.vol }}</span
+                  >
+                  <p class="text-white font-black uppercase text-sm mt-1">{{ event.name }}</p>
+                  @if (event.eventTypeId != null && event.eventDay) {
+                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-500 mt-1">
+                      {{ event.eventTypePrefix }} · {{ formatDay(event.eventDay) }}
+                    </p>
+                  } @else {
+                    <p class="text-[9px] font-black uppercase tracking-widest text-yellow-500/80 mt-1">
+                      ⚠ Tipologia o data serata mancanti
+                    </p>
+                  }
+                </div>
+                <div
+                  class="flex gap-4 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-all"
+                >
+                  <button
+                    (click)="startEditArchiveEvent(event)"
+                    class="text-[10px] font-black uppercase text-gray-500 hover:text-white"
+                  >
+                    [ EDIT ]
+                  </button>
+                  <button
+                    (click)="deleteArchiveEvent(event.id)"
+                    class="text-[10px] font-black uppercase text-red-500 hover:text-white"
+                  >
+                    [ DELETE ]
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- RIQUADRO TIPOLOGIE -->
+    <aside
+      class="border border-white/10 bg-white/5 p-6 space-y-6 lg:sticky lg:top-6"
+      aria-labelledby="event-types-title"
+    >
+      <div>
+        <h3
+          id="event-types-title"
+          class="text-purple-500 font-bold uppercase text-[10px] tracking-[0.4em] italic"
+        >
+          // Tipologie_Evento
+        </h3>
+        <p class="text-[10px] text-gray-500 mt-2 leading-relaxed">
+          Il prefisso è l'inizio del nome file delle foto, es.
+          <span class="text-gray-300">EMONIGHT-17102026-001.jpg</span>
+        </p>
+      </div>
+
+      <ul class="space-y-2">
+        @for (type of eventTypes(); track type.id) {
+          <li class="border border-white/10 p-3 bg-black">
+            @if (editingTypeId() === type.id) {
+              <div class="space-y-2">
+                <p class="text-purple-500 font-black text-[10px] tracking-widest">{{ type.prefix }}</p>
+                <label [for]="'edit-type-' + type.id" class="sr-only">Nome della tipologia {{ type.prefix }}</label>
+                <input
+                  [id]="'edit-type-' + type.id"
+                  [ngModel]="editingTypeLabel()"
+                  (ngModelChange)="editingTypeLabel.set($event)"
+                  (keydown.enter)="saveTypeEdit()"
+                  maxlength="100"
+                  class="enp-input-sm"
+                />
+                <div class="flex gap-3">
+                  <button
+                    (click)="saveTypeEdit()"
+                    [disabled]="isSaving()"
+                    class="text-[10px] font-black uppercase text-purple-400 hover:text-white disabled:opacity-50"
+                  >
+                    [ SAVE ]
+                  </button>
+                  <button
+                    (click)="editingTypeId.set(null)"
+                    class="text-[10px] font-black uppercase text-gray-500 hover:text-white"
+                  >
+                    [ CANCEL ]
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-purple-500 font-black text-[10px] tracking-widest break-all">{{ type.prefix }}</p>
+                  <p class="text-white font-black uppercase text-xs mt-1">{{ type.label }}</p>
+                  <p class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">
+                    {{ type.archiveCount ?? 0 }} serate · {{ type.photoCount ?? 0 }} foto
+                  </p>
+                </div>
+                <div class="flex flex-col items-end gap-1 shrink-0">
+                  <button
+                    (click)="startEditType(type)"
+                    class="text-[10px] font-black uppercase text-gray-400 hover:text-white"
+                  >
+                    [ EDIT ]
+                  </button>
+                  <button
+                    (click)="deleteEventType(type)"
+                    [disabled]="typeInUse(type)"
+                    [attr.aria-describedby]="typeInUse(type) ? 'type-in-use-' + type.id : null"
+                    [title]="typeInUse(type) ? 'Non eliminabile: è usata da serate o foto' : 'Elimina tipologia'"
+                    class="text-[10px] font-black uppercase text-red-500 hover:text-white disabled:text-gray-700 disabled:cursor-not-allowed"
+                  >
+                    [ DELETE ]
+                  </button>
+                </div>
+              </div>
+              @if (typeInUse(type)) {
+                <p [id]="'type-in-use-' + type.id" class="text-[9px] text-gray-600 mt-2">
+                  In uso: per eliminarla togli prima la tipologia da serate e foto.
+                </p>
+              }
+            }
+          </li>
+        } @empty {
+          <li class="text-[10px] text-gray-600 uppercase tracking-widest">// Nessuna tipologia</li>
+        }
+      </ul>
+
+      <form class="space-y-3 border-t border-white/10 pt-6" (ngSubmit)="addEventType()">
+        <p class="enp-label">Nuova tipologia</p>
+        <div class="flex flex-col gap-1">
+          <label for="new-type-prefix" class="enp-label-sm">Prefisso</label>
+          <input
+            id="new-type-prefix"
+            name="newTypePrefix"
+            [ngModel]="newTypePrefix()"
+            (ngModelChange)="onNewTypePrefix($event)"
+            maxlength="20"
+            autocomplete="off"
+            placeholder="EMOHALLOWEEN"
+            [attr.aria-invalid]="!!newTypePrefixError()"
+            aria-describedby="new-type-prefix-help"
+            class="w-full bg-black border p-2 text-sm outline-none focus:border-purple-600 uppercase"
+            [class.border-white/20]="!newTypePrefixError()"
+            [class.border-red-500]="!!newTypePrefixError()"
+          />
+          <p
+            id="new-type-prefix-help"
+            class="text-[9px]"
+            [class.text-gray-600]="!newTypePrefixError()"
+            [class.text-red-500]="!!newTypePrefixError()"
+          >
+            {{ newTypePrefixError() ?? 'A-Z e 0-9, 2-20 caratteri. Non si può cambiare dopo.' }}
+          </p>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="new-type-label" class="enp-label-sm">Nome</label>
+          <input
+            id="new-type-label"
+            name="newTypeLabel"
+            [ngModel]="newTypeLabel()"
+            (ngModelChange)="newTypeLabel.set($event)"
+            maxlength="100"
+            placeholder="Emo Halloween Night"
+            class="enp-input-sm"
+          />
+        </div>
+        <button
+          type="submit"
+          [disabled]="!canAddType() || isSaving()"
+          class="w-full bg-purple-600 text-white font-black py-3 text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all disabled:opacity-40 disabled:hover:bg-purple-600 disabled:hover:text-white"
+        >
+          [ ADD_TYPE ]
+        </button>
+      </form>
+    </aside>
+  </div>
+</div>

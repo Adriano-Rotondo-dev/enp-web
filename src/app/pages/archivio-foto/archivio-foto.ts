@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { EnpPhoto } from '../../models/event.model';
@@ -8,7 +7,7 @@ import { photoDisplayTitle } from '../../utils/photo-filename';
 @Component({
   selector: 'app-archivio-foto',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './archivio-foto.html'
 })
 export class ArchivioFotoComponent implements OnInit {
@@ -131,22 +130,16 @@ export class ArchivioFotoComponent implements OnInit {
     this.selectedPhoto.set(null);
   }
 
- nextPhoto() {
-  const current = this.selectedPhoto();
-  if (!current) return;
-  const list = this.photos();
-  const idx = list.findIndex(p => p.id === current.id);
-  const nextIdx = idx === list.length - 1 ? 0 : idx + 1;
-  this.selectedPhoto.set(list[nextIdx]);
-}
+  nextPhoto() { this.stepPhoto(1); }
+  prevPhoto() { this.stepPhoto(-1); }
 
-  prevPhoto() {
+  // scorre in cerchio: dopo l'ultima torna alla prima e viceversa
+  private stepPhoto(delta: number) {
     const current = this.selectedPhoto();
-    if (!current) return;
     const list = this.photos();
+    if (!current || !list.length) return;
+    // se la foto aperta non è più nella lista filtrata, si riparte dalla prima
     const idx = list.findIndex(p => p.id === current.id);
-    // Se è la prima, vai all'ultima
-  const prevIdx = idx === 0 ? list.length - 1 : idx - 1;
-  this.selectedPhoto.set(list[prevIdx]);
+    this.selectedPhoto.set(idx < 0 ? list[0] : list[(idx + delta + list.length) % list.length]);
   }
 }

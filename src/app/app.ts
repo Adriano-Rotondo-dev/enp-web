@@ -1,22 +1,20 @@
-import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { Meta } from '@angular/platform-browser';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators' //filtro per eventi router
-import { NavbarComponent } from './components/navbar/navbar'; // Assicurati che il file sia navbar.ts
-import { FooterComponent } from './components/footer/footer'; // Assicurati che il file sia footer.ts
+import { NavbarComponent } from './components/navbar/navbar'; 
+import { FooterComponent } from './components/footer/footer'; 
 import { ToastComponent } from './components/toast/toast';
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, NavbarComponent, FooterComponent, ToastComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('enp-web'); 
-  private router = inject(Router) //inject del Router
-  private platformId =inject(PLATFORM_ID) //identificazione - siamo sul browser?
+  private router = inject(Router)
+  private platformId =inject(PLATFORM_ID)
   private document = inject(DOCUMENT);
   private meta = inject(Meta);
   // host canonico del sito (apex, senza www)

@@ -33,6 +33,18 @@ describe('ArchivioFotoComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('il lightbox scorre in cerchio e riparte dalla prima se la foto non è più in lista', () => {
+    component.allPhotos.set(PHOTOS);
+    component.openPhoto(PHOTOS[2]);
+    component.nextPhoto();
+    expect(component.selectedPhoto()?.id).toBe(1);
+    component.prevPhoto();
+    expect(component.selectedPhoto()?.id).toBe(3);
+    component.setTypeFilter('EMOXMAS');
+    component.nextPhoto();
+    expect(component.selectedPhoto()?.id).toBe(2);
+  });
+
   it('senza elenco tipologie usa quelle presenti nelle foto e filtra per tipologia', () => {
     component.allPhotos.set(PHOTOS);
     expect(component.availableTypes()).toEqual([

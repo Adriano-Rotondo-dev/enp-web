@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-not-found',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   template: `
     <div class="min-h-screen bg-black flex flex-col items-center justify-center px-6 text-center">
       <h1 class="text-[12rem] md:text-[18rem] font-black text-white/5 leading-none absolute select-none">

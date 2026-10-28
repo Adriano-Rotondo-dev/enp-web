@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-chi-siamo',
   imports: [],
   templateUrl: './chi-siamo.html',
-  styleUrl: './chi-siamo.css',
 })
 export class ChiSiamoComponent {
 

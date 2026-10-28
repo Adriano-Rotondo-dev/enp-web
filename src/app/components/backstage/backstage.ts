@@ -1,5 +1,4 @@
 import { Component, signal, inject, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -8,7 +7,7 @@ import { Meta } from '@angular/platform-browser'
 @Component({
   selector: 'app-backstage',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink],
   templateUrl: './backstage.html',
   styleUrls: ['./backstage.css']
 })

@@ -1,11 +1,11 @@
 import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { EventService } from '../../services/event.service';
 
 @Component({
   selector: 'app-prossimo-evento',
   standalone: true,
-  imports: [CommonModule],
+  imports: [DatePipe],
   templateUrl: './prossimo-evento.html',
   styleUrl: './prossimo-evento.css',
 })

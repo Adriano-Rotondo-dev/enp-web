@@ -1,0 +1,565 @@
+<div class="max-w-5xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <header class="mb-12 border-b-4 border-white pb-4 pt-6">
+    <h1
+      class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter leading-none"
+    >
+      Photo_Archive
+    </h1>
+    <p class="text-gray-500 text-xs mt-4 uppercase font-bold tracking-widest">
+      // Nome file: PREFISSO-GGMMAAAA-NNN.jpg
+    </p>
+  </header>
+
+  <!-- CARICAMENTO -->
+  <section
+    class="bg-white/5 p-6 md:p-8 border border-white/10 shadow-[10px_10px_0px_0px_rgba(147,51,234,0.1)] mb-16 space-y-8"
+    aria-labelledby="upload-title"
+  >
+    <h3
+      id="upload-title"
+      class="text-purple-500 font-bold uppercase text-[10px] tracking-[0.4em] italic"
+    >
+      // Upload_
+    </h3>
+
+    <input
+      type="file"
+      #photoFilesInput
+      multiple
+      accept=".jpg,.jpeg,.jfif,.png,.webp,image/jpeg,image/png,image/webp"
+      (change)="onPhotoFilesSelected($event)"
+      class="hidden"
+    />
+    <input
+      type="file"
+      #photoFolderInput
+      webkitdirectory
+      multiple
+      (change)="onPhotoFilesSelected($event)"
+      class="hidden"
+    />
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <button
+        (click)="photoFilesInput.click()"
+        [disabled]="isUploading()"
+        class="w-full bg-black border border-dashed border-white/30 p-6 text-[10px] text-gray-500 hover:border-purple-600 hover:text-white transition-all flex flex-col items-center gap-3 disabled:opacity-40"
+      >
+        <span class="text-3xl">📷</span>
+        <span class="font-black uppercase tracking-widest">Carica file</span>
+        <span class="text-gray-600">uno o più file</span>
+      </button>
+      <button
+        (click)="photoFolderInput.click()"
+        [disabled]="isUploading()"
+        class="w-full bg-black border border-dashed border-white/30 p-6 text-[10px] text-gray-500 hover:border-purple-600 hover:text-white transition-all flex flex-col items-center gap-3 disabled:opacity-40"
+      >
+        <span class="text-3xl">📁</span>
+        <span class="font-black uppercase tracking-widest">Carica cartella</span>
+        <span class="text-gray-600">solo jpg, jpeg, jfif, png, webp</span>
+      </button>
+    </div>
+
+    <!-- metadati facoltativi per tutto il lotto -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-2">
+        <label for="upload-title-field" class="enp-label"
+          >Titolo <span class="text-gray-700">(facoltativo)</span></label
+        >
+        <input
+          id="upload-title-field"
+          [(ngModel)]="uploadMeta().title"
+          class="enp-input"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="upload-tag-field" class="enp-label"
+          >Tag <span class="text-gray-700">(facoltativo)</span></label
+        >
+        <input
+          id="upload-tag-field"
+          [(ngModel)]="uploadMeta().tag"
+          class="enp-input"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="upload-author-field" class="enp-label"
+          >Autore <span class="text-gray-700">(facoltativo)</span></label
+        >
+        <input
+          id="upload-author-field"
+          [(ngModel)]="uploadMeta().author"
+          class="enp-input"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="upload-event-field" class="enp-label"
+          >Serata <span class="text-gray-700">(facoltativa, vale per tutto il lotto)</span></label
+        >
+        <select
+          id="upload-event-field"
+          [ngModel]="uploadMeta().archiveEventId"
+          (ngModelChange)="uploadMeta.set({ ...uploadMeta(), archiveEventId: $event })"
+          class="bg-black border border-white/20 p-3 outline-none text-white focus:border-purple-600"
+        >
+          <option [ngValue]="null">— Automatica dal nome file —</option>
+          @for (event of archiveEvents(); track event.id) {
+            <option [ngValue]="event.id">{{ event.vol }} — {{ event.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- ANTEPRIMA -->
+    @if (uploadPreview().length) {
+      <div class="space-y-3">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-500 italic">
+            // Anteprima — {{ uploadPreviewStats().totale }} file ·
+            {{ uploadPreviewStats().conformi }} conformi ·
+            {{ uploadPreviewStats().collegate }} con serata
+            @if (uploadPreviewStats().giaCaricate) {
+              · {{ uploadPreviewStats().giaCaricate }} già caricati
+            }
+            @if (uploadPreviewStats().troppoGrandi) {
+              · <span class="text-red-400">{{ uploadPreviewStats().troppoGrandi }} oltre 5 MB</span>
+            }
+          </h4>
+          @if (!isUploading()) {
+            <button
+              (click)="clearPendingFiles()"
+              class="text-[10px] font-black uppercase text-red-500 hover:text-white"
+            >
+              [ SVUOTA ]
+            </button>
+          }
+        </div>
+        <div class="max-h-96 overflow-auto border border-white/10">
+          <table class="w-full text-left text-[11px]">
+            <thead class="sticky top-0 bg-[#0a0a0a] text-[9px] uppercase tracking-widest text-gray-500">
+              <tr>
+                <th scope="col" class="p-2 font-black">File</th>
+                <th scope="col" class="p-2 font-black">Tipologia</th>
+                <th scope="col" class="p-2 font-black">Data</th>
+                <th scope="col" class="p-2 font-black">Serata</th>
+                <th scope="col" class="p-2"><span class="sr-only">Azioni</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of uploadPreview(); track row.key) {
+                <tr class="border-t border-white/5 align-top">
+                  <td class="p-2 break-all">
+                    @if (row.parsed.conforme) {
+                      <span class="text-green-500" aria-hidden="true">✓</span>
+                    } @else {
+                      <span class="text-yellow-500" aria-hidden="true">⚠</span>
+                    }
+                    <span class="sr-only">{{ row.parsed.conforme ? 'Conforme:' : 'Non conforme:' }}</span>
+                    {{ row.name }}
+                    @if (!row.parsed.conforme) {
+                      <span class="block text-[9px] text-yellow-500/80">{{ row.parsed.motivo }}</span>
+                    }
+                    @if (row.giaCaricata) {
+                      <span class="block text-[9px] text-red-400">Già caricata: verrà saltata</span>
+                    }
+                    @if (row.troppoGrande) {
+                      <span class="block text-[9px] text-red-400">Oltre 5 MB ({{ (row.file.size / 1048576).toFixed(1) }} MB): verrà rifiutata</span>
+                    }
+                  </td>
+                  <td class="p-2">{{ row.parsed.eventType?.label ?? '—' }}</td>
+                  <td class="p-2 whitespace-nowrap">{{ formatDay(row.parsed.eventDay) || '—' }}</td>
+                  <td class="p-2">
+                    @if (row.serata) {
+                      <span class="text-purple-400 font-black">{{ row.serata.vol }}</span>
+                      <span class="block text-[9px] text-gray-500">{{ row.serata.name }} · {{ row.serataNote }}</span>
+                    } @else {
+                      <span class="text-gray-600">— {{ row.serataNote }}</span>
+                    }
+                  </td>
+                  <td class="p-2 text-right">
+                    @if (!isUploading()) {
+                      <button
+                        (click)="removePendingFile(row.key)"
+                        [attr.aria-label]="'Togli ' + row.name + ' dal lotto'"
+                        class="text-[10px] font-black text-gray-500 hover:text-red-500"
+                      >
+                        [ X ]
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- AVANZAMENTO -->
+    @if (uploadProgress(); as progress) {
+      <div class="space-y-2" role="status" aria-live="polite">
+        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-400">
+          <span>Invio {{ progress.done }} / {{ progress.total }}</span>
+          <span>{{ uploadPercent() }}%</span>
+        </div>
+        <div
+          class="h-2 bg-white/10 overflow-hidden"
+          role="progressbar"
+          aria-label="Avanzamento caricamento"
+          [attr.aria-valuenow]="progress.done"
+          aria-valuemin="0"
+          [attr.aria-valuemax]="progress.total"
+        >
+          <div class="h-full bg-purple-600 transition-all duration-300" [style.width.%]="uploadPercent()"></div>
+        </div>
+        @if (progress.current) {
+          <p class="text-[10px] text-gray-500 break-all">{{ progress.current }}</p>
+        }
+      </div>
+    }
+
+    @if (!isUploading() && uploadPreviewStats().giaCaricate > 0) {
+      <p class="text-[10px] uppercase tracking-widest text-yellow-400" role="status">
+        @if (filesToSend().length) {
+          {{ uploadPreviewStats().giaCaricate }} già caricat{{ uploadPreviewStats().giaCaricate === 1 ? 'o' : 'i' }} {{ uploadPreviewStats().giaCaricate === 1 ? 'verrà saltato' : 'verranno saltati' }}
+        } @else {
+          Tutti i file sono già caricati: niente da inviare
+        }
+      </p>
+    }
+
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button
+        (click)="startUpload()"
+        [disabled]="isUploading() || !filesToSend().length"
+        [title]="pendingFiles().length && !filesToSend().length ? 'Tutti i file sono già caricati' : ''"
+        class="flex-1 bg-purple-600 text-white font-black py-4 uppercase tracking-[0.2em] shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)] hover:bg-white hover:text-black transition-all disabled:opacity-50"
+      >
+        {{ isUploading() ? 'UPLOADING...' : 'PUSH_TO_GALLERY' + (filesToSend().length ? ' (' + filesToSend().length + ')' : '') }}
+      </button>
+      @if (isUploading()) {
+        <button
+          (click)="cancelUpload()"
+          class="border border-red-500 text-red-500 font-black px-6 py-4 text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all"
+        >
+          [ STOP ]
+        </button>
+      }
+    </div>
+
+    <!-- RIEPILOGO -->
+    @if (uploadSummary(); as s) {
+      <div class="border border-white/10 bg-black p-4 space-y-3" role="status">
+        <div class="flex justify-between items-start gap-4">
+          <p class="text-[10px] font-black uppercase tracking-widest text-purple-500">
+            // Riepilogo{{ s.annullato ? ' (interrotto)' : '' }}
+          </p>
+          <button
+            (click)="uploadSummary.set(null)"
+            class="text-[10px] font-black uppercase text-gray-500 hover:text-white"
+          >
+            [ CHIUDI ]
+          </button>
+        </div>
+        <ul class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+          <li class="border border-white/10 p-2">
+            <span class="block text-xl font-black text-white">{{ s.caricate }}</span>
+            <span class="text-[9px] uppercase text-gray-500">caricate</span>
+          </li>
+          <li class="border border-white/10 p-2">
+            <span class="block text-xl font-black text-purple-400">{{ s.collegateAuto }}</span>
+            <span class="text-[9px] uppercase text-gray-500">collegate in automatico</span>
+          </li>
+          <li class="border border-white/10 p-2">
+            <span class="block text-xl font-black text-yellow-500">{{ s.nonConformi }}</span>
+            <span class="text-[9px] uppercase text-gray-500">non conformi</span>
+          </li>
+          <li class="border border-white/10 p-2">
+            <span class="block text-xl font-black text-gray-300">{{ s.duplicate }}</span>
+            <span class="text-[9px] uppercase text-gray-500">già presenti</span>
+          </li>
+          <li class="border border-white/10 p-2">
+            <span class="block text-xl font-black text-red-500">{{ s.errori.length }}</span>
+            <span class="text-[9px] uppercase text-gray-500">errori</span>
+          </li>
+        </ul>
+        @if (s.nonConformi) {
+          <details class="text-[10px] text-gray-400">
+            <summary class="cursor-pointer text-yellow-500">Non conformi: le trovi in "Foto non collegate"</summary>
+            <p class="mt-1 break-all">{{ s.nomiNonConformi.join(', ') }}</p>
+          </details>
+        }
+        @if (s.duplicate) {
+          <details class="text-[10px] text-gray-400">
+            <summary class="cursor-pointer">Già presenti sul server (non ricaricate)</summary>
+            <p class="mt-1 break-all">{{ s.nomiDuplicati.join(', ') }}</p>
+          </details>
+        }
+        @if (s.errori.length) {
+          <ul class="text-[10px] text-red-400 space-y-1">
+            @for (e of s.errori; track $index) {
+              <li class="break-all">{{ e.nome }}: {{ e.motivo }}</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- GESTIONE -->
+  <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Vista foto">
+    <button
+      role="tab"
+      [attr.aria-selected]="photoView() === 'tutte'"
+      (click)="setPhotoView('tutte')"
+      class="text-[10px] font-black uppercase tracking-widest px-4 py-2 border transition-colors"
+      [class.border-purple-600]="photoView() === 'tutte'"
+      [class.text-white]="photoView() === 'tutte'"
+      [class.border-white/10]="photoView() !== 'tutte'"
+      [class.text-gray-500]="photoView() !== 'tutte'"
+    >
+      [ Tutte — {{ photos().length }} ]
+    </button>
+    <button
+      role="tab"
+      [attr.aria-selected]="photoView() === 'non-collegate'"
+      (click)="setPhotoView('non-collegate')"
+      class="text-[10px] font-black uppercase tracking-widest px-4 py-2 border transition-colors"
+      [class.border-purple-600]="photoView() === 'non-collegate'"
+      [class.text-white]="photoView() === 'non-collegate'"
+      [class.border-white/10]="photoView() !== 'non-collegate'"
+      [class.text-gray-500]="photoView() !== 'non-collegate'"
+    >
+      [ Foto non collegate — {{ unlinkedCount() }} ]
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+    <div class="flex flex-col gap-1">
+      <label for="filter-type" class="text-[9px] uppercase font-black text-gray-500 tracking-widest">Tipologia</label>
+      <select
+        id="filter-type"
+        [ngModel]="filterTypeId()"
+        (ngModelChange)="setPhotoFilter('type', $event)"
+        class="bg-black border border-white/20 p-2 text-sm outline-none text-white focus:border-purple-600"
+      >
+        <option [ngValue]="null">— Tutte —</option>
+        @for (type of eventTypes(); track type.id) {
+          <option [ngValue]="type.id">{{ type.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label for="filter-event" class="text-[9px] uppercase font-black text-gray-500 tracking-widest">Serata</label>
+      <select
+        id="filter-event"
+        [ngModel]="filterEventId()"
+        (ngModelChange)="setPhotoFilter('event', $event)"
+        class="bg-black border border-white/20 p-2 text-sm outline-none text-white focus:border-purple-600"
+      >
+        <option [ngValue]="null">— Tutte —</option>
+        @for (event of archiveEvents(); track event.id) {
+          <option [ngValue]="event.id">{{ event.vol }} — {{ event.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label for="filter-day" class="text-[9px] uppercase font-black text-gray-500 tracking-widest">Data</label>
+      <input
+        id="filter-day"
+        type="date"
+        [ngModel]="filterDay()"
+        (ngModelChange)="setPhotoFilter('day', $event)"
+        class="bg-black border border-white/20 p-2 text-sm outline-none focus:border-purple-600 [color-scheme:dark]"
+      />
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+    <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-500 italic">
+      // Gallery_List — {{ filteredPhotos().length }} foto
+    </h4>
+    @if (hasPhotoFilters()) {
+      <button
+        (click)="resetPhotoFilters()"
+        class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white"
+      >
+        [ RESET ]
+      </button>
+    }
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    @for (photo of visiblePhotos(); track photo.id) {
+      @if (editingPhoto()?.id === photo.id) {
+        <div
+          class="col-span-2 md:col-span-3 border border-purple-600 p-6 bg-white/5 grid grid-cols-1 md:grid-cols-[160px_1fr] gap-6 animate-in zoom-in-95 duration-200"
+        >
+          <div>
+            <img
+              [src]="photo.url"
+              [alt]="photoTitle(photo) || 'Foto in modifica'"
+              class="w-full md:w-40 h-40 object-cover border border-white/10"
+            />
+            @if (photo.originalName) {
+              <p class="text-[9px] text-gray-500 mt-2 break-all">{{ photo.originalName }}</p>
+            }
+          </div>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <label for="edit-photo-title" class="enp-label-sm"
+                  >Titolo</label
+                >
+                <input
+                  id="edit-photo-title"
+                  [(ngModel)]="editingPhoto()!.title"
+                  class="enp-input-sm"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label for="edit-photo-tag" class="enp-label-sm"
+                  >Tag</label
+                >
+                <input
+                  id="edit-photo-tag"
+                  [(ngModel)]="editingPhoto()!.tag"
+                  class="enp-input-sm"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1 min-w-0">
+                <label for="edit-photo-type" class="enp-label-sm"
+                  >Tipologia</label
+                >
+                <select
+                  id="edit-photo-type"
+                  [(ngModel)]="editingPhoto()!.eventTypeId"
+                  class="enp-input-sm text-white"
+                >
+                  <option [ngValue]="null">— Nessuna —</option>
+                  @for (type of eventTypes(); track type.id) {
+                    <option [ngValue]="type.id">{{ type.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="flex flex-col gap-1 min-w-0">
+                <label for="edit-photo-day" class="enp-label-sm"
+                  >Data</label
+                >
+                <input
+                  id="edit-photo-day"
+                  type="date"
+                  [(ngModel)]="editingPhoto()!.eventDay"
+                  class="enp-input-sm [color-scheme:dark]"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1 min-w-0">
+                <label for="edit-photo-event" class="enp-label-sm"
+                  >Serata collegata</label
+                >
+                <select
+                  id="edit-photo-event"
+                  [ngModel]="editingPhoto()!.archiveEventId ?? null"
+                  (ngModelChange)="onEditPhotoEventChange($event)"
+                  class="enp-input-sm text-white"
+                >
+                  <option [ngValue]="null">— Nessuna serata —</option>
+                  @for (event of archiveEvents(); track event.id) {
+                    <option [ngValue]="event.id">{{ event.vol }} — {{ event.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="flex flex-col gap-1 min-w-0">
+                <label for="edit-photo-author" class="enp-label-sm"
+                  >Autore</label
+                >
+                <input
+                  id="edit-photo-author"
+                  [(ngModel)]="editingPhoto()!.author"
+                  class="enp-input-sm"
+                />
+              </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button
+                (click)="savePhotoEdit()"
+                [disabled]="isSaving()"
+                class="bg-purple-600 text-white px-6 py-2 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-colors disabled:opacity-50"
+              >
+                {{ isSaving() ? 'SAVING...' : 'SAVE_CHANGES' }}
+              </button>
+              <button
+                (click)="cancelEditPhoto()"
+                class="border border-white/20 text-gray-500 px-6 py-2 text-[10px] font-black uppercase hover:text-white"
+              >
+                CANCEL
+              </button>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="relative group border border-white/10 overflow-hidden">
+          <img
+            [src]="photo.url"
+            [alt]="photoTitle(photo) || photo.originalName || 'Foto'"
+            loading="lazy"
+            class="w-full h-40 object-cover transition-all md:group-hover:brightness-50"
+          />
+          @if (photo.archiveEventId == null) {
+            <span
+              class="absolute top-2 left-2 bg-yellow-500 text-black text-[8px] font-black uppercase tracking-widest px-2 py-0.5"
+            >
+              Non collegata
+            </span>
+          }
+          <!-- su mobile le azioni sono sempre visibili (non esiste l'hover) -->
+          <div
+            class="absolute inset-0 flex flex-col justify-end p-3 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-all"
+          >
+            <p class="text-white font-black text-xs uppercase break-words">{{ photoTitle(photo) }}</p>
+            @if (photo.eventVol) {
+              <p class="text-purple-400 text-[9px] font-black uppercase">{{ photo.eventVol }}</p>
+            }
+            @if (photo.originalName) {
+              <p class="text-gray-400 text-[8px] truncate">{{ photo.originalName }}</p>
+            }
+            <div class="flex gap-4 mt-2">
+              <button
+                (click)="startEditPhoto(photo)"
+                class="text-[10px] font-black text-gray-300 hover:text-white"
+              >
+                [ EDIT ]
+              </button>
+              <button
+                (click)="deletePhoto(photo.id)"
+                class="text-[10px] font-black text-red-500 hover:text-white"
+              >
+                [ DELETE ]
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    } @empty {
+      <p class="col-span-2 md:col-span-3 py-16 text-center border border-white/5 text-gray-600 text-[10px] uppercase tracking-[0.4em] font-black">
+        // No_Results_Found
+      </p>
+    }
+  </div>
+
+  @if (filteredPhotos().length > visiblePhotos().length) {
+    <button
+      (click)="showMorePhotos()"
+      class="w-full mt-6 border border-white/20 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:border-purple-600 hover:text-white transition-all"
+    >
+      [ Mostra altre — {{ visiblePhotos().length }} di {{ filteredPhotos().length }} ]
+    </button>
+  }
+</div>

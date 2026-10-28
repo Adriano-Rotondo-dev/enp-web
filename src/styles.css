@@ -62,3 +62,20 @@ main {
   display: block;
   width: 100%;
 }
+
+/* campi e etichette della dashboard admin */
+@utility enp-input {
+  @apply bg-black border border-white/20 p-3 outline-none focus:border-purple-600;
+}
+@utility enp-input-sm {
+  @apply w-full bg-black border border-white/20 p-2 text-sm outline-none focus:border-purple-600;
+}
+@utility enp-label {
+  @apply text-[10px] uppercase font-black text-gray-500 tracking-widest;
+}
+@utility enp-label-accent {
+  @apply text-[10px] uppercase font-black text-purple-500 tracking-widest;
+}
+@utility enp-label-sm {
+  @apply text-[9px] uppercase text-purple-500 font-bold;
+}
