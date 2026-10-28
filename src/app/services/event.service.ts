@@ -97,7 +97,8 @@ export class EventService {
           console.error('Errore caricamento evento:', err);
           // niente dati finti in pagina: le viste mostrano lo "Stay Tuned"
           if (this.nextEventStatus() !== 'ready') this.nextEventStatus.set('unavailable');
-          return of(this.mockNextEvent);
+          // mai l'evento finto: la dashboard lo caricherebbe nel modulo e si potrebbe salvare
+          return this.nextEventStatus() === 'ready' ? of(this.nextEvent()) : EMPTY;
         })
       );
     }

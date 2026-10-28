@@ -45,6 +45,23 @@ describe('EventService - prossimo evento', () => {
     expect(service.nextEventStatus()).toBe('unavailable');
     expect(service.hasUpcomingEvent()).toBe(false);
   });
+
+  it('se il backend fallisce non restituisce mai l\'evento finto', () => {
+    const received: unknown[] = [];
+    service.loadNextEvent().subscribe(e => received.push(e));
+    http.expectOne(r => r.url.endsWith('/get-event.php')).flush('errore', { status: 500, statusText: 'Server Error' });
+    expect(received).toEqual([]);
+  });
+
+  it('se il backend fallisce dopo un caricamento riuscito restituisce l\'ultimo evento vero', () => {
+    const real = eventOn(new Date(Date.now() + 86400000));
+    service.loadNextEvent().subscribe();
+    http.expectOne(r => r.url.endsWith('/get-event.php')).flush(real);
+    const received: unknown[] = [];
+    service.loadNextEvent().subscribe(e => received.push(e));
+    http.expectOne(r => r.url.endsWith('/get-event.php')).flush('errore', { status: 500, statusText: 'Server Error' });
+    expect(received).toEqual([real]);
+  });
 });
 
 describe('EventService - archivio e galleria', () => {

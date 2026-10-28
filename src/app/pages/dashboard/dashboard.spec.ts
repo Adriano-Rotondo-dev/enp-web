@@ -4,6 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { DashboardComponent } from './dashboard';
 import { EnpPhoto, EventType } from '../../models/event.model';
+import { ToastService } from '../../services/toast.service';
 
 const TYPES: EventType[] = [
   { id: 1, prefix: 'EMONIGHT', label: 'Emo Night', archiveCount: 1, photoCount: 3 },
@@ -41,6 +42,31 @@ describe('Dashboard', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('se l\'evento non si carica il modulo resta vuoto e compare un avviso', () => {
+    const toast = TestBed.inject(ToastService);
+    http.expectOne(r => r.url.endsWith('/get-event.php')).flush('errore', { status: 500, statusText: 'Server Error' });
+    expect(component.editableEvent().title).toBe('');
+    expect(toast.toasts().some(t => t.type === 'error')).toBe(true);
+  });
+
+  it('mostra la data dell\'evento nel campo Data (il backend la manda con l\'ora)', async () => {
+    http.expectOne(r => r.url.endsWith('/get-event.php')).flush({
+      id: '1', title: 'X', date: '2026-10-17T00:00:00', time: '22:00', location: '', address: '', description: '', lineup: []
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const input = fixture.nativeElement.querySelector('input[type=date]') as HTMLInputElement;
+    expect(input.value).toBe('2026-10-17');
+  });
+
+  it('segnala un\'eliminazione non riuscita', () => {
+    const toast = TestBed.inject(ToastService);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    component.deletePhoto(7);
+    http.expectOne(r => r.url.includes('/photos/delete.php')).flush({ error: 'Foto non trovata' }, { status: 404, statusText: 'Not Found' });
+    expect(toast.toasts().some(t => t.message === 'Foto non trovata')).toBe(true);
   });
 
   it('modifica una foto e invia i nuovi metadati al backend', () => {

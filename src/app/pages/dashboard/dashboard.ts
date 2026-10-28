@@ -39,7 +39,7 @@ const emptyArchiveEvent = (): ArchiveEvent => ({
 })
 export class DashboardComponent implements OnInit {
   // Iniezione dipendenze
-  public auth = inject(AuthService);
+  private auth = inject(AuthService);
   private eventService = inject(EventService);
   private toast = inject(ToastService);
 
@@ -193,7 +193,14 @@ export class DashboardComponent implements OnInit {
 
   loadInitialData() {
     // Carichiamo i dati tramite gli observable del service
-    this.eventService.loadNextEvent().subscribe(event => this.editableEvent.set(event));
+    this.eventService.loadNextEvent().subscribe({
+      next: event => this.editableEvent.set(event),
+      complete: () => {
+        if (this.eventService.nextEventStatus() !== 'ready') {
+          this.toast.error('Evento attuale non caricato: ricarica la pagina prima di salvare');
+        }
+      }
+    });
     this.eventService.loadArchiveEvents().subscribe();
     this.eventService.loadPhotos().subscribe();
     this.eventService.loadEventTypes().subscribe();
@@ -297,10 +304,13 @@ saveArchiveEventEdit() {
 
   deleteArchiveEvent(id: number) {
     if (confirm("Sei sicuro di voler eliminare questo evento dall'archivio?")) {
-      this.eventService.deleteArchiveEvent(id).subscribe(() => {
-        // le foto della serata eliminata restano senza serata (FK ON DELETE SET NULL)
-        this.eventService.loadPhotos().subscribe();
-        this.eventService.loadEventTypes().subscribe();
+      this.eventService.deleteArchiveEvent(id).subscribe({
+        next: () => {
+          // le foto della serata eliminata restano senza serata (FK ON DELETE SET NULL)
+          this.eventService.loadPhotos().subscribe();
+          this.eventService.loadEventTypes().subscribe();
+        },
+        error: (err) => this.toast.error(err?.error?.error ?? 'Eliminazione non riuscita')
       });
     }
   }
@@ -528,7 +538,10 @@ saveArchiveEventEdit() {
 
   deletePhoto(id: number) {
     if (confirm("Eliminare definitivamente questa foto?")) {
-      this.eventService.deletePhoto(id).subscribe(() => this.eventService.loadEventTypes().subscribe());
+      this.eventService.deletePhoto(id).subscribe({
+        next: () => this.eventService.loadEventTypes().subscribe(),
+        error: (err) => this.toast.error(err?.error?.error ?? 'Eliminazione non riuscita')
+      });
     }
   }
 
