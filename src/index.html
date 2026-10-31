@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="PillsInPieces" />
     <link rel="icon" type="image/png" href="/emo-boy-ico.png" />
+    <!-- font del logo scaricato subito: senza, arriva dopo la pagina e il logo cambia font sotto gli occhi -->
+    <link rel="preload" href="/fonts/AnotherDangerSlanted.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/emo-boy-loader.webp" as="image" />
     <meta
       name="description"
       content="Emo Night Palermo — L'evento alternative di Palermo. Hardcore, metalcore, pop-punk."
@@ -15,10 +18,31 @@
     <meta property="og:description" content="L'evento alternative di Palermo." />
     <meta property="og:url" content="https://emonightpalermo.it/" />
     <meta property="og:type" content="website" />
-    <!-- CDN di tailwind per debug -->
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <!-- Loader del primo avvio: stile incorporato perché deve apparire prima di CSS e JS.
+         Angular sostituisce il contenuto di <app-root> appena la pagina è pronta. -->
+    <style>
+      html, body { margin: 0; background: #000; }
+      .boot { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: ui-sans-serif, system-ui, sans-serif; }
+      .boot-stage { position: relative; width: 220px; height: 220px; display: grid; place-items: center; }
+      .boot-ring { position: absolute; inset: 55px; border: 2px solid #a83db8; border-radius: 50%; opacity: 0; animation: boot-ring 1.8s cubic-bezier(0, .4, .6, 1) infinite; }
+      .boot-ring:nth-child(2) { animation-delay: .6s; }
+      .boot-ring:nth-child(3) { animation-delay: 1.2s; }
+      .boot-icon { width: 210px; height: 210px; filter: drop-shadow(0 0 18px rgba(168, 61, 184, .6)); animation: boot-thump .6s ease-in-out infinite; }
+      .boot-text { margin: 28px 0 0; color: #fff; font-weight: 900; font-style: italic; font-size: 22px; letter-spacing: -.03em; text-transform: uppercase; }
+      @keyframes boot-ring { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
+      @keyframes boot-thump { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.08) rotate(-3deg); } }
+      @media (prefers-reduced-motion: reduce) { .boot-ring, .boot-icon { animation: none; } }
+    </style>
   </head>
   <body>
-    <app-root></app-root>
+    <app-root>
+      <div class="boot" role="status" aria-label="Caricamento Emo Night Palermo">
+        <div class="boot-stage">
+          <span class="boot-ring"></span><span class="boot-ring"></span><span class="boot-ring"></span>
+          <img class="boot-icon" src="/emo-boy-loader.webp" alt="" width="256" height="256" />
+        </div>
+        <p class="boot-text">Soundcheck...</p>
+      </div>
+    </app-root>
   </body>
 </html>
