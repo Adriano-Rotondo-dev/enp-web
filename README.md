@@ -23,6 +23,7 @@ src/app/
 │   ├── contacts/           # Pagina contatti — socials, business & booking, FAQ
 │   ├── footer/             # Footer globale
 │   ├── home/               # Home page con countdown e carousel
+│   ├── loader/             # Loader "Amp Pulse" (pagine, immagini, salvataggi)
 │   ├── navbar/             # Navbar globale
 │   ├── not-found/          # Pagina 404
 │   └── toast/              # Componente toast notifiche
@@ -153,36 +154,34 @@ interface EnpPhoto {
 ## Componenti pubblici
 
 ### `HomeComponent`
-Pagina principale. Mostra countdown al prossimo evento, carousel foto e link alle sezioni. Usa `isPlatformBrowser()` per proteggere il countdown da SSR.
+Pagina principale. Mostra countdown al prossimo evento, carousel foto e link alle sezioni. Mentre l'evento si carica compare il loader piccolo.
 
 ### `ProssimoEventoComponent`
-Dettaglio del prossimo evento: titolo, data, orario, location, lineup completa. Il bottone Google Maps genera il link dinamicamente da `location` e `address` tramite `https://www.google.com/maps/search/?api=1&query=` — nessun campo `mapsUrl` nel DB. `openMaps()` è protetto da `isPlatformBrowser()`.
+Dettaglio del prossimo evento: titolo, data, orario, location, lineup. Una riga di lineup si vede solo se ha orario **e** nome (stessa regola del backend); senza righe valide compare il riquadro **"// TBA_ Lineup in arrivo"**. Il bottone Google Maps genera il link da `location` e `address` (`https://www.google.com/maps/search/?api=1&query=`).
 
 ### `ArchivioEventiComponent`
-Lista di tutte le serate passate in ordine cronologico inverso. Per ogni evento mostra tre bottoni condizionali:
+Lista di tutte le serate passate in ordine cronologico inverso. Sopra ogni poster resta il loader finché l'immagine non è arrivata. Per ogni evento mostra tre bottoni condizionali:
 - **Gallery** — sempre visibile, naviga a `/archivio-foto?eventId={id}`
 - **Setlist** — visibile solo se `spotifyUrl` è presente, apre Spotify in nuova tab
 - **Live Music** — visibile solo se `liveMusicUrl` è presente, apre Instagram in nuova tab
 
 ### `ArchivioFotoComponent`
-Galleria foto con doppio sistema di filtri e lightbox.
+Galleria foto con filtri, blocchi "Mostra altre" e lightbox.
 
 **Filtri:**
-- Select *Night* — filtra per serata tramite `archiveEventId` (FK)
-- Select *Tag* — filtra per categoria (Crowd, Stage, Backstage, ecc.)
-- I filtri sono combinabili. Il reset azzera entrambi.
-- I tag disponibili vengono calcolati dinamicamente dalle foto caricate (`availableTags` computed signal)
-- Il query param `?eventId=` viene letto da `ActivatedRoute` — consente il deep link dalla pagina archivio eventi
+- *Serata* — per `archiveEventId`; *Tipologia* — per prefisso (EMONIGHT, EMOXMAS…), mostra tutte le tipologie anche senza foto
+- I filtri restano nell'URL (`?eventId=` e `?tipo=`), così il link si può condividere; dalla pagina Past Nights si arriva già filtrati
+
+**Caricamento:** 48 foto per volta (`PHOTO_PAGE_SIZE` in `utils/photo-filename.ts`) con il pulsante "[ Mostra altre — X di N ]"; cambiando filtro si riparte dal primo blocco. Sopra ogni foto resta il loader finché l'immagine non è arrivata.
 
 **Lightbox:**
-- Click su qualsiasi foto apre il lightbox fullscreen
-- Navigazione prev/next tra le foto filtrate
-- Click sull'overlay chiude il lightbox
-- Navigazione mobile con bottoni dedicati
+- Click su una foto apre il lightbox a tutto schermo, con nome del fotografo se presente
+- Navigazione prev/next in cerchio tra le foto filtrate
+- Pulsante di download: `photos/download.php` restituisce un JPG con nome casuale (il backend converte WebP/PNG una sola volta e poi riusa la copia)
 
 ### `ContactsComponent`
 Pagina contatti con tre sezioni:
-- **Socials** — link a Instagram, TikTok, Telegram, WhatsApp
+- **Socials** — link a Instagram, TikTok, WhatsApp (Telegram nascosto finché non c'è il link)
 - **Business & Booking** — copia email con feedback visivo
 - **FAQ** — domande frequenti con accordion nativo HTML `<details>`
 
@@ -195,6 +194,14 @@ Form di login admin con username e password (account separati nella tabella `adm
 ### `NotFoundComponent`
 Pagina 404 con link alla home.
 
+### `LoaderComponent` (`app-loader`)
+Loader "Amp Pulse": l'icona emo (`public/emo-boy-loader.webp`, 2,4 KB) pulsa con onde viola.
+- `label` — testo sotto l'icona, es. `label="Caricamento galleria"`
+- `size` — `'lg'` per le pagine (con la scritta SOUNDCHECK...), `'sm'` per riquadri e immagini
+- `overlay` — copre con un velo scuro il riquadro che lo contiene (che deve avere `position: relative`)
+
+Rispetta "riduci movimento" del sistema operativo.
+
 ---
 
 ## Dashboard admin
@@ -203,8 +210,10 @@ Accessibile solo dopo login su `/backstage`. Il path della dashboard è offuscat
 
 `DashboardComponent` è solo la cornice (menu, schede, logout). Ogni scheda è un componente a sé, sempre montato e solo nascosto quando non è attivo: cambiando scheda non si perdono file in caricamento, filtri e moduli. Le classi dei campi (`enp-input`, `enp-label`…) sono definite in `src/styles.css`.
 
+Durante un salvataggio, solo il riquadro interessato viene coperto da `<app-loader overlay>` con "// Salvataggio"; alla risposta il velo sparisce e il dato aggiornato è già visibile. Il caricamento delle foto a lotti usa invece la sua barra di avanzamento.
+
 ### `[01] Prossimo Evento` (`dashboard-evento`)
-Modifica titolo, data, orario, location, indirizzo, lineup e descrizione. Il modulo lavora su una copia: le modifiche arrivano al sito solo dopo il salvataggio. Se l'evento non si carica, il modulo resta vuoto e compare un avviso.
+Modifica titolo, data, orario, location, indirizzo, lineup e descrizione. Il modulo lavora su una copia: le modifiche arrivano al sito solo dopo il salvataggio. Se l'evento non si carica, il modulo resta vuoto e compare un avviso. La lineup offre sempre almeno 4 righe: lasciandole vuote, sul sito compare "Lineup in arrivo".
 
 ### `[02] Gestione Archivio` (`dashboard-archivio`)
 - Serate: volume, nome, tipologia, data vera, data mostrata, descrizione, poster (max 5 MB), Spotify e Live Music in modifica.
@@ -276,11 +285,24 @@ Il path della dashboard è offuscato per ridurre la superficie di attacco da bot
 ng build --configuration production
 ```
 
-L'output viene generato in `dist/enp-web/browser`, che Vercel pubblica come sito statico (`vercel.json`: rewrite verso `index.html`, header di sicurezza e CSP). La prima immagine LCP usa `loading="eager"`, le successive `loading="lazy"`.
+L'output viene generato in `dist/enp-web/browser`, che Vercel pubblica come sito statico (`vercel.json`: rewrite verso `index.html`, header di sicurezza e CSP con `script-src 'self'`). La prima immagine LCP usa `loading="eager"`, le successive `loading="lazy"`.
+
+**Primo avvio senza lampi:**
+- `angular.json` → `optimization.styles.inlineCritical: false`: il CSS (circa 9 KB compressi) si carica prima di disegnare la pagina, invece che in modo asincrono.
+- `src/index.html` contiene dentro `<app-root>` un loader con stile incorporato, visibile prima di CSS e JavaScript; Angular lo sostituisce quando la pagina è pronta.
+- Il font del logo (`public/fonts/AnotherDangerSlanted.otf`) e l'icona del loader sono precaricati con `<link rel="preload">`.
+
+**Dominio:** il dominio primario è `emonightpalermo.it`; `www.emonightpalermo.it` fa redirect 308 verso di esso (impostato in Vercel → Domains, non in `vercel.json`). Canonical, `og:url` e sitemap usano l'apex.
 
 ---
 
 ## Privacy e dati personali
 
-Il sito non raccoglie dati personali degli utenti. Non vengono usati cookie di tracciamento né social widget embedded. Per le statistiche di visita c'è Vercel Web Analytics (`@vercel/analytics`), che conta le visite in forma aggregata senza cookie. I link Google Maps e social aprono una nuova scheda verso servizi esterni senza embedding di iframe.
+L'informativa completa (art. 13 GDPR) è nella pagina `/legal` (`pages/privacy-policy`). **Da completare:** i dati identificativi del titolare del trattamento (commento `TODO titolare` nel template).
+
+In sintesi:
+- nessun form, cookie, `localStorage` o contenuto incorporato di terzi nelle pagine pubbliche; i font sono ospitati sul sito;
+- statistiche con Vercel Web Analytics (`@vercel/analytics`), aggregate e senza cookie;
+- le foto delle serate ritraggono persone e sono scaricabili: chi compare può chiederne la rimozione all'email del sito;
+- l'area staff (non citata in /legal perché riguarda solo lo staff) usa `sessionStorage` per il token; il backend conserva per 15 minuti l'hash degli IP dei tentativi di login falliti.
 
