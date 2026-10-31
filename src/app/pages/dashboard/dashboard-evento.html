@@ -10,7 +10,10 @@
     </p>
   </header>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+  <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-12">
+    @if (isSaving()) {
+      <app-loader overlay size="sm" label="Salvataggio" />
+    }
     <div class="space-y-6">
       <h3
         class="text-purple-500 font-bold uppercase text-[10px] tracking-[0.4em] mb-4 italic"

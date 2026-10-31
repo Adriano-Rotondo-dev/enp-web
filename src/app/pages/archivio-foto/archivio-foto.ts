@@ -3,11 +3,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { EnpPhoto } from '../../models/event.model';
 import { PHOTO_PAGE_SIZE, photoDisplayTitle } from '../../utils/photo-filename';
+import { LoaderComponent } from '../../components/loader/loader';
 
 @Component({
   selector: 'app-archivio-foto',
   standalone: true,
-  imports: [],
+  imports: [LoaderComponent],
   templateUrl: './archivio-foto.html'
 })
 export class ArchivioFotoComponent implements OnInit {
@@ -29,6 +30,12 @@ export class ArchivioFotoComponent implements OnInit {
 
   // ─── LIGHTBOX ───
   selectedPhoto = signal<EnpPhoto | null>(null);
+
+  // foto già arrivate (o fallite): sulle altre resta il loader
+  loaded = signal(new Set<number>());
+  markLoaded(id: number) {
+    this.loaded.update(ids => new Set(ids).add(id));
+  }
 
   // ─── DATI ───
   allPhotos = this.eventService.photos;

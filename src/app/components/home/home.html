@@ -151,10 +151,8 @@
             "{{ nextEvent().description }}"
           </p>
         } @else if (eventStatus() === 'loading') {
-          <div class="animate-pulse mb-8 md:mb-12" aria-busy="true" aria-label="Caricamento prossimo evento">
-            <div class="h-4 w-40 bg-white/20 mb-6"></div>
-            <div class="h-10 md:h-16 w-3/4 bg-white/10 mb-4"></div>
-            <div class="h-6 w-1/2 bg-purple-600/30"></div>
+          <div class="mb-8 md:mb-12">
+            <app-loader size="sm" label="Caricamento evento" />
           </div>
         } @else {
           <span

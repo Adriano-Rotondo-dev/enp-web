@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 
 import { ArchivioFotoComponent } from './archivio-foto';
 import { EnpPhoto } from '../../models/event.model';
+import { EventService } from '../../services/event.service';
 
 const PHOTOS: EnpPhoto[] = [
   { id: 1, url: 'a', title: '', tag: 'Crowd', eventTypeId: 1, eventTypePrefix: 'EMONIGHT', eventTypeLabel: 'Emo Night', eventDay: '2026-10-17', archiveEventId: 5 },
@@ -41,6 +42,19 @@ describe('ArchivioFotoComponent', () => {
     expect(component.visiblePhotos().length).toBe(100);
     component.activeType.set('EMONIGHT');
     expect(component.visiblePhotos().length).toBe(48);
+  });
+
+  it('sopra ogni foto resta il loader finché l\'immagine non è arrivata', async () => {
+    TestBed.inject(EventService).photosStatus.set('ready');
+    component.allPhotos.set(PHOTOS.slice(0, 2));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelectorAll('app-loader').length).toBe(2);
+    el.querySelector('img')!.dispatchEvent(new Event('load'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(el.querySelectorAll('app-loader').length).toBe(1);
   });
 
   it('il lightbox scorre in cerchio e riparte dalla prima se la foto non è più in lista', () => {

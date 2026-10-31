@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { EventService } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 import { NextEvent } from '../../models/event.model';
+import { LoaderComponent } from '../../components/loader/loader';
 
 const LINEUP_ROWS = 4;
 
@@ -10,7 +11,7 @@ const LINEUP_ROWS = 4;
 @Component({
   selector: 'app-dashboard-evento',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LoaderComponent],
   templateUrl: './dashboard-evento.html'
 })
 export class DashboardEventoComponent implements OnInit {

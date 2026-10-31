@@ -3,11 +3,12 @@ import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { EventService } from '../../services/event.service';
+import { LoaderComponent } from '../loader/loader';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, LoaderComponent],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })

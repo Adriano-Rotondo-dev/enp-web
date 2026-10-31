@@ -7,6 +7,7 @@ import {
   PHOTO_PAGE_SIZE, ParsedPhotoName, findArchiveMatch, formatDay, hasPhotoExtension, parsePhotoFileName, photoBaseName,
   photoDisplayTitle
 } from '../../utils/photo-filename';
+import { LoaderComponent } from '../../components/loader/loader';
 
 // riga dell'anteprima prima dell'invio
 export interface UploadPreviewRow {
@@ -31,7 +32,7 @@ function fileKey(file: File): string {
 @Component({
   selector: 'app-dashboard-foto',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LoaderComponent],
   templateUrl: './dashboard-foto.html'
 })
 export class DashboardFotoComponent {

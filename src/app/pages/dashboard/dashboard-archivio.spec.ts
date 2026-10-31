@@ -72,6 +72,21 @@ describe('Dashboard - tipologie evento', () => {
     expect(el.querySelector('#type-in-use-1')?.textContent).toContain('In uso');
   });
 
+  it('durante il salvataggio copre con il loader solo il riquadro che si sta salvando', async () => {
+    const render = async () => { fixture.detectChanges(); await fixture.whenStable(); };
+    component.startEditType(TYPES[1]);
+    component.editingTypeLabel.set('Emo Christmas');
+    component.saveTypeEdit();
+    await render();
+    const el: HTMLElement = fixture.nativeElement;
+    const overlays = el.querySelectorAll('app-loader.overlay');
+    expect(overlays.length).toBe(1);
+    expect(overlays[0].closest('aside')).not.toBeNull();
+    http.expectOne(r => r.url.endsWith('/event-types/update.php')).flush({ id: 2, prefix: 'EMOXMAS', label: 'Emo Christmas' });
+    await render();
+    expect(el.querySelectorAll('app-loader.overlay').length).toBe(0);
+  });
+
   it('rinomina una tipologia', () => {
     component.startEditType(TYPES[1]);
     component.editingTypeLabel.set('Emo Christmas');

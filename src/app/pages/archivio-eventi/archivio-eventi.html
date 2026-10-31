@@ -11,10 +11,8 @@
   </div>
 
   @if (status() === 'loading') {
-    <div class="max-w-5xl mx-auto py-24 text-center border border-white/10" role="status">
-      <p class="text-gray-600 text-[10px] uppercase tracking-[0.4em] font-black animate-pulse">
-        // Caricamento archivio...
-      </p>
+    <div class="max-w-5xl mx-auto py-16 border border-white/10">
+      <app-loader label="Caricamento archivio" />
     </div>
   } @else if (status() === 'unavailable') {
     <div class="max-w-5xl mx-auto py-24 px-6 text-center border border-white/10" role="status">
@@ -44,8 +42,13 @@
                 [alt]="event.name"
                 loading="lazy"
                 decoding="async"
+                (load)="markLoaded(event.id)"
+                (error)="markLoaded(event.id)"
                 class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
+              @if (!loaded().has(event.id)) {
+                <app-loader size="sm" class="absolute inset-0 grid place-items-center bg-gray-900" />
+              }
             }
 
             <!-- testing purpose -->

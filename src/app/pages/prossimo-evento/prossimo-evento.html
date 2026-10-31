@@ -92,9 +92,8 @@
         </div>
       </div>
     } @else if (eventStatus() === 'loading') {
-      <div class="animate-pulse border-l-8 border-white pl-6" aria-busy="true" aria-label="Caricamento prossimo evento">
-        <div class="h-16 md:h-24 w-3/4 bg-white/10 mb-4"></div>
-        <div class="h-4 w-1/2 bg-white/20"></div>
+      <div class="py-16">
+        <app-loader label="Caricamento prossimo evento" />
       </div>
     } @else {
       <div class="border-l-8 border-white pl-6 mb-16">

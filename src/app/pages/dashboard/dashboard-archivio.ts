@@ -4,6 +4,7 @@ import { EventService } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 import { ArchiveEvent, EventType } from '../../models/event.model';
 import { EVENT_TYPE_PREFIX_REGEX, formatDay } from '../../utils/photo-filename';
+import { LoaderComponent } from '../../components/loader/loader';
 
 const emptyArchiveEvent = (): ArchiveEvent => ({
   id: 0, vol: '', name: '', date: '', description: '', posterUrl: '', eventTypeId: null, eventDay: ''
@@ -13,7 +14,7 @@ const emptyArchiveEvent = (): ArchiveEvent => ({
 @Component({
   selector: 'app-dashboard-archivio',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LoaderComponent],
   templateUrl: './dashboard-archivio.html'
 })
 export class DashboardArchivioComponent {
@@ -21,7 +22,9 @@ export class DashboardArchivioComponent {
   private toast = inject(ToastService);
 
   formatDay = formatDay;
-  isSaving = signal(false);
+  // riquadro in salvataggio (nuova serata, serata in modifica, tipologie): lì compare il loader
+  saving = signal<'' | 'new' | 'edit' | 'type'>('');
+  isSaving = computed(() => !!this.saving());
 
   // Serate
   archiveEvents = this.eventService.archiveEvents;
@@ -50,7 +53,7 @@ export class DashboardArchivioComponent {
   );
 
   private saveFailed = (err: any) => {
-    this.isSaving.set(false);
+    this.saving.set('');
     this.toast.error(err?.error?.error ?? 'Salvataggio non riuscito');
   };
 
@@ -84,12 +87,12 @@ export class DashboardArchivioComponent {
   }
 
   saveToArchive() {
-    this.isSaving.set(true);
+    this.saving.set('new');
     this.eventService.addToArchive(this.newArchiveEvent(), this.selectedArchiveFile).subscribe({
       next: (res) => {
         this.newArchiveEvent.set(emptyArchiveEvent());
         this.selectedArchiveFile = null;
-        this.isSaving.set(false);
+        this.saving.set('');
         this.archiveSaved('Serata aggiunta all\'archivio', res);
         // ricarica l'archivio per avere l'id vero assegnato dal backend
         this.eventService.loadArchiveEvents().subscribe();
@@ -105,12 +108,12 @@ export class DashboardArchivioComponent {
   saveArchiveEventEdit() {
     const edited = this.editingArchiveEvent();
     if (!edited) return;
-    this.isSaving.set(true);
+    this.saving.set('edit');
     this.eventService.updateArchiveEvent(edited, this.selectedEditArchiveFile).subscribe({
       next: (res) => {
         this.editingArchiveEvent.set(null);
         this.selectedEditArchiveFile = null;
-        this.isSaving.set(false);
+        this.saving.set('');
         this.archiveSaved('Serata aggiornata', res);
       },
       error: this.saveFailed
@@ -144,16 +147,16 @@ export class DashboardArchivioComponent {
       this.toast.error(this.newTypePrefixError() ?? 'Prefisso e nome sono obbligatori');
       return;
     }
-    this.isSaving.set(true);
+    this.saving.set('type');
     this.eventService.addEventType(this.newTypePrefix(), this.newTypeLabel()).subscribe({
       next: (saved) => {
-        this.isSaving.set(false);
+        this.saving.set('');
         this.newTypePrefix.set('');
         this.newTypeLabel.set('');
         this.toast.success(`Tipologia ${saved.prefix} aggiunta`);
       },
       error: (err) => {
-        this.isSaving.set(false);
+        this.saving.set('');
         this.toast.error(err?.error?.error ?? (err?.status === 409 ? 'Prefisso già esistente' : 'Salvataggio non riuscito'));
       }
     });
@@ -172,10 +175,10 @@ export class DashboardArchivioComponent {
       this.toast.error('Il nome è obbligatorio (max 100 caratteri)');
       return;
     }
-    this.isSaving.set(true);
+    this.saving.set('type');
     this.eventService.updateEventType(id, label).subscribe({
       next: () => {
-        this.isSaving.set(false);
+        this.saving.set('');
         this.editingTypeId.set(null);
         this.toast.success('Tipologia aggiornata');
       },
