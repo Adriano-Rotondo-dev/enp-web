@@ -35,7 +35,7 @@ export class ProssimoEventoComponent implements OnInit {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.eventService.loadNextEvent().subscribe();
+      if (this.eventStatus() !== 'ready') this.eventService.loadNextEvent().subscribe();
     }
   }
 }

@@ -7,6 +7,9 @@ export const PHOTO_FILENAME_REGEX =
 
 export const PHOTO_EXTENSIONS = ['jpg', 'jpeg', 'jfif', 'png', 'webp'];
 
+// Foto mostrate per blocco ("Mostra altre"), in galleria e in dashboard
+export const PHOTO_PAGE_SIZE = 48;
+
 // Prefisso di una tipologia: solo A-Z e 0-9, 2-20 caratteri (dopo il maiuscolo)
 export const EVENT_TYPE_PREFIX_REGEX = /^[A-Z0-9]{2,20}$/;
 

@@ -131,7 +131,7 @@
 
     <!-- GRIGLIA FOTO -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      @for (photo of photos(); track photo.id) {
+      @for (photo of visiblePhotos(); track photo.id) {
         <div
           (click)="openPhoto(photo)"
           class="group relative overflow-hidden bg-gray-900 border border-white/10 aspect-4/5 cursor-crosshair"
@@ -181,6 +181,17 @@
         </div>
       }
     </div>
+
+    @if (photos().length > visiblePhotos().length) {
+      <div class="max-w-7xl mx-auto">
+        <button
+          (click)="showMorePhotos()"
+          class="w-full mt-10 border border-white/20 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:border-purple-600 hover:text-white transition-all"
+        >
+          [ Mostra altre — {{ visiblePhotos().length }} di {{ photos().length }} ]
+        </button>
+      </div>
+    }
   }
 </div>
 

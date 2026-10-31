@@ -33,6 +33,16 @@ describe('ArchivioFotoComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('mostra le foto a blocchi di 48 e riparte dal primo blocco cambiando filtro', () => {
+    component.allPhotos.set(Array.from({ length: 100 }, (_, i) => ({ id: i + 1, url: `u${i}`, eventTypePrefix: 'EMONIGHT' })));
+    expect(component.visiblePhotos().length).toBe(48);
+    component.showMorePhotos();
+    component.showMorePhotos();
+    expect(component.visiblePhotos().length).toBe(100);
+    component.activeType.set('EMONIGHT');
+    expect(component.visiblePhotos().length).toBe(48);
+  });
+
   it('il lightbox scorre in cerchio e riparte dalla prima se la foto non è più in lista', () => {
     component.allPhotos.set(PHOTOS);
     component.openPhoto(PHOTOS[2]);

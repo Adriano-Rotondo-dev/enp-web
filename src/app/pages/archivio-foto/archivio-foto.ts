@@ -1,8 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { EnpPhoto } from '../../models/event.model';
-import { photoDisplayTitle } from '../../utils/photo-filename';
+import { PHOTO_PAGE_SIZE, photoDisplayTitle } from '../../utils/photo-filename';
 
 @Component({
   selector: 'app-archivio-foto',
@@ -78,10 +78,23 @@ export class ArchivioFotoComponent implements OnInit {
     return filtered;
   });
 
+  // ─── MOSTRA ALTRE ───
+  // torna al primo blocco a ogni cambio di filtro
+  visibleCount = linkedSignal({
+    source: () => [this.activeEventId(), this.activeType()],
+    computation: () => PHOTO_PAGE_SIZE
+  });
+  visiblePhotos = computed(() => this.photos().slice(0, this.visibleCount()));
+
+  showMorePhotos() {
+    this.visibleCount.update(n => n + PHOTO_PAGE_SIZE);
+  }
+
   ngOnInit() {
-    this.eventService.loadPhotos().subscribe();
-    this.eventService.loadArchiveEvents().subscribe();
-    this.eventService.loadEventTypes().subscribe();
+    // dati già caricati in questa visita: niente richieste doppie tornando sulla pagina
+    if (this.status() !== 'ready') this.eventService.loadPhotos().subscribe();
+    if (this.eventService.archiveStatus() !== 'ready') this.eventService.loadArchiveEvents().subscribe();
+    if (!this.eventService.eventTypes().length) this.eventService.loadEventTypes().subscribe();
 
     // Legge i query param ?eventId= (dall'archivio eventi) e ?tipo=PREFIX
     this.route.queryParams.subscribe(params => {

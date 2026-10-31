@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 ngOnInit() {
   if (isPlatformBrowser(this.platformId)) {
-    this.eventService.loadNextEvent().subscribe();
+    if (this.eventStatus() !== 'ready') this.eventService.loadNextEvent().subscribe();
     this.carouselTimer = setInterval(() => this.nextImage(), 5000);
     this.updateCountdown();
     this.countdownTimer = setInterval(() => this.updateCountdown(), 1000);

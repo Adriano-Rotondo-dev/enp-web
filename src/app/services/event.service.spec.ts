@@ -140,7 +140,8 @@ describe('EventService - caricamento foto a lotti', () => {
       nomiNonConformi: ['IMG_1.jpg'], nomiDuplicati: ['EMONIGHT-17102026-002.jpg'], annullato: false
     });
     expect(service.uploadProgress()).toBeNull();
-    expect(service.photos().map(p => p.id)).toEqual([2, 1]);
+    // la lista non cambia durante il lotto: la ricarica la dashboard alla fine
+    expect(service.photos()).toEqual([]);
   });
 
   it('si ferma alla sessione scaduta', () => {
@@ -230,5 +231,15 @@ describe('EventService - tipologie evento', () => {
     expect(sent.eventTypeId).toBeNull();
     expect(sent.eventDay).toBeNull();
     req.flush({ success: true, linkedPhotos: 0 });
+  });
+
+  it('non rimanda l\'anteprima base64 del poster insieme al file', () => {
+    const preview = 'data:image/webp;base64,' + 'A'.repeat(1000);
+    service.updateArchiveEvent({ id: 3, vol: 'VOL. 1', name: 'X', date: '', description: '', posterUrl: preview }, new File(['x'], 'p.webp')).subscribe();
+    const req = http.expectOne(r => r.url.endsWith('/archive-events/update.php'));
+    const body = req.request.body as FormData;
+    expect(JSON.parse(body.get('event') as string).posterUrl).toBeUndefined();
+    expect(body.get('file')).toBeTruthy();
+    req.flush({ success: true, posterUrl: 'https://x/p.webp' });
   });
 });

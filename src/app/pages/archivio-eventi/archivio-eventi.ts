@@ -19,6 +19,6 @@ events = computed(() =>
 );
 
    ngOnInit() {
-    this.eventService.loadArchiveEvents().subscribe();
+    if (this.status() !== 'ready') this.eventService.loadArchiveEvents().subscribe();
   }
 }

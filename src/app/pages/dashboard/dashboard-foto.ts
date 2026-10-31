@@ -4,7 +4,8 @@ import { EventService } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 import { ArchiveEvent, EnpPhoto, PhotoUploadMeta, UploadSummary } from '../../models/event.model';
 import {
-  ParsedPhotoName, findArchiveMatch, formatDay, hasPhotoExtension, parsePhotoFileName, photoBaseName, photoDisplayTitle
+  PHOTO_PAGE_SIZE, ParsedPhotoName, findArchiveMatch, formatDay, hasPhotoExtension, parsePhotoFileName, photoBaseName,
+  photoDisplayTitle
 } from '../../utils/photo-filename';
 
 // riga dell'anteprima prima dell'invio
@@ -19,7 +20,6 @@ export interface UploadPreviewRow {
   troppoGrande: boolean;         // oltre 5 MB: il backend risponde 413
 }
 
-export const PHOTO_PAGE_SIZE = 48;
 export const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // limite del backend
 
 // chiave univoca di un file scelto (dalla cartella conta anche il percorso)

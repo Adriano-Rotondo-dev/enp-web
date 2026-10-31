@@ -117,8 +117,10 @@ export class EventService {
     return { ...item, eventTypePrefix: type?.prefix ?? null, eventTypeLabel: type?.label ?? null };
   }
 
-  // corpo multipart della serata: tipologia e data vuote diventano null
-  private archiveForm(event: ArchiveEvent, file: File | null): FormData {
+  // corpo multipart della serata: tipologia e data vuote diventano null.
+  // posterUrl non si invia: può contenere l'anteprima in base64 (il file viaggia già a parte)
+  // e il backend lo ignora comunque
+  private archiveForm({ posterUrl, ...event }: ArchiveEvent, file: File | null): FormData {
     const formData = new FormData();
     formData.append('event', JSON.stringify({
       ...event,
@@ -201,9 +203,8 @@ export class EventService {
     if (meta.archiveEventId != null) photo['archiveEventId'] = meta.archiveEventId;
     if (Object.keys(photo).length) formData.append('photo', JSON.stringify(photo));
     formData.append('file', file);
-    return this.http.post<UploadedPhoto>(`${this.apiUrl}/photos/upload.php`, formData).pipe(
-      tap(saved => this.photos.update(photos => [saved, ...photos]))
-    );
+    // la lista non si aggiorna foto per foto: a fine lotto la dashboard la ricarica una volta sola
+    return this.http.post<UploadedPhoto>(`${this.apiUrl}/photos/upload.php`, formData);
   }
 
   /**
